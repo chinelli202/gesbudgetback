@@ -16,3 +16,15 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('users', function () {
+        // Matches The "/admin/users" URL
+        $route = Route::currentRouteName();
+
+        return $route;
+    })->name('users');
+});
+Auth::routes();
+
+Route::get('/home', 'HomeController@index')->name('home');

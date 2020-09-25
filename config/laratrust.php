@@ -269,7 +269,7 @@ return [
         | will be accessible from.
         |
         */
-        'path' => 'laratrust',
+        'path' => 'access-panel',
 
         /*
         |--------------------------------------------------------------------------
