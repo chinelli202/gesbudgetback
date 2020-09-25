@@ -25,6 +25,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         return $route;
     })->name('users');
 });
+
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
