@@ -17,3 +17,13 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::post("create-user", "UserController@createUser")->name('createUser');
+
+Route::post("user-login", "UserController@userLogin")->name('userLogin');
+
+Route::get("user-login", "UserController@getLogin")->name('getLogin');
+
+Route::group(['middleware' => 'auth:api'], function () {
+    Route::get("user-detail", "UserController@userDetail");   
+});
