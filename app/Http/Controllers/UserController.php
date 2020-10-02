@@ -84,6 +84,15 @@ class UserController extends Controller
         return response()->json(["status" => "failed", "success" => false, "message" => "You are not authenticated. You should login to perfom this action"]);
     }
 
+    // -------------- [ User Logout ] ---------------
+    public function userLogout(Request $request) {
+        $request->user()->token()->revoke();
+        return response()->json([
+            "status" => $this->sucess_status,
+            'message' => 'Successfully logged out'
+        ]);
+    }
+
     // ---------------- [ User Detail ] -------------------
     public function userDetail() {
         $user           =       Auth::user();
