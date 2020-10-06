@@ -27,7 +27,6 @@ class CreateUsersTable extends Migration
             $table->string('saisisseur')->nullable();
             $table->string('valideur')->nullable();
             $table->string('statut_utilisateur')->nullable();
-            $table->json('roles')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

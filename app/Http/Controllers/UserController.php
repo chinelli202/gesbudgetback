@@ -48,11 +48,12 @@ class UserController extends Controller
             'fonction'          =>          $request->fonction,
             'saisisseur'        =>          $current_user ? $current_user->matricule : 'admin0', 
             'valideur'          =>          'NA', 
-            'statut_utilisateur'=>          'init',
-            'roles'             =>          ['guest']
+            'statut_utilisateur'=>          'init'
         );
 
         $user               =               User::create($dataArray);
+        $user->attachRole('user');
+        $user['roles'] = $user->getRoles();
 
         if(!is_null($user)) {
             return response()->json(["status" => $this->sucess_status, "success" => true, "data" => $user]);
@@ -71,6 +72,7 @@ class UserController extends Controller
             $user       =       Auth::user();
             $token      =       $user->createToken('token')->accessToken;
             $user['token'] = $token;
+            $user['roles'] = $user->getRoles();
 
             return response()->json(["status" => $this->sucess_status, "success" => true, "login" => true, "token" => $token, "data" => $user]);
         }
@@ -94,8 +96,10 @@ class UserController extends Controller
     }
 
     // ---------------- [ User Detail ] -------------------
-    public function userDetail() {
+    public function userDetail(Request $request) {
         $user           =       Auth::user();
+        $user['roles'] = $request->user()->getRoles();
+
         if(!is_null($user)) {
             return response()->json(["status" => $this->sucess_status, "success" => true, "data" => $user]);
         }
