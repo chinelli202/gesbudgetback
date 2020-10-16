@@ -19,11 +19,11 @@ class UserController extends Controller
                 'first_name'        =>        'required',
                 'last_name'         =>        'required',
                 'email'             =>        'required|email|unique:users',
-                'matricule'         =>        'required|unique:users',
-                'password'          =>        'required|alpha_num|min:5',
+                'matricule'         =>        'required|alpha_num|unique:users',
+                'password'          =>        'required|min:5',
                 'confirm_password'  =>        'required|same:password',
-                'division'          =>        'required', 
-                'fonction'          =>        'required',
+                'division'          =>        'required',
+                'fonction'          =>        'required'
             ]
         );
 
@@ -46,8 +46,8 @@ class UserController extends Controller
             "password"          =>          bcrypt($request->password),
             'division'          =>          $request->division, 
             'fonction'          =>          $request->fonction,
-            'saisisseur'        =>          $current_user ? $current_user->matricule : 'admin0', 
-            'valideur'          =>          'NA', 
+            'saisisseur'        =>          $current_user ? $current_user->matricule : 'Admin0', 
+            'valideur'          =>          $current_user ? $current_user->matricule : 'NA', 
             'statut_utilisateur'=>          'init'
         );
 
