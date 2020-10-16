@@ -61,6 +61,38 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Laratrust Default values
+    |--------------------------------------------------------------------------
+    |
+    | Defines default values to be used by laratrust in other to perform specific actions.
+    | Added by Stephane.
+    | 
+    */
+    'default_values' => [
+        'user_role' => ['user'],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Constant values
+    |--------------------------------------------------------------------------
+    |
+    | Defines constant values to be used by laratrust in other to perform specific actions.
+    | Added by Stephane.
+    | 
+    */
+    'constants' => [
+        'user_status' => [
+            'INITIATED' => 'Init',
+
+            'VALIDATED' => 'Active',
+            
+            'DELETED' => 'Deleted'
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Laratrust User Models
     |--------------------------------------------------------------------------
     |
@@ -299,7 +331,7 @@ return [
         | Enable/Disable the permissions assignment to the users.
         |
         */
-        'assign_permissions_to_user' => true,
+        'assign_permissions_to_user' => false,
 
         /*
         |--------------------------------------------------------------------------
