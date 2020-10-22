@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use Illuminate\Support\Facades\Config;
 
 class UserController extends Controller
 {
@@ -46,9 +47,9 @@ class UserController extends Controller
             "password"          =>          bcrypt($request->password),
             'division'          =>          $request->division, 
             'fonction'          =>          $request->fonction,
-            'saisisseur'        =>          $current_user ? $current_user->matricule : 'Admin0', 
+            'saisisseur'        =>          $current_user ? $current_user->matricule : Config::get('laratrust.constants.user_creation_source.API'), 
             'valideur'          =>          $current_user ? $current_user->matricule : 'NA', 
-            'statut_utilisateur'=>          'init'
+            'statut_utilisateur'=>          Config::get('laratrust.constants.user_status.INITIATED')
         );
 
         $user               =               User::create($dataArray);
