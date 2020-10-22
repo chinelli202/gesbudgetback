@@ -19,15 +19,19 @@ class LaratrustSetupTables extends Migration
             $table->string('name')->unique();
             $table->string('display_name')->nullable();
             $table->string('description')->nullable();
+            $table->string('saisisseur')->nullable();
+            $table->string('valideur')->nullable();
             $table->timestamps();
         });
 
         // Create table for storing permissions
         Schema::create('permissions', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('name')->unique();
-            $table->string('display_name')->nullable();
+            $table->string('code')->unique();
+            $table->string('name')->nullable();
             $table->string('description')->nullable();
+            $table->string('saisisseur')->nullable();
+            $table->string('valideur')->nullable();
             $table->timestamps();
         });
 

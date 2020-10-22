@@ -89,6 +89,13 @@ return [
             
             'DELETED' => 'Deleted'
         ],
+        'user_creation_source' => [
+            'API' => 'API',
+
+            'ADMIN_UI' => 'AdminUI',
+
+            'SEEDER' => 'Seeder'
+        ],
     ],
 
     /*

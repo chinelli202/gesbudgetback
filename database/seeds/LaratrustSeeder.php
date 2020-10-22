@@ -18,6 +18,7 @@ class LaratrustSeeder extends Seeder
 
         $config = config('laratrust_seeder.roles_structure');
         $mapPermission = collect(config('laratrust_seeder.permissions_map'));
+        $increment = 1;
 
         foreach ($config as $key => $modules) {
 
@@ -25,7 +26,9 @@ class LaratrustSeeder extends Seeder
             $role = \App\Models\Role::firstOrCreate([
                 'name' => $key,
                 'display_name' => ucwords(str_replace('_', ' ', $key)),
-                'description' => ucwords(str_replace('_', ' ', $key))
+                'description' => ucwords(str_replace('_', ' ', $key)),
+                'saisisseur' => Config::get('laratrust.constants.user_creation_source.SEEDER'),
+                'valideur' => 'NA',
             ]);
             $permissions = [];
 
@@ -39,9 +42,11 @@ class LaratrustSeeder extends Seeder
                     $permissionValue = $mapPermission->get($perm);
 
                     $permissions[] = \App\Models\Permission::firstOrCreate([
-                        'name' => $module . '-' . $permissionValue,
-                        'display_name' => ucfirst($permissionValue) . ' ' . ucfirst($module),
+                        'code' => $module . '-' . $permissionValue,
+                        'name' => ucfirst($permissionValue) . ' ' . ucfirst($module),
                         'description' => ucfirst($permissionValue) . ' ' . ucfirst($module),
+                        'saisisseur' => Config::get('laratrust.constants.user_creation_source.SEEDER'),
+                        'valideur' => 'NA',
                     ])->id;
 
                     $this->command->info('Creating Permission to '.$permissionValue.' for '. $module);
@@ -55,13 +60,19 @@ class LaratrustSeeder extends Seeder
                 $this->command->info("Creating '{$key}' user");
                 // Create default user for each role
                 $user = \App\Models\User::create([
+                    'matricule' => '0000'. $increment,
                     'name' => ucwords(str_replace('_', ' ', $key)),
                     'email' => $key.'@app.com',
-                    'password' => bcrypt('password')
+                    'password' => bcrypt('12345'),
+                    'saisisseur' => Config::get('laratrust.constants.user_creation_source.SEEDER'),
+                    'statut_utilisateur' => Config::get('laratrust.constants.user_status.INITIATED'),
+                    'valideur' => 'NA',
+                    'division' => 'DBC',
+                    'fonction' => 'cadre'
                 ]);
                 $user->attachRole($role);
             }
-
+            $increment += 1;
         }
     }
 
