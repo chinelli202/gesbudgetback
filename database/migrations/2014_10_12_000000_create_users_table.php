@@ -24,8 +24,9 @@ class CreateUsersTable extends Migration
             $table->string('password');
             $table->string('division')->nullable();
             $table->string('fonction')->nullable();
-            $table->string('saisisseur')->nullable();
+            $table->string('saisisseur');
             $table->string('valideur')->nullable();
+            $table->string('source');
             $table->string('statut_utilisateur')->nullable();
             $table->rememberToken();
             $table->timestamps();

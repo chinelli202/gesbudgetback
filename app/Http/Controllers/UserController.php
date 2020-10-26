@@ -47,8 +47,9 @@ class UserController extends Controller
             "password"          =>          bcrypt($request->password),
             'division'          =>          $request->division, 
             'fonction'          =>          $request->fonction,
-            'saisisseur'        =>          $current_user ? $current_user->matricule : Config::get('laratrust.constants.user_creation_source.API'), 
-            'valideur'          =>          $current_user ? $current_user->matricule : 'NA', 
+            'saisisseur'        =>          $current_user ? $current_user->matricule : 'NA', 
+            'valideur'          =>          $current_user ? $current_user->matricule : 'NA',
+            'source'            =>          $current_user ? $current_user->matricule : Config::get('laratrust.constants.user_creation_source.API'),
             'statut_utilisateur'=>          Config::get('laratrust.constants.user_status.INITIATED')
         );
 
