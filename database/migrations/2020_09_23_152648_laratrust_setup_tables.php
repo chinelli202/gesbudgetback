@@ -19,9 +19,15 @@ class LaratrustSetupTables extends Migration
             $table->string('name')->unique();
             $table->string('display_name')->nullable();
             $table->string('description')->nullable();
-            $table->string('saisisseur')->nullable();
+            $table->string('saisisseur');
             $table->string('valideur')->nullable();
+            $table->string('source');
             $table->timestamps();
+
+            // $table->foreign('saisisseur')->references('matricule')->on('user')
+            //     ->onUpdate('cascade')->onDelete('cascade');
+            // $table->foreign('valideur')->references('matricule')->on('user')
+            //     ->onUpdate('cascade')->onDelete('cascade');
         });
 
         // Create table for storing permissions
@@ -30,9 +36,15 @@ class LaratrustSetupTables extends Migration
             $table->string('code')->unique();
             $table->string('name')->nullable();
             $table->string('description')->nullable();
-            $table->string('saisisseur')->nullable();
+            $table->string('saisisseur');
             $table->string('valideur')->nullable();
+            $table->string('source');
             $table->timestamps();
+
+            // $table->foreign('saisisseur')->references('matricule')->on('user')
+            //     ->onUpdate('cascade')->onDelete('cascade');
+            // $table->foreign('valideur')->references('matricule')->on('user')
+            //     ->onUpdate('cascade')->onDelete('cascade');
         });
 
         // Create table for associating roles to users and teams (Many To Many Polymorphic)

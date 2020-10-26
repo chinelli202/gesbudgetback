@@ -27,8 +27,9 @@ class LaratrustSeeder extends Seeder
                 'name' => $key,
                 'display_name' => ucwords(str_replace('_', ' ', $key)),
                 'description' => ucwords(str_replace('_', ' ', $key)),
-                'saisisseur' => Config::get('laratrust.constants.user_creation_source.SEEDER'),
+                'saisisseur' => 'NA',
                 'valideur' => 'NA',
+                'source' => Config::get('laratrust.constants.user_creation_source.SEEDER')
             ]);
             $permissions = [];
 
@@ -45,8 +46,9 @@ class LaratrustSeeder extends Seeder
                         'code' => $module . '-' . $permissionValue,
                         'name' => ucfirst($permissionValue) . ' ' . ucfirst($module),
                         'description' => ucfirst($permissionValue) . ' ' . ucfirst($module),
-                        'saisisseur' => Config::get('laratrust.constants.user_creation_source.SEEDER'),
+                        'saisisseur' => 'NA',
                         'valideur' => 'NA',
+                        'source' => Config::get('laratrust.constants.user_creation_source.SEEDER')
                     ])->id;
 
                     $this->command->info('Creating Permission to '.$permissionValue.' for '. $module);
@@ -64,9 +66,10 @@ class LaratrustSeeder extends Seeder
                     'name' => ucwords(str_replace('_', ' ', $key)),
                     'email' => $key.'@app.com',
                     'password' => bcrypt('12345'),
-                    'saisisseur' => Config::get('laratrust.constants.user_creation_source.SEEDER'),
+                    'saisisseur' => 'NA',
                     'statut_utilisateur' => Config::get('laratrust.constants.user_status.INITIATED'),
                     'valideur' => 'NA',
+                    'source'  => Config::get('laratrust.constants.user_creation_source.SEEDER'),
                     'division' => 'DBC',
                     'fonction' => 'cadre'
                 ]);
