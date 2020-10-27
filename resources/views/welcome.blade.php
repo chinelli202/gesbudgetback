@@ -64,6 +64,9 @@
         </style>
     </head>
     <body>
+        {{ 'PEG'.substr(now()->format('ymd-His-u'),0,16) }} 
+        {{ rand(1,3) }}<br/>
+        {{ $user->name }}
         <div class="flex-center position-ref full-height">
             @if (Route::has('login'))
                 <div class="top-right links">
