@@ -29,15 +29,18 @@ return [
             'DDP' => 'Demande de prêt'
         ],
         'etat_engagement'    => [
+            'INIT' => 'Initié',
+            'CLOT' => 'Clôturé',
             'PEG' => 'Pré-engagé',
             'IMP' => 'Imputé',
             'REA' => 'Réalisé'
         ],
         'statut_engagement' => [
+            'VALIDF_NOEXC' => 'Validé au niveau final sans exécution (imputation ou apurement)',
             'SAISI' => 'Saisi',
             'VALIDP' => 'Validé au premier niveau',
             'VALIDS' => 'Validé au second niveau',
-            'VALIDF' => 'Valié au niveau final'
+            'VALIDF' => 'Validé au niveau final'
         ]
     ]
 ];

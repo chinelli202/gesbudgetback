@@ -19,10 +19,13 @@ class CreateApurementsTable extends Migration
             $table->string('engagement_id');
             $table->string('libelle');
             $table->string('reference_paiement');
-            $table->string('montant_ht')->nullable();
-            $table->string('montant_ttc');
+            $table->bigInteger('montant_ht')->nullable();
+            $table->bigInteger('montant_ttc');
             $table->string('devise');
             $table->string('observations');
+
+            $table->string('statut');
+
             $table->string('saisisseur');
             $table->string('valideur_first')->nullable();
             $table->string('valideur_second')->nullable();

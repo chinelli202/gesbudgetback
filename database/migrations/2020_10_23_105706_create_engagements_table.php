@@ -28,8 +28,10 @@ class CreateEngagementsTable extends Migration
             $table->string('etat');
             $table->string('statut');
             
-            $table->bigInteger('cumul_imputations');
-            $table->bigInteger('cumul_apurements');
+            $table->integer('nb_imputations')->default(0);
+            $table->bigInteger('cumul_imputations')->default(0);
+            $table->integer('nb_apurements')->default(0);
+            $table->bigInteger('cumul_apurements')->default(0);
             $table->string('saisisseur');
             $table->string('valideur_first')->nullable();
             $table->string('valideur_second')->nullable();

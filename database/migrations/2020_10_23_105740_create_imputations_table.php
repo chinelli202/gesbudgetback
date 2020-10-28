@@ -22,6 +22,9 @@ class CreateImputationsTable extends Migration
             $table->bigInteger('montant_ttc');
             $table->string('devise');
             $table->string('observations');
+
+            $table->string('statut');
+            
             $table->string('saisisseur');
             $table->string('valideur_first')->nullable();
             $table->string('valideur_second')->nullable();
