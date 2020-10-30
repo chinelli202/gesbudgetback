@@ -28,3 +28,5 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::get("user-detail", "UserController@userDetail");
     Route::get("user-logout", "UserController@userLogout")->name('userLogout');
 });
+
+Route::get('/budgetsfonctionnement',"MockBudgetFonctionnementController@index");
