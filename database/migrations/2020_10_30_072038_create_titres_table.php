@@ -1,0 +1,37 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class CreateTitresTable extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('titres', function (Blueprint $table) {
+            $table->id();
+            $table->timestamps();
+            $table->string('label');
+            $table->string('description');
+            $table->enum('statut', ['draft','soumis','validé']);
+            $table->enum('domaine', ['Fonctionnement','Mandat']);
+            $table->enum('section', ['Dépenses','Recettes']);
+            $table->string('numero');
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('titres');
+    }
+}
