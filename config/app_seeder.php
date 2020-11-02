@@ -18,7 +18,7 @@ return [
         ],
         'nature_engagement'    => [
             'PEG' => ['Pré-engagement', 'NA'],
-            'REA' => ['realisation', 'NA']
+            'REA' => ['Réalisation directe', 'NA']
         ],
         'type_engagement'      => [
             'BDC' => ['Bon de Commande', 'NA'], 
