@@ -19,6 +19,7 @@ class CreateVariablesTable extends Migration
             $table->string('cle');
             $table->string('code');
             $table->string('libelle');
+            $table->string('valeur');
             $table->string('saisisseur');
             $table->string('source');
 

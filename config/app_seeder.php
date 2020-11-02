@@ -12,35 +12,38 @@ return [
 
     'variables' => [
         'devise'               => [
-            'XAF' => 'Franc CFA',
-            'USD' => 'Dollar USD',
-            'EUR' => 'Euro'
+            'XAF' => ['Franc CFA', 'NA'],
+            'USD' => ['Dollar USD', 'NA'],
+            'EUR' => ['Euro', 'NA']
         ],
         'nature_engagement'    => [
-            'PEG' => 'Pré-engagement',
-            'REA' => 'realisation'
+            'PEG' => ['Pré-engagement', 'NA'],
+            'REA' => ['realisation', 'NA']
         ],
         'type_engagement'      => [
-            'BDC' => 'Bon de Commande', 
-            'DDM' => 'Demande de mission',
-            'DDF' => 'Demande de fond',
-            'LDC' => 'Lettre de commande',
-            'MAR' => 'Marché',
-            'DDP' => 'Demande de prêt'
+            'BDC' => ['Bon de Commande', 'NA'], 
+            'DDM' => ['Demande de mission', 'NA'],
+            'DDF' => ['Demande de fond', 'NA'],
+            'LDC' => ['Lettre de commande', 'NA'],
+            'MAR' => ['Marché', 'NA'],
+            'DDP' => ['Demande de prêt', 'NA']
         ],
         'etat_engagement'    => [
-            'INIT' => 'Initié',
-            'CLOT' => 'Clôturé',
-            'PEG' => 'Pré-engagé',
-            'IMP' => 'Imputé',
-            'REA' => 'Réalisé'
+            'INIT' => ['Initié', 'NA'],
+            'CLOT' => ['Clôturé', 'NA'],
+            'PEG' => ['Pré-engagé', 'NA'],
+            'IMP' => ['Imputé', 'NA'],
+            'REA' => ['Réalisé', 'NA']
         ],
         'statut_engagement' => [
-            'VALIDF_NOEXC' => 'Validé au niveau final sans exécution (imputation ou apurement)',
-            'SAISI' => 'Saisi',
-            'VALIDP' => 'Validé au premier niveau',
-            'VALIDS' => 'Validé au second niveau',
-            'VALIDF' => 'Validé au niveau final'
+            'VALIDF_NOEXC' => ['Validé au niveau final sans exécution (imputation ou apurement)', 'NA'],
+            'SAISI' => ['Saisi', 'NA'],
+            'VALIDP' => ['Validé au premier niveau', 'NA'],
+            'VALIDS' => ['Validé au second niveau', 'NA'],
+            'VALIDF' => ['Validé au niveau final', 'NA']
+        ],
+        'constante' => [
+            'TVA' => ['Taxe sur la valeur ajoutée au Cameroun', '19,25']
         ]
     ]
 ];
