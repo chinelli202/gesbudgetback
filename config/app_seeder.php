@@ -43,7 +43,7 @@ return [
             'VALIDF' => ['Validé au niveau final', 'NA']
         ],
         'constante' => [
-            'TVA' => ['Taxe sur la valeur ajoutée au Cameroun', '19,25']
+            'TVA' => ['Taxe sur la valeur ajoutée au Cameroun', '19.25']
         ]
     ]
 ];
