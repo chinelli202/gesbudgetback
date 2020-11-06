@@ -7,10 +7,67 @@ use App\Models\Engagement;
 use App\Models\User;
 use App\Models\Variable;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Validator;
 
 class EngagementController extends Controller
 {
     private $sucess_status = 200;
+    protected $engagementCreateValidator;
+    protected $engagementUpdateValidator;
+    
+    public function __construct()
+    {
+        $tva = Variable::where([['cle', '=', 'CONSTANTE'], ['code', '=', 'TVA']])
+            ->orderBy('code')
+            ->first()['valeur'];
+
+        // TODO : Améliorer la validation pour inclure 
+        // . montant_ttc = montant_ht*tva
+        // . valideur_... required en fonction du statut de l'engagement
+        // . nb_... & cumul_... required ou >0 en fonction du statut de l'engagement
+        // . source exists in l'ensemble des valeurs possible de source
+        $this->engagementCreateValidator = [
+            'code'              =>          'required|alpha_dash|unique:engagements',
+            'libelle'           =>          'required',
+            'montant_ht'        =>          'required',
+            'montant_ttc'       =>          'required',
+            'devise'            =>          'required|exists:variables,code',
+            'nature'            =>          'required|exists:variables,code',
+            'type'              =>          'required|exists:variables,code',
+            'etat'              =>          'required|exists:variables,code',
+            'statut'            =>          'required|exists:variables,code',
+            'nb_imputations'    =>          'nullable|integer',
+            'cumul_imputations' =>          'nullable|integer',
+            'nb_apurements'     =>          'nullable|integer',
+            'cumul_apurements'  =>          'nullable|integer',
+            'saisisseur'        =>          'required|exists:users,matricule',
+            'valideur_first'    =>          'nullable|exists:users,matricule',
+            'valideur_second'   =>          'nullable|exists:users,matricule',
+            'valideur_final'    =>          'nullable|exists:users,matricule',
+            'source'            =>          'required'
+        ];
+
+        $this->engagementUpdateValidator = [
+            'code'              =>          'required|alpha_dash',
+            'libelle'           =>          'required',
+            'montant_ht'        =>          'required|integer',
+            'montant_ttc'       =>          'required|integer',
+            'devise'            =>          'required|exists:variables,code',
+            'nature'            =>          'required|exists:variables,code',
+            'type'              =>          'required|exists:variables,code',
+            'etat'              =>          'required|exists:variables,code',
+            'statut'            =>          'required|exists:variables,code',
+            'nb_imputations'    =>          'nullable|integer',
+            'cumul_imputations' =>          'nullable|integer',
+            'nb_apurements'     =>          'nullable|integer',
+            'cumul_apurements'  =>          'nullable|integer',
+            'saisisseur'        =>          'required|exists:users,matricule',
+            'valideur_first'    =>          'nullable|exists:users,matricule',
+            'valideur_second'   =>          'nullable|exists:users,matricule',
+            'valideur_final'    =>          'nullable|exists:users,matricule',
+            'source'            =>          'required'
+        ];
+    }
 
     public function getEngagements(Request $request){
         $etat = $request->etat;
@@ -49,5 +106,30 @@ class EngagementController extends Controller
         $engagement["statut_libelle"] = $statut->libelle ?? '';
 
         return response()->json(["status" => $this->sucess_status, "success" => true, "data" => $engagement]);
+    }
+
+    public function updateEngagement(Request $request){
+        $engagementId = $request->id;
+        $validator = Validator::make($request->all(), $this->engagementUpdateValidator);
+
+        if($validator->fails()) {
+            return response()->json(["validation_errors" => $validator->errors()]);
+        }
+
+        $engagement = Engagement::findOrFail($engagementId);
+        // $engagement['libelle'] = $request->libelle;
+        // $engagemnet['montant_ttc'] = $request->montant_ttc;
+        // $engagemnet['montant_ht'] = $request->montant_ht;
+        // $engagement['devise'] = $request->devise;
+        // $engagement['type'] = $request->type;
+
+        $engagement->update([
+            "libelle" => $request->libelle,
+            "montant_ttc" => $request->montant_ttc,
+            "montant_ht" => $request->montant_ht,
+            "devise" => $request->devise,
+            "type" => $request->type
+        ]);
+        return response()->json(["status" => $this->sucess_status, "success" => true, "message" => "Engagement '". $engagement->code ."'mis à jour avec succès'"]);
     }
 }

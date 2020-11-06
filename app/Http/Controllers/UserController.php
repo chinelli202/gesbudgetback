@@ -101,6 +101,7 @@ class UserController extends Controller
     public function userDetail(Request $request) {
         $user           =       Auth::user();
         $user['roles'] = $request->user()->getRoles();
+        $user['permissions'] = $request->user()->allPermissions();
 
         if(!is_null($user)) {
             return response()->json(["status" => $this->sucess_status, "success" => true, "data" => $user]);

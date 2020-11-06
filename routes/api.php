@@ -31,5 +31,7 @@ Route::group(['middleware' => 'auth:api'], function () {
     
     Route::get("engagement/{id}", "EngagementController@getEngagement")->name('getEngagement');
     Route::get("getengagements", "EngagementController@getEngagements")->name('getEngagements');
+    Route::post("engagement/{id}", "EngagementController@updateEngagement")->name("updateEngagement");
+
     Route::get("getvariables", "VariableController@getvariables")->name('getvariables');
 });
