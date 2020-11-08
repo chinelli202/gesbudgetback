@@ -152,7 +152,7 @@ class EngagementSeeder extends Seeder
      */
     public function createEngagement($typeEng, $montant, $devise, $natureEng, $etatEng, $statutEng ){
         $engagement = \App\Models\Engagement::firstOrCreate([
-            'code' => $typeEng .substr(now()->format('ymd-His-u'),0,16), 
+            'code' => $typeEng .substr(now()->format('ymd-His-u'),0,17), 
             'libelle' => 'Engagement de type ' . $typeEng . ' du '. now(),
             'montant_ht' => $montant,
             'montant_ttc' => $montant*1.1925,
