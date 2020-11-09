@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\Engagement;
 use App\Models\User;
 use App\Models\Variable;
+use App\Models\HistoriqueExecutionBudget;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Validator;
 
@@ -108,7 +110,7 @@ class EngagementController extends Controller
         return response()->json(["status" => $this->sucess_status, "success" => true, "data" => $engagement]);
     }
 
-    public function updateEngagement(Request $request){
+    public function update(Request $request){
         $engagementId = $request->id;
         $validator = Validator::make($request->all(), $this->engagementUpdateValidator);
 
@@ -133,7 +135,7 @@ class EngagementController extends Controller
         return response()->json(["status" => $this->sucess_status, "success" => true, "message" => "Engagement '". $engagement->code ."'mis à jour avec succès'"]);
     }
 
-    public function resendUpdateEngagement(Request $request){
+    public function resendUpdate(Request $request){
         $engagementId = $request->id;
         $validator = Validator::make($request->all(), $this->engagementUpdateValidator);
 
@@ -156,5 +158,22 @@ class EngagementController extends Controller
             "next_statut" => null
         ]);
         return response()->json(["status" => $this->sucess_status, "success" => true, "message" => "Engagement '". $engagement->code ."'mis à jour avec succès'"]);
+    }
+
+    public function addComment(Request $request){
+        $engagement = Engagement::findOrFail($request->id);
+        $comment = HistoriqueExecutionBudget::create([
+            'editeur' => Auth::user()->matricule,
+            'type_edition' => Config::get('gesbudget.variables.actions.ADD_COMMENT')[0],
+            'id_objet_edite' => $engagement->id,
+            'type_objet_edite' => 'engagements',
+            'commentaire' =>  $request->comment
+        ]);
+
+        return response()->json([
+            "status" => $this->sucess_status
+            , "success" => true
+            , "message" => "Commentaire ajouté à l'Engagement '". $engagement->code ."'avec succès'"
+        ]);
     }
 }

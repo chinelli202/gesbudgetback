@@ -44,6 +44,20 @@ return [
         ],
         'constante' => [
             'TVA' => ['Taxe sur la valeur ajoutée au Cameroun', '19.25']
+        ],
+        'actions' => [
+            'VALIDP' => ['VALIDP', 'Validation premier niveau'],
+            'VALIDS' => ['VALIDS', 'Validation second niveau'],
+            'VALIDF' => ['VALIDF', 'Validation niveau final'],
+            'UPDATE' => ['UPDATE', 'Mise à jour'],
+            'CLOSE' => ['CLOSE', 'Clôture'],
+            'RESTORE' => ['RESTORE', 'Restauration'],
+            'SEND_BACK' => ['SEND_BACK', 'Renvoi'],
+            'RESEND' => ['RESEND', 'Re-soumission'],
+            'ADD_COMMENT' => ['ADD_COMMENT', 'Ajout commentaire'],
+            'CANCEL_VALIDATION' => ['CANCEL_VALIDATION', 'Annulation validation'],
+            'IMPUTER' => ['IMPUTER', 'Imputation'],
+            'APURER' => ['APURER', 'Apurement']
         ]
     ]
 ];

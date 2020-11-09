@@ -14,7 +14,7 @@ class VariablesSeeder extends Seeder
     public function run()
     {
         $this->truncateTables();
-        $variables = Config::get('app_seeder.variables');
+        $variables = Config::get('gesbudget.variables');
         foreach($variables as $keyvar => $codes){
             foreach($codes as $keycode => $libelle){
                 $variable = \App\Models\Variable::firstOrCreate([
