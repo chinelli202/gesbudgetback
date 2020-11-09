@@ -130,7 +130,8 @@ class EngagementController extends Controller
             "montant_ttc" => $request->montant_ttc,
             "montant_ht" => $request->montant_ht,
             "devise" => $request->devise,
-            "type" => $request->type
+            "type" => $request->type,
+            "nature" => $request->nature
         ]);
         return response()->json(["status" => $this->sucess_status, "success" => true, "message" => "Engagement '". $engagement->code ."'mis à jour avec succès'"]);
     }
