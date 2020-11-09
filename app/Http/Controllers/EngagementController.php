@@ -132,4 +132,29 @@ class EngagementController extends Controller
         ]);
         return response()->json(["status" => $this->sucess_status, "success" => true, "message" => "Engagement '". $engagement->code ."'mis à jour avec succès'"]);
     }
+
+    public function resendUpdateEngagement(Request $request){
+        $engagementId = $request->id;
+        $validator = Validator::make($request->all(), $this->engagementUpdateValidator);
+
+        if($validator->fails()) {
+            return response()->json(["validation_errors" => $validator->errors()]);
+        }
+
+        $engagement = Engagement::findOrFail($engagementId);
+
+        /** do something with the comment 
+         * $request->commentaire
+        */
+
+        $engagement->update([
+            "libelle" => $request->libelle,
+            "montant_ttc" => $request->montant_ttc,
+            "montant_ht" => $request->montant_ht,
+            "devise" => $request->devise,
+            "type" => $request->type,
+            "next_statut" => null
+        ]);
+        return response()->json(["status" => $this->sucess_status, "success" => true, "message" => "Engagement '". $engagement->code ."'mis à jour avec succès'"]);
+    }
 }
