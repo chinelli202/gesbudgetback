@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Engagement;
 use App\Models\User;
 use App\Models\Variable;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Validator;
 use Spatie\Activitylog\Contracts\Activity;
@@ -167,13 +168,12 @@ class EngagementController extends Controller
         $engagement = Engagement::findOrFail($engagementId);
 
         activity()
-            ->causedBy($userModel)
-            ->performedOn($someContentModel)
-            ->tap(function(Activity $activity) {
-                $activity->type = Config::get('gesbudget.variables.actions.ADD_COMMENT')[0];
-                $activity->typedesc = Config::get('gesbudget.variables.actions.ADD_COMMENT')[1];
+            ->causedBy(Auth::user())
+            ->performedOn($engagement)
+            ->tap(function(Activity $activity) use (&$request) {
+                $activity->comment = $request->comment;
             })
-            ->log($request->comment);
+            ->log(Config::get('gesbudget.variables.actions.ADD_COMMENT')[0]);
 
         return response()->json([
             "status" => $this->sucess_status

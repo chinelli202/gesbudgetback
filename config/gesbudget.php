@@ -36,7 +36,7 @@ return [
             'REA' => ['Réalisé', 'NA']
         ],
         'statut_engagement' => [
-            'VALIDF_NOEXC' => ['Validé au niveau final sans exécution (imputation ou apurement)', 'NA'],
+            // 'VALIDF_NOEXC' => ['Validé au niveau final sans exécution (imputation ou apurement)', 'NA'],
             'SAISI' => ['Saisi', 'NA'],
             'VALIDP' => ['Validé au premier niveau', 'NA'],
             'VALIDS' => ['Validé au second niveau', 'NA'],
@@ -49,15 +49,18 @@ return [
             'VALIDP' => ['VALIDP', 'Validation premier niveau'],
             'VALIDS' => ['VALIDS', 'Validation second niveau'],
             'VALIDF' => ['VALIDF', 'Validation niveau final'],
+            'CANCEL_VALIDP' => ['CANCEL_VALIDP', 'Annulation validation premier niveau'],
+            'CANCEL_VALIDS' => ['CANCEL_VALIDS', 'Annulation validation second niveau'],
+            'CANCEL_VALIDF' => ['CANCEL_VALIDF', 'Annulation validation niveau final'],
             'UPDATE' => ['UPDATE', 'Mise à jour'],
             'CLOSE' => ['CLOSE', 'Clôture'],
             'RESTORE' => ['RESTORE', 'Restauration'],
             'SEND_BACK' => ['SEND_BACK', 'Renvoi'],
             'RESEND' => ['RESEND', 'Re-soumission'],
             'ADD_COMMENT' => ['ADD_COMMENT', 'Ajout commentaire'],
-            'CANCEL_VALIDATION' => ['CANCEL_VALIDATION', 'Annulation validation'],
-            'IMPUTER' => ['IMPUTER', 'Imputation'],
-            'APURER' => ['APURER', 'Apurement']
+            'PREENGAGER' => ['PREENGAGER', 'Pré engagement'],
+            'IMPUTER' => ['IMPUTATION', 'Imputation'],
+            'APURER' => ['APUREMENT', 'Apurement']
         ]
     ]
 ];
