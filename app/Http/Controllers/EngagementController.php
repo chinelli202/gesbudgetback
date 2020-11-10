@@ -120,12 +120,6 @@ class EngagementController extends Controller
         }
 
         $engagement = Engagement::findOrFail($engagementId);
-        // $engagement['libelle'] = $request->libelle;
-        // $engagemnet['montant_ttc'] = $request->montant_ttc;
-        // $engagemnet['montant_ht'] = $request->montant_ht;
-        // $engagement['devise'] = $request->devise;
-        // $engagement['type'] = $request->type;
-
         $engagement->update([
             "libelle" => $request->libelle,
             "montant_ttc" => $request->montant_ttc,
@@ -135,6 +129,17 @@ class EngagementController extends Controller
             "nature" => $request->nature
         ]);
         return response()->json(["status" => $this->sucess_status, "success" => true, "message" => "Engagement '". $engagement->code ."'mis à jour avec succès'"]);
+    }
+
+    public function close(Request $request){
+        $engagementId = $request->id;
+        $engagement = Engagement::findOrFail($engagementId);
+        session(['Engagement'.$engagementId, $request->commentaire]);
+        
+        $engagement->update([
+            "etat" => Config::get('gesbudget.variables.actions.CLOSE')[0],
+        ]);
+        return response()->json(["status" => $this->sucess_status, "success" => true, "message" => "Engagement '". $engagement->code ."'clôturé avec succès'"]);
     }
 
     public function resendUpdate(Request $request){

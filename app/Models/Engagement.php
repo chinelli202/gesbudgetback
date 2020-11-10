@@ -33,11 +33,10 @@ class Engagement extends Model
 
     public function tapActivity(Activity $activity, string $eventName)
     {
-        // $activity->description = json_encode($activity);
-        $actioncode = '';
+        $activity->comment = session()->pull('Engagement'.$this->id, null);
         if($eventName === 'updated'){
             // TODO : specify the right description depending on the action
-
+            
             // Handle 
             if (isset($activity->properties['attributes']['statut'])) {
                 /** The 'Statut' has changed 
