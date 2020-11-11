@@ -134,12 +134,29 @@ class EngagementController extends Controller
     public function close(Request $request){
         $engagementId = $request->id;
         $engagement = Engagement::findOrFail($engagementId);
-        session(['Engagement'.$engagementId, $request->commentaire]);
+        if ($engagement->etat === Config::get('gestbudget.variables.etat_engagement.CLOT')) {
+            return response()->json(["error" => true, "message" => "Cet engagement '". $engagement->code ."' déjà clôturé"]);
+        }
+        session(['Engagement'.$engagementId, $request->comment]);
         
         $engagement->update([
-            "etat" => Config::get('gesbudget.variables.actions.CLOSE')[0],
+            "etat" => Config::get('gesbudget.variables.etat_engagement.CLOT')[0],
         ]);
-        return response()->json(["status" => $this->sucess_status, "success" => true, "message" => "Engagement '". $engagement->code ."'clôturé avec succès'"]);
+        return response()->json(["status" => $this->sucess_status, "success" => true, "message" => "Engagement '". $engagement->code ."'cloture avec succès'"]);
+    }
+
+    public function restore(Request $request){
+        $engagementId = $request->id;
+        $engagement = Engagement::findOrFail($engagementId);
+        if ($engagement->etat !== Config::get('gestbudget.variables.etat_engagement.CLOT')) {
+            return response()->json(["error" => true, "message" => "Cet engagement '". $engagement->code ."' n'est pas clôturé"]);
+        }
+        session(['Engagement'.$engagementId, $request->comment]);
+        
+        $engagement->update([
+            "etat" => Config::get('gesbudget.variables.etat_engagement.INIT')[0],
+        ]);
+        return response()->json(["status" => $this->sucess_status, "success" => true, "message" => "Engagement '". $engagement->code ."'restauré avec succès'"]);
     }
 
     public function resendUpdate(Request $request){
