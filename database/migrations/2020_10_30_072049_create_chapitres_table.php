@@ -22,6 +22,7 @@ class CreateChapitresTable extends Migration
             $table->enum('statut', ['draft', 'soumis','validé']);
             $table->enum('domaine', ['Fonctionnement','Mandat']);
             $table->enum('section', ['Dépenses','Recettes']);
+            $table->string('sous_section')->nullable();
             $table->unsignedBigInteger('titre_id');
             $table->foreign('titre_id')->references('id')->on('titres')->onDelete('cascade');
         });

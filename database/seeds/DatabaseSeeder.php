@@ -13,9 +13,9 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         // $this->call(UserSeeder::class);
-         $this->call(LaratrustSeeder::class);
-         $this->call(EngagementSeeder::class);
-         $this->call(VariablesSeeder::class);
+          $this->call(LaratrustSeeder::class);
+        //  $this->call(EngagementSeeder::class);
+        //  $this->call(VariablesSeeder::class);
          DB::table('mocks_budgets_fonctionnement')->insert([
             'label' => 'Charges de personnel',
             'previsions' => 494333563,

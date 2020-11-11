@@ -2,13 +2,16 @@
 
 namespace App\Services;
 
+use App\Models\Apurement;
 use App\Models\Chapitre;
+use App\Models\Engagement;
 use App\Models\ExerciceBudgetaire;
 use App\Models\Maquette;
 use App\Models\Ligne;
 use App\Models\LigneArchivee;
 use App\Models\Rubrique;
 use App\Models\Titre;
+use Carbon\Traits\Timestamp;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
@@ -233,7 +236,9 @@ class DraftBudgetService{
                 $chapitreEntry->description = $chapitre['description'];
                 $chapitreEntry->domaine = $chapitre['domaine'];
                 $chapitreEntry->section = $chapitre['section'];
-
+                if(isset($chapitre['sous_section'])){
+                    $chapitreEntry->sous_section = $chapitre['sous_section'];
+                }
                 $titreEntry -> chapitres() -> save($chapitreEntry);
                 echo "saved chapitre : ".$chapitreEntry->label;
                 
@@ -247,7 +252,9 @@ class DraftBudgetService{
                     $rubriqueEntry->description = $rubrique['description'];
                     $rubriqueEntry->domaine = $rubrique['domaine'];
                     $rubriqueEntry->section = $rubrique['section'];
-
+                    if(isset($rubrique['sous_section'])){
+                        $rubriqueEntry->sous_section = $rubrique['sous_section'];
+                    }
                     $chapitreEntry -> rubriques() -> save($rubriqueEntry);
                     echo "saved rubrique : ".$rubriqueEntry->label;
                     Log::info('saved rubrique : '.$rubriqueEntry->label);    
@@ -265,12 +272,86 @@ class DraftBudgetService{
                         $ligneEntry->montant = str_replace(" ","", $ligne['montant']);//;$ligne['montant'];
                         $ligneEntry->domaine = $ligne['domaine'];
                         $ligneEntry->section = $ligne['section'];
+                        if(isset($ligne['sous_section'])){
+                            $ligneEntry->sous_section = $ligne['sous_section'];
+                        }
                         $ligneEntry->exercice_budgetaire_id = $budget->id;
 
                         $rubriqueEntry -> lignes() -> save($ligneEntry);
                         echo "saved ligne : ".$ligneEntry->label;
                         //Log::channel('syslog')->info('saved ligne : '.$ligneEntry->label);
                         //Log::info('saved ligne : '.$ligneEntry->label);
+
+                        //create 3 new engagements for each month and each ligne
+                        $coefs = [1/12,1/36,1/72];
+                        if($ligneEntry->montant!=0)
+                        {
+                            for($p = 0; $p < 12; $p++){
+                                for($q = 0; $q < 3; $q++){ //i here being the month. engagements must be added at specific month i, day 11, year 2020 time 14 22.
+                                                            //they should be retrived the same way.
+
+                                    //let's build these dates.
+                                    $datemaker=mktime(11, 14, 30, $p, 12, 2020);
+                                    $date = date("Y-m-d h:i:sa", $datemaker);
+                                    echo "Created date is " .$date;
+                                    echo "\n";
+                                    $engagement = new Engagement();
+                                    $engagement->code = "code-".substr(now()->format('ymd-His-u'),0,16);
+                                    $engagement->libelle = "mock engagement "." - ".$chapitreEntry->label." - ".$ligneEntry->label."-".$q;
+                                    $engagement->nature = 'pre engagement';
+                                    $engagement->type = "BDC";
+                                    $engagement->etat = "imputé";
+                                    $engagement->statut = "validé";
+                                    $engagement->devise = "XAF";
+                                    $montant = ($ligneEntry->montant);
+                                    $coeficient = $coefs[(rand(1,3)-1)];
+                                    echo "montant : ".$montant.", coeficient : ".$coeficient.", total : ".($montant * $coeficient);
+                                    echo "\n";
+                                    $engagement->montant_ttc = floor($montant * $coeficient);
+                                    $engagement->created_at = $date;
+                                    $engagement->source = "idkkaodkf554d44";
+                                    $engagement->saisisseur = "00002";
+                                    $engagement->valideur_first = "00002";
+                                    $engagement->valideur_second = "00002";
+                                    $engagement->valideur_final = "00002";
+
+                                    $ligneEntry->engagements()->save($engagement);
+                                    echo "saved new engagement with "."code = ".$engagement->code.", libelle = ".$engagement->libelle.", nature = ".$engagement->nature
+                                                    .", montant_ttc = ".$engagement->montant_ttc.", valideur_first = ".$engagement->valideur_first
+                                                    .", id = ".$engagement->id;
+                                    echo "\n";
+                                }
+                                //create realisations for two of the previous engagements
+                                if($p > 0){
+                                    //collect engagements
+                                    for($r = 0; $r < 2; $r++){
+                                        //getting engagements from previous month
+                                        //$last_month_date = 
+                                        $relations = $ligneEntry->engagements()->whereMonth('created_at',$p)->get();  
+                                        echo "found ".count($relations)." engagements during month ".$p;
+                                        echo "\n";
+                                        //$relations = $ligneEntry->engagements()->get();
+                                        $eng = $relations[$r];
+                                        $realisation = new Apurement();
+                                        $realisation->libelle = "realisation";
+                                        $realisation->reference_paiement = "6qs546g5q4sdg";
+                                        $realisation->montant_ttc = $eng->montant_ttc;
+                                        $realisation->devise = "XAF";
+                                        $realisation->observations = "observation";
+                                        $realisation->statut = "validé";
+                                        $realisation->source = "58e55qs5d55d";
+                                        
+                                        $realisation->saisisseur = "00002";
+                                        $realisation->valideur_first = "00002";
+                                        $realisation->valideur_second = "00002";
+                                        $realisation->valideur_final = "00002";
+
+                                        $eng->apurements()->save($realisation);
+                                    }
+                                }
+                            }
+                        }
+
                         Log::stack(['single', 'syslog'])->info('saved ligne'.$ligneEntry->label);
                         echo "\n";
                     }

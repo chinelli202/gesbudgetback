@@ -16,6 +16,7 @@
         "laravel/passport": "9.3",
         "laravel/tinker": "^2.0",
         "laravel/ui": "2.4",
+        "phpoffice/phpspreadsheet": "^1.15",
         "santigarcor/laratrust": "^6.2"
     },
     "require-dev": {
