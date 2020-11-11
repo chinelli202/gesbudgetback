@@ -96,7 +96,7 @@ class UserController extends Controller
         $request->user()->token()->revoke();
         return response()->json([
             "status" => $this->sucess_status,
-            'message' => 'Successfully logged out'
+            'message' => 'Deconnexion réussie'
         ]);
     }
 

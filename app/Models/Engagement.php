@@ -33,7 +33,9 @@ class Engagement extends Model
 
     public function tapActivity(Activity $activity, string $eventName)
     {
-        $activity->comment = json_encode(session()->all()); // pull('Engagement'.$this->id, null);
+        $commentSessionKey = 'CommentEngagement'.$this->id;
+        $activity->comment = session()->pull($commentSessionKey, 'NA');
+
         if($eventName === 'updated'){
             // TODO : specify the right description depending on the action
             
@@ -50,37 +52,37 @@ class Engagement extends Model
                      * 
                     */
 
-                    $activity->description = Config::get('gesbudget.variables.actions.VALIDP')[0];
+                    $activity->description = Config::get('gesbudget.variables.actions.VALIDP')[1];
                 } else if ($oldStatut === 'VALIDP' && $newStatut === 'VALIDS') {
                     /** This is a validation at the second level 
                      * 
                     */
 
-                    $activity->description = Config::get('gesbudget.variables.actions.VALIDS')[0];
+                    $activity->description = Config::get('gesbudget.variables.actions.VALIDS')[1];
                 } else if ($oldStatut === 'VALIDS' && $newStatut === 'VALIDF') {
                     /** This is a validation at the final level 
                      * 
                     */
 
-                    $activity->description = Config::get('gesbudget.variables.actions.VALIDF')[0];
+                    $activity->description = Config::get('gesbudget.variables.actions.VALIDF')[1];
                 } else if ($oldStatut === 'VALIDP' && $newStatut === 'SAISI') {
                     /** This is a Cancelation of a Validation at the first level 
                      * 
                     */
 
-                    $activity->description = Config::get('gesbudget.variables.actions.CANCEL_VALIDP')[0];
+                    $activity->description = Config::get('gesbudget.variables.actions.CANCEL_VALIDP')[1];
                 } else if ($oldStatut === 'VALIDS' && $newStatut === 'VALIDP') {
                     /** This is a Cancelation of a validation at the second level 
                      * 
                     */
 
-                    $activity->description = Config::get('gesbudget.variables.actions.CANCEL_VALIDS')[0];
+                    $activity->description = Config::get('gesbudget.variables.actions.CANCEL_VALIDS')[1];
                 } else if ($oldStatut === 'VALIDF' && $newStatut === 'VALIDS') {
                     /** This is a Cancelation of a validation at the final level 
                      * 
                     */
 
-                    $activity->description = Config::get('gesbudget.variables.actions.CANCEL_VALIDF')[0];
+                    $activity->description = Config::get('gesbudget.variables.actions.CANCEL_VALIDF')[1];
                 } else {
                     $activity->description = 'UNKNOWN_STATUT_CHANGE';
                 }
@@ -94,33 +96,33 @@ class Engagement extends Model
                      * 
                     */
 
-                    $activity->description = Config::get('gesbudget.variables.actions.PREENGAGER')[0];
+                    $activity->description = Config::get('gesbudget.variables.actions.PREENGAGER')[1];
                 } else if ($oldEtat === 'PEG' && $newEtat === 'IMP') {
                     /** This is a validation at the second level
                      * 
                     */
 
-                    $activity->description = Config::get('gesbudget.variables.actions.IMPUTER')[0];
+                    $activity->description = Config::get('gesbudget.variables.actions.IMPUTER')[1];
                 } else if ($oldEtat === 'IMP' && $newEtat === 'REA') {
                     /** This is a validation at the second level
                      * 
                     */
 
-                    $activity->description = Config::get('gesbudget.variables.actions.APURER')[0];
+                    $activity->description = Config::get('gesbudget.variables.actions.APURER')[1];
                 } else if ($newEtat === 'CLOT') {
                     /** The engagement has been closed
                      * 
                     */
 
-                    $activity->description = Config::get('gesbudget.variables.actions.CLOSE')[0];
+                    $activity->description = Config::get('gesbudget.variables.actions.CLOSE')[1];
                 } else if ($oldEtat === 'CLOT') {
                     /** The engagement has been closed
                      * 
                     */
 
-                    $activity->description = Config::get('gesbudget.variables.actions.RESTORE')[0];
+                    $activity->description = Config::get('gesbudget.variables.actions.RESTORE')[1];
                 } else {
-                    $activity->description = 'UNKNOWN_ETAT_CHANGE';
+                    $activity->description = 'UNKNOWN_ETAT_CHANGE + old:'. $oldEtat . ' new:' . $newEtat;
                 }
             } else if (isset($activity->properties['attributes']['next_statut'])) {
                 // The 'etat' attribute has changed
@@ -128,14 +130,14 @@ class Engagement extends Model
                 $oldNS = $activity->properties['old']['next_statut'];
 
                 if(is_null($newNS)) {
-                    $activity->description = Config::get('gesbudget.variables.actions.RESEND')[0] . "_FROM_" .$oldNS;
+                    $activity->description = Config::get('gesbudget.variables.actions.RESEND')[1] . "_FROM_" .$oldNS;
                 } else if (is_null($oldNS)) {
-                    $activity->description = Config::get('gesbudget.variables.actions.SEND_BACK')[0] . "_FOR_" .$newNS;
+                    $activity->description = Config::get('gesbudget.variables.actions.SEND_BACK')[1] . "_FOR_" .$newNS;
                 } else {
                     $activity->description = 'UNKNOWN_SEND_BACK';
                 }
             } else {
-                $activity->description = Config::get('gesbudget.variables.actions.UPDATE')[0];
+                $activity->description = Config::get('gesbudget.variables.actions.UPDATE')[1];
             }
         }
     }

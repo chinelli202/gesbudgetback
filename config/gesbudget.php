@@ -12,55 +12,55 @@ return [
 
     'variables' => [
         'devise'               => [
-            'XAF' => ['Franc CFA', 'NA'],
-            'USD' => ['Dollar USD', 'NA'],
-            'EUR' => ['Euro', 'NA']
+            'XAF' => ['Franc CFA', 'XAF'],
+            'USD' => ['Dollar USD', 'USD'],
+            'EUR' => ['Euro', 'EUR']
         ],
         'nature_engagement'    => [
-            'PEG' => ['Pré-engagement', 'NA'],
-            'REA' => ['Réalisation directe', 'NA']
+            'PEG' => ['Pré-engagement', 'PEG'],
+            'REA' => ['Réalisation directe', 'REA']
         ],
         'type_engagement'      => [
-            'BDC' => ['Bon de Commande', 'NA'], 
-            'DDM' => ['Demande de mission', 'NA'],
-            'DDF' => ['Demande de fond', 'NA'],
-            'LDC' => ['Lettre de commande', 'NA'],
-            'MAR' => ['Marché', 'NA'],
-            'DDP' => ['Demande de prêt', 'NA']
+            'BDC' => ['Bon de Commande', 'BDC'], 
+            'DDM' => ['Demande de mission', 'DDM'],
+            'DDF' => ['Demande de fond', 'DDF'],
+            'LDC' => ['Lettre de commande', 'LDC'],
+            'MAR' => ['Marché', 'MAR'],
+            'DDP' => ['Demande de prêt', 'DDP']
         ],
         'etat_engagement'    => [
-            'INIT' => ['Initié', 'NA'],
-            'CLOT' => ['Clôturé', 'NA'],
-            'PEG' => ['Pré-engagé', 'NA'],
-            'IMP' => ['Imputé', 'NA'],
-            'REA' => ['Réalisé', 'NA']
+            'INIT' => ['Initié', 'INIT'],
+            'CLOT' => ['Clôturé', 'CLOT'],
+            'PEG' => ['Pré-engagé', 'PEG'],
+            'IMP' => ['Imputé', 'IMP'],
+            'REA' => ['Réalisé', 'REA']
         ],
         'statut_engagement' => [
             // 'VALIDF_NOEXC' => ['Validé au niveau final sans exécution (imputation ou apurement)', 'NA'],
-            'SAISI' => ['Saisi', 'NA'],
-            'VALIDP' => ['Validé au premier niveau', 'NA'],
-            'VALIDS' => ['Validé au second niveau', 'NA'],
-            'VALIDF' => ['Validé au niveau final', 'NA']
+            'SAISI' => ['Saisi', 'SAISI'],
+            'VALIDP' => ['Validé au premier niveau', 'VALIDP'],
+            'VALIDS' => ['Validé au second niveau', 'VALIDS'],
+            'VALIDF' => ['Validé au niveau final', 'VALIDF']
         ],
         'constante' => [
             'TVA' => ['Taxe sur la valeur ajoutée au Cameroun', '19.25']
         ],
         'actions' => [
-            'VALIDP' => ['VALIDP', 'Validation premier niveau'],
-            'VALIDS' => ['VALIDS', 'Validation second niveau'],
-            'VALIDF' => ['VALIDF', 'Validation niveau final'],
-            'CANCEL_VALIDP' => ['CANCEL_VALIDP', 'Annulation validation premier niveau'],
-            'CANCEL_VALIDS' => ['CANCEL_VALIDS', 'Annulation validation second niveau'],
-            'CANCEL_VALIDF' => ['CANCEL_VALIDF', 'Annulation validation niveau final'],
-            'UPDATE' => ['UPDATE', 'Mise à jour'],
-            'CLOSE' => ['CLOSE', 'Clôture'],
-            'RESTORE' => ['RESTORE', 'Restauration'],
-            'SEND_BACK' => ['SEND_BACK', 'Renvoi'],
-            'RESEND' => ['RESEND', 'Re-soumission'],
-            'ADD_COMMENT' => ['ADD_COMMENT', 'Ajout commentaire'],
-            'PREENGAGER' => ['PREENGAGER', 'Pré engagement'],
-            'IMPUTER' => ['IMPUTATION', 'Imputation'],
-            'APURER' => ['APUREMENT', 'Apurement']
+            'VALIDP' => ['Validation premier niveau', 'VALIDP'],
+            'VALIDS' => ['Validation second niveau', 'VALIDS'],
+            'VALIDF' => ['Validation niveau final', 'VALIDF'],
+            'CANCEL_VALIDP' => ['Annulation validation premier niveau', 'CANCEL_VALIDP'],
+            'CANCEL_VALIDS' => ['Annulation validation second niveau', 'CANCEL_VALIDS'],
+            'CANCEL_VALIDF' => ['Annulation validation niveau final', 'CANCEL_VALIDF'],
+            'UPDATE' => ['Mise à jour', 'UPDATE'],
+            'CLOSE' => ['Clôture', 'CLOSE'],
+            'RESTORE' => ['Restauration', 'RESTORE'],
+            'SEND_BACK' => ['Renvoi', 'SEND_BACK'],
+            'RESEND' => ['Re-soumission', 'RESEND'],
+            'ADD_COMMENT' => ['Ajout commentaire', 'ADD_COMMENT'],
+            'PREENGAGER' => ['Pré engagement', 'PREENGAGER'],
+            'IMPUTER' => ['Imputation', 'IMPUTATION'],
+            'APURER' => ['Apurement', 'APUREMENT']
         ]
     ]
 ];

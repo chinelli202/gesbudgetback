@@ -26,7 +26,7 @@ class VariablesSeeder extends Seeder
                     'source' => Config::get('laratrust.constants.user_creation_source.SEEDER')
                 ]);
 
-                $this->command->info('Creating variable \''. $variable->cle . '\'-\''. $variable->code . '\'-\''. $variable->libelle[0] . '\'');
+                $this->command->info('Creating variable \''. $variable->cle . '\'-\''. $variable->code . '\'-\''. $variable->libelle[1] . '\'');
             }
         }
     }

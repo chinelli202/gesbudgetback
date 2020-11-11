@@ -14,7 +14,7 @@ use Spatie\Activitylog\Contracts\Activity;
 
 class EngagementController extends Controller
 {
-    private $sucess_status = 200;
+    private $success_status = 200;
     protected $engagementCreateValidator;
     protected $engagementUpdateValidator;
     
@@ -72,19 +72,7 @@ class EngagementController extends Controller
         ];
     }
 
-    public function getEngagements(Request $request){
-        $etat = $request->etat;
-
-        $engagements = Engagement::where('etat', $etat)
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        return response()->json(["status" => $this->sucess_status, "success" => true, "data" => $engagements]);
-    }
-
-    public function getEngagement(Request $request){
-        $engagementId = $request->id;
-
+    function enrichEngagement($engagementId){
         $engagement = Engagement::findOrFail($engagementId);
         $saisisseur = User::where('matricule', $engagement->saisisseur)->first();
         $valideurP = User::where('matricule', $engagement->valideur_first)->first();
@@ -108,7 +96,23 @@ class EngagementController extends Controller
         $engagement["etat_libelle"] = $etat->libelle ?? '';
         $engagement["statut_libelle"] = $statut->libelle ?? '';
 
-        return response()->json(["status" => $this->sucess_status, "success" => true, "data" => $engagement]);
+        return $engagement;
+    }
+
+    public function getEngagements(Request $request){
+        $etat = $request->etat;
+
+        $engagements = Engagement::where('etat', $etat)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json(["status" => $this->success_status, "success" => true, "data" => $engagements]);
+    }
+
+    public function getEngagement(Request $request){
+        $engagementId = $request->id;
+        $engagement = $this->enrichEngagement($engagementId);
+        return response()->json(["status" => $this->success_status, "success" => true, "data" => $engagement]);
     }
 
     public function update(Request $request){
@@ -128,61 +132,57 @@ class EngagementController extends Controller
             "type" => $request->type,
             "nature" => $request->nature
         ]);
-        return response()->json(["status" => $this->sucess_status, "success" => true, "message" => "Engagement '". $engagement->code ."'mis à jour avec succès'"]);
+        $engagement = $this->enrichEngagement($engagement->id);
+        return response()->json([
+            "status" => $this->success_status
+            , "success" => true
+            , "message" => "Engagement ". $engagement->code ." mis à jour avec succès"
+            , "data" => $engagement
+        ]);
     }
 
     public function close(Request $request){
         $engagementId = $request->id;
         $engagement = Engagement::findOrFail($engagementId);
-        if ($engagement->etat === Config::get('gestbudget.variables.etat_engagement.CLOT')) {
+        if ($engagement->etat === Config::get('gesbudget.variables.etat_engagement.CLOT')) {
             return response()->json(["error" => true, "message" => "Cet engagement '". $engagement->code ."' déjà clôturé"]);
         }
-        session(['Engagement'.$engagementId, $request->comment]);
+        session()->put('CommentEngagement'.$engagementId, $request->comment);
         
         $engagement->update([
-            "etat" => Config::get('gesbudget.variables.etat_engagement.CLOT')[0],
+            "etat" => Config::get('gesbudget.variables.etat_engagement.CLOT')[1],
         ]);
-        return response()->json(["status" => $this->sucess_status, "success" => true, "message" => "Engagement '". $engagement->code ."'cloture avec succès'"]);
+        $engagement = $this->enrichEngagement($engagement->id);
+        return response()->json([
+            "status" => $this->success_status
+            , "success" => true
+            , "message" => "Engagement ". $engagement->code ." cloture avec succès"
+            , "data" => $engagement
+        ]);
     }
 
     public function restore(Request $request){
         $engagementId = $request->id;
         $engagement = Engagement::findOrFail($engagementId);
-        if ($engagement->etat !== Config::get('gestbudget.variables.etat_engagement.CLOT')) {
-            return response()->json(["error" => true, "message" => "Cet engagement '". $engagement->code ."' n'est pas clôturé"]);
+        if ($engagement->etat !== Config::get('gesbudget.variables.etat_engagement.CLOT')[1]) {
+            return response()->json([
+                "error" => true
+                , "message" => "Cet engagement '". $engagement->code
+                    ."' n'est pas clôturé ". $engagement->etat
+                    ." ". Config::get('gesbudget.variables.etat_engagement.CLOT')
+            ]);
         }
-        session(['Engagement'.$engagementId, $request->comment]);
+        session()->put(['CommentEngagement'.$engagementId, $request->comment]);
         
         $engagement->update([
-            "etat" => Config::get('gesbudget.variables.etat_engagement.INIT')[0],
+            "etat" => Config::get('gesbudget.variables.etat_engagement.INIT')[1],
         ]);
-        return response()->json(["status" => $this->sucess_status, "success" => true, "message" => "Engagement '". $engagement->code ."'restauré avec succès'"]);
-    }
-
-    public function resendUpdate(Request $request){
-        $engagementId = $request->id;
-        $validator = Validator::make($request->all(), $this->engagementUpdateValidator);
-
-        if($validator->fails()) {
-            return response()->json(["validation_errors" => $validator->errors()]);
-        }
-
-        $engagement = Engagement::findOrFail($engagementId);
-
-        /** TODO : do something with the comment 
-         * $request->commentaire
-        */
-
-        $engagement->update([
-            "libelle" => $request->libelle,
-            "montant_ttc" => $request->montant_ttc,
-            "montant_ht" => $request->montant_ht,
-            "devise" => $request->devise,
-            "nature" => $request->devise,
-            "type" => $request->type,
-            "next_statut" => null
-        ]);
-        return response()->json(["status" => $this->sucess_status, "success" => true, "message" => "Engagement '". $engagement->code ."'mis à jour avec succès'"]);
+        $engagement = $this->enrichEngagement($engagement->id);
+        return response()->json([
+            "status" => $this->success_status
+            , "success" => true
+            , "message" => "Engagement ". $engagement->code ." restauré avec succès"
+            , "data" => $engagement]);
     }
     
     public function addComment(Request $request){
@@ -195,12 +195,13 @@ class EngagementController extends Controller
             ->tap(function(Activity $activity) use (&$request) {
                 $activity->comment = $request->comment;
             })
-            ->log(Config::get('gesbudget.variables.actions.ADD_COMMENT')[0]);
-
+            ->log(Config::get('gesbudget.variables.actions.ADD_COMMENT')[1]);
+        $engagement = $this->enrichEngagement($engagement->id);
         return response()->json([
-            "status" => $this->sucess_status
+            "status" => $this->success_status
             , "success" => true
-            , "message" => "Engagement '". $engagement->code ."'mis à jour avec succès'"
+            , "message" => "Commentaire ajouté à l'Engagement ". $engagement->code ." avec succès"
+            , "data" => $engagement
         ]);
     }
 
@@ -208,13 +209,43 @@ class EngagementController extends Controller
         $engagementId = $request->id;
         $engagement = Engagement::findOrFail($engagementId);
 
-        /** TODO : do something with the comment 
-         * $request->commentaire
-        */
-
+        session()->put('CommentEngagement'.$engagementId, $request->comment);
         $engagement->update([
+            "next_statut" => Config::get('gesbudget.variables.etat_engagement.INIT')[1]
+        ]);
+        $engagement = $this->enrichEngagement($engagement->id);
+        return response()->json([
+            "status" => $this->success_status
+            , "success" => true
+            , "message" => "Engagement ". $engagement->code ." renvoyé avec succès '" 
+                . json_encode(Config::get('gesbudget.variables.etat_engagement.INIT')[1]) ."'" //$engagement->next_statut 
+            , "data" => $engagement
+        ]);
+    }
+
+    public function resendUpdate(Request $request){
+        $engagementId = $request->id;
+        $validator = Validator::make($request->all(), $this->engagementUpdateValidator);
+
+        if($validator->fails()) {
+            return response()->json(["validation_errors" => $validator->errors()]);
+        }
+        session()->put('CommentEngagement'.$engagementId, $request->comment);
+        $engagement = Engagement::findOrFail($engagementId);
+        $engagement->update([
+            "libelle" => $request->libelle,
+            "montant_ttc" => $request->montant_ttc,
+            "montant_ht" => $request->montant_ht,
+            "devise" => $request->devise,
+            "nature" => $request->devise,
+            "type" => $request->type,
             "next_statut" => null
         ]);
-        return response()->json(["status" => $this->sucess_status, "success" => true, "message" => "Engagement '". $engagement->code ."'mis à jour avec succès'"]);
+        $engagement = $this->enrichEngagement($engagement->id);
+        return response()->json([
+            "status" => $this->success_status
+            , "success" => true, "message" => "Engagement ". $engagement->code ." mis à jour avec succès'"
+            , "data" => $engagement
+        ]);
     }
 }
