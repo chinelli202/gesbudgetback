@@ -27,14 +27,15 @@ class Engagement extends Model
      * @var array
      */
     protected $fillable = [
-        'code', 'libelle', 'montant_ht', 'montant_ttc', 'devise',  'nature','type', 'etat', 'statut',
-        'nb_imputations','cumul_imputations','nb_apurements','cumul_apurements','saisisseur','valideur_first','valideur_second','valideur_final','source'
+        'code', 'libelle', 'montant_ht', 'montant_ttc', 'devise',  'nature','type', 'etat', 'statut', 'next_statut',
+        'nb_imputations','cumul_imputations','nb_apurements','cumul_apurements','saisisseur','valideur_first'
+        ,'valideur_second','valideur_final','source'
     ];
 
     public function tapActivity(Activity $activity, string $eventName)
     {
         $commentSessionKey = 'CommentEngagement'.$this->id;
-        $activity->comment = session()->pull($commentSessionKey, 'NA');
+        $activity->comment = session()->pull($commentSessionKey, null);
 
         if($eventName === 'updated'){
             // TODO : specify the right description depending on the action

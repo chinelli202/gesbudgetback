@@ -211,7 +211,7 @@ class EngagementController extends Controller
 
         session()->put('CommentEngagement'.$engagementId, $request->comment);
         $engagement->update([
-            "next_statut" => Config::get('gesbudget.variables.etat_engagement.INIT')[1]
+            "next_statut" => Config::get('gesbudget.variables.etat_engagement.INIT')[1],
         ]);
         $engagement = $this->enrichEngagement($engagement->id);
         return response()->json([
