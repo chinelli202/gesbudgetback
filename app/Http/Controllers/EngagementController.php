@@ -144,10 +144,10 @@ class EngagementController extends Controller
     public function close(Request $request){
         $engagementId = $request->id;
         $engagement = Engagement::findOrFail($engagementId);
-        if ($engagement->etat === Config::get('gesbudget.variables.etat_engagement.CLOT')) {
-            return response()->json(["error" => true, "message" => "Cet engagement '". $engagement->code ."' déjà clôturé"]);
+        if ($engagement->etat === Config::get('gesbudget.variables.etat_engagement.CLOT')[1]) {
+            return response()->json(["error" => true, "message" => "Cet engagement ". $engagement->code ." déjà clôturé"]);
         }
-        session()->put('CommentEngagement'.$engagementId, $request->comment);
+        session()->put('CommentEngagement'.Auth::user()->id.$engagementId, $request->comment);
         
         $engagement->update([
             "etat" => Config::get('gesbudget.variables.etat_engagement.CLOT')[1],
@@ -156,7 +156,7 @@ class EngagementController extends Controller
         return response()->json([
             "status" => $this->success_status
             , "success" => true
-            , "message" => "Engagement ". $engagement->code ." cloture avec succès"
+            , "message" => "Engagement ". $engagement->code ." cloturé avec succès"
             , "data" => $engagement
         ]);
     }
@@ -171,7 +171,7 @@ class EngagementController extends Controller
                     ."' n'est pas clôturé ". $engagement->etat
             ]);
         }
-        session()->put(['CommentEngagement'.$engagementId, $request->comment]);
+        session()->put(['CommentEngagement'.Auth::user()->id.$engagementId, $request->comment]);
         
         $engagement->update([
             "etat" => Config::get('gesbudget.variables.etat_engagement.INIT')[1],
@@ -208,7 +208,7 @@ class EngagementController extends Controller
         $engagementId = $request->id;
         $engagement = Engagement::findOrFail($engagementId);
 
-        session()->put('CommentEngagement'.$engagementId, $request->comment);
+        session()->put('CommentEngagement'.Auth::user()->id.$engagementId, $request->comment);
         $engagement->update([
             "next_statut" => Config::get('gesbudget.variables.etat_engagement.INIT')[1]
         ]);
@@ -228,7 +228,7 @@ class EngagementController extends Controller
         if($validator->fails()) {
             return response()->json(["validation_errors" => $validator->errors()]);
         }
-        session()->put('CommentEngagement'.$engagementId, $request->comment);
+        session()->put('CommentEngagement'.Auth::user()->id.$engagementId, $request->comment);
         $engagement = Engagement::findOrFail($engagementId);
         $engagement->update([
             "libelle" => $request->libelle,
@@ -243,6 +243,107 @@ class EngagementController extends Controller
         return response()->json([
             "status" => $this->success_status
             , "success" => true, "message" => "Engagement ". $engagement->code ." mis à jour avec succès'"
+            , "data" => $engagement
+        ]);
+    }
+
+    public function validerpPreeng(Request $request){
+        $engagementId = $request->id;
+        $engagement = Engagement::findOrFail($engagementId);
+        if ($engagement->etat === Config::get('gesbudget.variables.etat_engagement.CLOT')[1]) {
+            /** The engagement is closed
+             * 
+            */
+
+            return response()->json([
+                "error" => true
+                , "message" => "Cet engagement ". $engagement->code ." est déjà clôturé. Vous ne pouvez pas le valider."
+            ]);
+        } else if ($engagement->etat !== Config::get('gesbudget.variables.etat_engagement.INIT')[1]) {
+            /** The engagement doesn't have the INIT state
+             * 
+            */
+
+            return response()->json([
+                "error" => true
+                , "message" => "Cet engagement ". $engagement->code .", n'est pas à l'état 'Initié' donc ne peut être validé au premier niveau."
+            ]);
+        } else if ($engagement->saisisseur === Auth::user()->matricule) {
+             /** The current user initiated the engagement
+             * 
+            */
+
+            return response()->json([
+                "error" => true
+                , "message" => "Vous ne pouvez pas valider l'engagement ". $engagement->code ." que vous avez initié."
+            ]);
+        }
+        session()->put('CommentEngagement'.Auth::user()->id.$engagementId, $request->comment);
+        
+        $engagement->update([
+            "statut" => Config::get('gesbudget.variables.statut_engagement.VALIDP')[1],
+            "valideur_first" => Auth::user()->matricule
+        ]);
+        $engagement = $this->enrichEngagement($engagement->id);
+        return response()->json([
+            "status" => $this->success_status
+            , "success" => true
+            , "message" => "Engagement ". $engagement->code ." validé au 1er niveau avec succès"
+            , "data" => $engagement
+        ]);
+    }
+
+    public function cancelValiderpPeg(Request $request){
+        $engagementId = $request->id;
+        $engagement = Engagement::findOrFail($engagementId);
+        if ($engagement->etat === Config::get('gesbudget.variables.etat_engagement.CLOT')[1]) {
+            /** The engagement is closed
+             * 
+            */
+
+            return response()->json([
+                "error" => true
+                , "message" => "Cet engagement ". $engagement->code ." est déjà clôturé. Vous ne pouvez annuler de validation."
+            ]);
+        } else if ($engagement->etat !== Config::get('gesbudget.variables.etat_engagement.INIT')[1]) {
+            /** The engagement doesn't have the INIT state
+             * 
+            */
+
+            return response()->json([
+                "error" => true
+                , "message" => "Annulation de validation au 1er niveau Impossible. Cet engagement ". $engagement->code .", n'est pas à l'état 'Initié'."
+            ]);
+        } else if ($engagement->statut !== Config::get('gesbudget.variables.statut_engagement.VALIDP')[1]) {
+            /** The engagement doesn't have the INIT state
+             * 
+            */
+
+            return response()->json([
+                "error" => true
+                , "message" => "Annulation de validation au 1er niveau Impossible. Cet engagement ". $engagement->code .", n'a pas été validé au 1er niveau."
+            ]);
+        } else if ($engagement->valideur_first !== Auth::user()->matricule) {
+             /** The current user validated the engagement
+             * 
+            */
+
+            return response()->json([
+                "error" => true
+                , "message" => "Vous ne pouvez pas annuler la validation de l'engagement ". $engagement->code .", Car vous ne l'avez initié."
+            ]);
+        }
+        session()->put('CommentEngagement'.Auth::user()->id.$engagementId, $request->comment);
+        
+        $engagement->update([
+            "statut" => Config::get('gesbudget.variables.statut_engagement.SAISI')[1],
+            "valideur_first" => null
+        ]);
+        $engagement = $this->enrichEngagement($engagement->id);
+        return response()->json([
+            "status" => $this->success_status
+            , "success" => true
+            , "message" => "Annulation de validation au 1er niveau réussie pour l'engagement ". $engagement->code
             , "data" => $engagement
         ]);
     }
