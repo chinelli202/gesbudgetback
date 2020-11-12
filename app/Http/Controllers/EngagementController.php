@@ -259,7 +259,9 @@ class EngagementController extends Controller
                 "error" => true
                 , "message" => "Cet engagement ". $engagement->code ." est déjà clôturé. Vous ne pouvez pas le valider."
             ]);
-        } else if ($engagement->etat !== Config::get('gesbudget.variables.etat_engagement.INIT')[1]) {
+        }
+
+        if ($engagement->etat !== Config::get('gesbudget.variables.etat_engagement.INIT')[1]) {
             /** The engagement doesn't have the INIT state
              * 
             */
@@ -268,7 +270,9 @@ class EngagementController extends Controller
                 "error" => true
                 , "message" => "Cet engagement ". $engagement->code .", n'est pas à l'état 'Initié' donc ne peut être validé au premier niveau."
             ]);
-        } else if ($engagement->saisisseur === Auth::user()->matricule) {
+        }
+
+        if ($engagement->saisisseur === Auth::user()->matricule) {
              /** The current user initiated the engagement
              * 
             */
@@ -276,6 +280,18 @@ class EngagementController extends Controller
             return response()->json([
                 "error" => true
                 , "message" => "Vous ne pouvez pas valider l'engagement ". $engagement->code ." que vous avez initié."
+            ]);
+        }
+
+        if ($engagement->next_statut !== null) {
+            /** The current user initiated the engagement
+            * 
+            */
+
+            return response()->json([
+                "error" => true
+                , "message" => "Vous ne pouvez pas valider l'engagement ". $engagement->code .". Il a été renvoyé à l'opérateur de saisie pour modification.
+                    Celui-ci doit mettre à jour l'engagement afin que vous puissiez valider."
             ]);
         }
         session()->put('CommentEngagement'.Auth::user()->id.$engagementId, $request->comment);
@@ -305,7 +321,9 @@ class EngagementController extends Controller
                 "error" => true
                 , "message" => "Cet engagement ". $engagement->code ." est déjà clôturé. Vous ne pouvez annuler de validation."
             ]);
-        } else if ($engagement->etat !== Config::get('gesbudget.variables.etat_engagement.INIT')[1]) {
+        }
+        
+        if ($engagement->etat !== Config::get('gesbudget.variables.etat_engagement.INIT')[1]) {
             /** The engagement doesn't have the INIT state
              * 
             */
@@ -314,7 +332,9 @@ class EngagementController extends Controller
                 "error" => true
                 , "message" => "Annulation de validation au 1er niveau Impossible. Cet engagement ". $engagement->code .", n'est pas à l'état 'Initié'."
             ]);
-        } else if ($engagement->statut !== Config::get('gesbudget.variables.statut_engagement.VALIDP')[1]) {
+        }
+        
+        if ($engagement->statut !== Config::get('gesbudget.variables.statut_engagement.VALIDP')[1]) {
             /** The engagement doesn't have the INIT state
              * 
             */
@@ -323,7 +343,9 @@ class EngagementController extends Controller
                 "error" => true
                 , "message" => "Annulation de validation au 1er niveau Impossible. Cet engagement ". $engagement->code .", n'a pas été validé au 1er niveau."
             ]);
-        } else if ($engagement->valideur_first !== Auth::user()->matricule) {
+        }
+        
+        if ($engagement->valideur_first !== Auth::user()->matricule) {
              /** The current user validated the engagement
              * 
             */
@@ -331,6 +353,19 @@ class EngagementController extends Controller
             return response()->json([
                 "error" => true
                 , "message" => "Vous ne pouvez pas annuler la validation de l'engagement ". $engagement->code .", Car vous ne l'avez initié."
+            ]);
+        }
+
+        if ($engagement->next_statut !== null) {
+            /** The current user initiated the engagement
+            * 
+            */
+
+            return response()->json([
+                "error" => true
+                , "message" => "Vous ne pouvez pas annuler la validation de l'engagement ". $engagement->code .".
+                    Il a été renvoyé à l'opérateur de saisie pour modification.
+                    Celui-ci doit mettre à jour l'engagement afin que vous puissiez annuler votre validation."
             ]);
         }
         session()->put('CommentEngagement'.Auth::user()->id.$engagementId, $request->comment);
