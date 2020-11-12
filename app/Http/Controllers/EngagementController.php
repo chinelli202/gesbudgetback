@@ -169,7 +169,6 @@ class EngagementController extends Controller
                 "error" => true
                 , "message" => "Cet engagement '". $engagement->code
                     ."' n'est pas clôturé ". $engagement->etat
-                    ." ". Config::get('gesbudget.variables.etat_engagement.CLOT')
             ]);
         }
         session()->put(['CommentEngagement'.$engagementId, $request->comment]);
@@ -217,8 +216,7 @@ class EngagementController extends Controller
         return response()->json([
             "status" => $this->success_status
             , "success" => true
-            , "message" => "Engagement ". $engagement->code ." renvoyé avec succès '" 
-                . json_encode(Config::get('gesbudget.variables.etat_engagement.INIT')[1]) ."'" //$engagement->next_statut 
+            , "message" => "Engagement ". $engagement->id ." renvoyé avec succès." //$engagement->next_statut 
             , "data" => $engagement
         ]);
     }
