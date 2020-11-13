@@ -142,7 +142,7 @@ class EngagementController extends Controller
             'valideur_first' => null,
             'valideur_second' => null,
             'valideur_final' => null,
-            'source' => Config::get('gesbudget.source.SEEDER')[0]
+            'source' => Config::get('gesbudget.source.API')[0]
         ]);
 
         $engagement = $this->enrichEngagement($engagement->id);
