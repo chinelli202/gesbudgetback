@@ -38,6 +38,9 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::post("engagement/sendback/{id}", "EngagementController@sendBack")->name("sendBackEngagement");
     Route::post("engagement/resend/{id}", "EngagementController@resendUpdate")->name("resendUpdateEngagement");
     
+    Route::post("engagement/valider/peg/{id}", "EngagementController@validerPreeng")->name("validerPreeng");
+    Route::post("engagement/cancelValider/peg/{id}", "EngagementController@cancelValiderPreeng")->name("cancelValiderPreeng");
+    
     Route::post("engagement/validerp/peg/{id}", "EngagementController@validerpPreeng")->name("validerpPreeng");
     Route::post("engagement/cancelvaliderp/peg/{id}", "EngagementController@cancelValiderpPeg")->name("cancelValiderpPeg");
 
