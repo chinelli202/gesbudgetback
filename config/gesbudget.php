@@ -67,6 +67,11 @@ return [
             'PREENGAGER' => ['Pré engagement', 'PREENGAGER'],
             'IMPUTER' => ['Imputation', 'IMPUTATION'],
             'APURER' => ['Apurement', 'APUREMENT']
+        ],
+        'source' => [
+            'API' => ['API', 'API'],
+            'ADMIN_UI' => ['AdminUI', 'ADMIN_UI'],
+            'SEEDER' => ['Seeder', 'SEEDER']
         ]
     ]
 ];

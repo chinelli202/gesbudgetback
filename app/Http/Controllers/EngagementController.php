@@ -123,12 +123,26 @@ class EngagementController extends Controller
         }
 
         $engagement = Engagement::create([
+            "code" => $request->type .substr(now()->format('ymd-His-u'),0,17),
             "libelle" => $request->libelle,
             "montant_ttc" => $request->montant_ttc,
             "montant_ht" => $request->montant_ht,
             "devise" => $request->devise,
             "type" => $request->type,
-            "nature" => $request->nature
+            "nature" => $request->nature,
+
+            'etat' => Config::get('gesbudget.variables.etat_engagement.INIT')[1],
+            'statut' => Config::get('gesbudget.variables.statut_engagement.SAISI')[1],
+
+            'nb_imputations' => 0,
+            'cumul_imputations' => 0,
+            'nb_apurements' => 0,
+            'cumul_apurements' => 0,
+            'saisisseur' => Auth::user()->matricule,
+            'valideur_first' => null,
+            'valideur_second' => null,
+            'valideur_final' => null,
+            'source' => Config::get('gesbudget.source.SEEDER')[0]
         ]);
 
         $engagement = $this->enrichEngagement($engagement->id);
