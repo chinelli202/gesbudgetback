@@ -115,6 +115,31 @@ class EngagementController extends Controller
         return response()->json(["status" => $this->success_status, "success" => true, "data" => $engagement]);
     }
 
+    public function create(Request $request){
+        $validator = Validator::make($request->all(), $this->engagementCreateValidator);
+
+        if($validator->fails()) {
+            return response()->json(["validation_errors" => $validator->errors()]);
+        }
+
+        $engagement = Engagement::create([
+            "libelle" => $request->libelle,
+            "montant_ttc" => $request->montant_ttc,
+            "montant_ht" => $request->montant_ht,
+            "devise" => $request->devise,
+            "type" => $request->type,
+            "nature" => $request->nature
+        ]);
+
+        $engagement = $this->enrichEngagement($engagement->id);
+        return response()->json([
+            "status" => $this->success_status
+            , "success" => true
+            , "message" => "Engagement ". $engagement->code ." créé avec succès"
+            , "data" => $engagement
+        ]);
+    }
+
     public function update(Request $request){
         $engagementId = $request->id;
         $validator = Validator::make($request->all(), $this->engagementUpdateValidator);
@@ -263,8 +288,10 @@ class EngagementController extends Controller
         /** Previous blocking statut */
         if ( $statutIndice === array_search(Config::get('gesbudget.variables.statut_engagement.VALIDS')[1], $statutsEngagementKeys) + 1) {
             /** Since the VALIDS status is not required, we will return the statut previous VALIDS */
-            $prevRequiredStatut =  $statutsEngagementKeys[$statutIndice - 2];
+            $prevRequiredStatutIndice =  $statutIndice - 2;
+            $prevRequiredStatut =  $statutsEngagementKeys[$prevRequiredStatutIndice];
         } else {
+            $prevRequiredStatutIndice = ($statutIndice > 0) ? $statutIndice - 1 : null;
             $prevRequiredStatut = ($statutIndice > 0) ? $statutsEngagementKeys[$statutIndice - 1] : null;
         }
 
@@ -303,7 +330,7 @@ class EngagementController extends Controller
             ]);
         }
 
-        if ($engagement->statut !== $prevRequiredStatut) {
+        if ($statutIndice < $prevRequiredStatutIndice) {
             /** The engagement has been sent back for correction*/
             return response()->json([
                 "error" => true
