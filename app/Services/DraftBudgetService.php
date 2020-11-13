@@ -283,16 +283,16 @@ class DraftBudgetService{
                         //Log::info('saved ligne : '.$ligneEntry->label);
 
                         //create 3 new engagements for each month and each ligne
-                        $coefs = [1/12,1/36,1/72];
+                        $coefs = [1/48,1/24,1/72,1/48];
                         if($ligneEntry->montant!=0)
                         {
                             for($p = 0; $p < 12; $p++){
+                                $datemaker=mktime(11, 14, 30, $p, 12, 2020);
+                                $date = date("Y-m-d h:i:sa", $datemaker);
                                 for($q = 0; $q < 3; $q++){ //i here being the month. engagements must be added at specific month i, day 11, year 2020 time 14 22.
                                                             //they should be retrived the same way.
 
                                     //let's build these dates.
-                                    $datemaker=mktime(11, 14, 30, $p, 12, 2020);
-                                    $date = date("Y-m-d h:i:sa", $datemaker);
                                     echo "Created date is " .$date;
                                     echo "\n";
                                     $engagement = new Engagement();
@@ -304,7 +304,7 @@ class DraftBudgetService{
                                     $engagement->statut = "validé";
                                     $engagement->devise = "XAF";
                                     $montant = ($ligneEntry->montant);
-                                    $coeficient = $coefs[(rand(1,3)-1)];
+                                    $coeficient = $coefs[(rand(1,4)-1)];
                                     echo "montant : ".$montant.", coeficient : ".$coeficient.", total : ".($montant * $coeficient);
                                     echo "\n";
                                     $engagement->montant_ttc = floor($montant * $coeficient);
@@ -340,7 +340,7 @@ class DraftBudgetService{
                                         $realisation->observations = "observation";
                                         $realisation->statut = "validé";
                                         $realisation->source = "58e55qs5d55d";
-                                        
+                                        $realisation->created_at = $date;
                                         $realisation->saisisseur = "00002";
                                         $realisation->valideur_first = "00002";
                                         $realisation->valideur_second = "00002";

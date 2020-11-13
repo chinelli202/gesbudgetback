@@ -6,6 +6,7 @@ use App\Models\Chapitre;
 use App\Models\Ligne;
 use App\Models\Rubrique;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use stdClass;
 
 class RecapService {
@@ -18,91 +19,271 @@ class RecapService {
 
     //method for retrieving recap values of a given ligne
     public function getRecapLigne($ligne_id, $critere, $params){
-        $rligne = Ligne::find($ligne_id)->first;
+        $rligne = Ligne::find($ligne_id);
         
-        //TODO add properties
-        $rligne = new stdClass();
-        $rligne->prevision = $rligne->montant;
-
-
-        //get realisations, engagements, execution depending on $critere : 
-        //1. up to a certain day
-        $realisations = DB::table('apurements')
-            ->join('engagements', 'apurements.engagement_id', '=', 'engagements.code')
-            ->join('lignes', 'engagements.ligne_id', '=', 'lignes.id')
-           // ->whereMonth('apurements.created_at', $params['month'])
-            ->sum('apurements.montant')
-            ->get();
+        //echo "found ligne with id : ".$rligne->id.", and montant : ".$rligne->montant;
+        $recap = new stdClass();
+        $recap->prevision = 0;
+        $recap->realisations = 0;
+        $recap->realisationsMois = 0;
+        $recap->realisationsMoisPrecedents = 0;
+        $recap->engagements = 0;
+        $recap->execution = 0;
+        $recap->solde = 0;
+        $recap->tauxExecution = 0;
         
-            //engagements : sum of imputation - sum of apurements
-        $soe_imputations = DB::table('imputations')
-            ->join('engagements', 'imputations.engagement_id', '=', 'engagements.code')
-            ->join('lignes', 'engagements.ligne_id', '=', 'lignes.id')
-            //->whereMonth('imputation.created_at', $params['month'])
-            ->sum('entagements.montant')
-            ->get();
+        if($rligne->montant>0){
 
-        //2. on a given month
-
-        $rligne->realisations = $realisations;
-        $rligne->engagements = $soe_imputations - $realisations;
-        $rligne->execution = $soe_imputations;
-        $rligne->solde = $rligne->prevision - $rligne->execution;
-        $rligne->taux_execution = floor(100 * ($rligne->solde/$rligne->prevision));
-        // $rligne->taux_execution = 
+            $recap->prevision = $rligne->montant;
+    
+            //get realisations, engagements, execution depending on $critere : 
+            //1. up to a certain day
+            $realisations = DB::table('apurements')
+                ->join('engagements', 'apurements.engagement_id', '=', 'engagements.code')
+                ->join('lignes', 'engagements.ligne_id', '=', 'lignes.id')
+                ->select('apurements.montant_ttc','apurements.created_at')
+                ->whereDate('apurements.created_at', '<','2020-06-30')
+                ->where('lignes.id',$ligne_id)
+               // ->whereMonth('apurements.created_at', $params['month'])
+                ->sum('apurements.montant_ttc'); 
+    
+            $realisationsMois = DB::table('apurements')
+                ->join('engagements', 'apurements.engagement_id', '=', 'engagements.code')
+                ->join('lignes', 'engagements.ligne_id', '=', 'lignes.id')
+                ->select('apurements.montant_ttc','apurements.created_at')
+                ->where('lignes.id',$ligne_id)
+                ->whereMonth('apurements.created_at',6)
+               // ->whereMonth('apurements.created_at', $params['month'])
+                ->sum('apurements.montant_ttc');
+    
+            $realisationsMoisPrecedents = DB::table('apurements')
+                ->join('engagements', 'apurements.engagement_id', '=', 'engagements.code')
+                ->join('lignes', 'engagements.ligne_id', '=', 'lignes.id')
+                ->select('apurements.montant_ttc','apurements.created_at')
+                ->where('lignes.id',$ligne_id)
+                ->whereMonth('apurements.created_at','<',6)
+               // ->whereMonth('apurements.created_at', $params['month'])
+                ->sum('apurements.montant_ttc');
+            
+                //engagements : sum of imputation - sum of apurements
+            //$soe_imputations = DB::table('imputations')
+            $soe_imputations = DB::table('engagements')
+                //->join('engagements', 'imputations.engagement_id', '=', 'engagements.code')
+                ->join('lignes', 'engagements.ligne_id', '=', 'lignes.id')
+                //->whereMonth('imputation.created_at', $params['month'])
+                ->select('engagements.montant_ttc','engagements.created_at')
+                ->where('lignes.id',$ligne_id)
+                ->whereDate('engagements.created_at','<','2020-06-30')
+                ->sum('engagements.montant_ttc');
+    
+            //2. on a given month
+            $recap->realisationsMois = $realisationsMois;
+            $recap->realisationsMoisPrecedents = $realisationsMoisPrecedents;
+            $recap->realisations = $recap->realisationsMoisPrecedents + $realisationsMois;
+            
+            
+            $recap->engagements = $soe_imputations - $realisations;
+            $recap->execution = $soe_imputations;
+            $recap->solde = $recap->prevision - $recap->execution;
+            $recap->tauxExecution = floor(100 * ($recap->solde/$recap->prevision));
+        }
+        
+        // $rligne->tauxExecution = 
         // $rligne->cumul_realisations = 
         // $rligne->realisations_mois = 
-        return $rligne;
+        return $recap;
     }
 
     //method for retrieving recap values of a given rubrique
     public function getRecapRubrique($rubrique_id, $critere, $params){
         $rrubrique = Rubrique::find($rubrique_id);
-        $rrubrique->rlignes = [];
-
+        //$rrubrique->collection = [];
+        $rrubrique->chapitrelabel = $rrubrique->chapitre->label;
+        $collection = [];
         $sumrow = new stdClass();
         $sumrow->prevision = 0;
+        $sumrow->libelle = $rrubrique->label;
+        $sumrow->chapitre = $rrubrique->chapitre->label;
         $sumrow->realisations = 0;
+        $sumrow->realisationsMois = 0;
+        $sumrow->realisationsMoisPrecedents = 0;
         $sumrow->engagements = 0;
         $sumrow->execution = 0;
         $sumrow->solde = 0;
 
-        foreach($rrubrique->lignes() as $ligne){
+        foreach($rrubrique->lignes as $ligne){
+            //echo "found ligne for rubrique with id : ".$ligne->id.", and montant : ".$ligne->montant;
             $recapligne = $this->getRecapLigne($ligne->id, $critere, $params);
             $sumrow->prevision += $recapligne->prevision;
             $sumrow->realisations += $recapligne->realisations;
+            $sumrow->realisationsMois += $recapligne->realisationsMois;
+            $sumrow->realisationsMoisPrecedents += $recapligne->realisationsMoisPrecedents;
             $sumrow->engagements += $recapligne->engagements;
             $sumrow->execution += $recapligne->execution;
             $sumrow->solde += $recapligne->solde;            
-            array_push($rrubrique->rlignes, $recapligne);
+            array_push($collection, $recapligne);
         }
         $sumrow->solde = $sumrow->prevision - $sumrow->execution;
-        $sumrow->taux_execution = floor(100 * ($sumrow->solde/$sumrow->prevision));
-        $rrubrique->sumrow = $sumrow;
-        return $rrubrique;
+        
+        $sumrow->tauxExecution = $sumrow->prevision != 0 ? floor(100 * ($sumrow->solde/$sumrow->prevision)) : 0;
+        
+        // $rrubrique->collection = $collection;
+        // $rrubrique->sumrow = $sumrow;
+
+        $recap = new stdClass();
+        $recap->collection = $collection;        
+        $recap->sumrow = $sumrow;
+
+        echo "added a new recap for rubrique ".$sumrow->libelle." of  ".$sumrow->chapitre." with parameters : ";
+        echo "\n";
+        echo "prevision : ".$recap->sumrow->prevision;
+        echo "\n";
+        echo "realisations : ".$recap->sumrow->realisations;
+        echo "\n";
+        echo "realisationsMois : ".$recap->sumrow->realisationsMois;
+        echo "\n";
+        echo "realisationsMoisPrecedents : ".$recap->sumrow->realisationsMoisPrecedents;
+        echo "\n";
+        echo "engagements : ".$recap->sumrow->engagements;
+        echo "\n";
+        echo "execution : ".$recap->sumrow->execution;
+        echo "\n";
+        echo "solde : ".$recap->sumrow->solde;
+        echo "\n";
+        echo "tauxExecution : ".$recap->sumrow->tauxExecution;
+        echo "\n";
+        echo "prevision : ".$recap->sumrow->prevision;
+        echo "\n";
+        return $recap;
     }
 
     //method for retrieving a recap object consisting of recap properties and collections of all recap rubriques with the given name
-    public function getRecapNamedRubrique($name, $critere, $params){
-        $rnamedrubrique = new stdClass();
+    public function getRecapRubriqueGroup($name, $critere, $params){
+        echo "inside recap rubrique group";
+        echo "\n";
+        $rrubriquegroup = new stdClass();
         $rubriques = Rubrique::where('label', $name)->get();
-        $rnamedrubrique->rrubriques = [];
+        echo "after rubrique names research";
+        echo "\n";
+        $collection = [];
+        $sumrow = new stdClass();
+        $sumrow->libelle = $name;
+        $sumrow->prevision = 0;
+        $sumrow->realisations = 0;
+        $sumrow->realisationsMois = 0;
+        $sumrow->realisationsMoisPrecedents = 0;
+        $sumrow->engagements = 0;
+        $sumrow->execution = 0;
+        $sumrow->solde = 0;
+        
         foreach($rubriques as $rubrique){
-            array_push($rnamedrubrique->rrubriques, $this->getRecapRubrique($rubrique->id, $critere, $params));
+            //array_push($rrubriquegroup->rubriques, $this->getRecapRubrique($rubrique->id, $critere, $params));
+            $recaprubrique = $this->getRecapRubrique($rubrique->id, $critere, $params);
+            $sumrow->prevision += $recaprubrique->sumrow->prevision;
+            $sumrow->realisations += $recaprubrique->sumrow->realisations;
+            $sumrow->realisationsMois += $recaprubrique->sumrow->realisationsMois;
+            $sumrow->realisationsMoisPrecedents += $recaprubrique->sumrow->realisationsMoisPrecedents;
+            $sumrow->engagements += $recaprubrique->sumrow->engagements;
+            $sumrow->execution += $recaprubrique->sumrow->execution;
+            $sumrow->solde += $recaprubrique->sumrow->solde;            
+            array_push($collection, $recaprubrique);
         }
         //TODO add properties
-        return $rnamedrubrique;
-    }
+        $sumrow->tauxExecution = floor(100 * ($sumrow->solde/$sumrow->prevision));
+        
+        $recap = new stdClass();
+        $recap->collection = $collection;        
+        $recap->sumrow = $sumrow;
+        
+        // $rrubriquegroup->collection = $collection;        
+        // $rrubriquegroup->sumrow = $sumrow;
 
+        //$content = json_decode($rrubriquegroup);
+        //$serialized = serialize($content);
+        //file_put_contents('file:///C:/Dev/Git/budget/gesbudget/storage/app/public/files/recaprubrique.dumpd', $serialized);
+
+        echo "recap for rubrique group ".$name;
+        echo "\n";
+        echo "prevision : ".$recap->sumrow->prevision;
+        echo "\n";
+        echo "realisations : ".$recap->sumrow->realisations;
+        echo "\n";
+        echo "realisationsMois : ".$recap->sumrow->realisationsMois;
+        echo "\n";
+        echo "realisationsMoisPrecedents : ".$recap->sumrow->realisationsMoisPrecedents;
+        echo "\n";
+        echo "engagements : ".$recap->sumrow->engagements;
+        echo "\n";
+        echo "execution : ".$recap->sumrow->execution;
+        echo "\n";
+        echo "solde : ".$recap->sumrow->solde;
+        echo "\n";
+        echo "tauxExecution : ".$recap->sumrow->tauxExecution;
+        echo "\n";
+        echo "prevision : ".$recap->sumrow->prevision;
+        echo "\n";
+        return $recap;
+        //return "everything went pretty well";
+    }
 
     public function getRecapChapitre($chapitre_id, $critere, $params){
         $rchapitre = Chapitre::find($chapitre_id);
-        $rchapitre->rrubriques = [];
+        //$rchapitre->rrubriques = [];
+        
+        $collection = [];
+        $sumrow = new stdClass();
+        $sumrow->prevision = 0;
+        $sumrow->libelle = $rchapitre->label;
+        $sumrow->realisations = 0;
+        $sumrow->realisationsMois = 0;
+        $sumrow->realisationsMoisPrecedents = 0;
+        $sumrow->engagements = 0;
+        $sumrow->execution = 0;
+        $sumrow->solde = 0;
+
         foreach($rchapitre->rubriques as $rubrique){
-            array_push($rchapitre->rrubriques, $this->getRecapRubrique($rubrique->id, $critere, $params));
+            //array_push($rchapitre->rrubriques, $this->getRecapRubrique($rubrique->id, $critere, $params));
+            $rrubrique = $this->getRecapRubrique($rubrique->id, $critere, $params);
+            $sumrow->prevision += $rrubrique->sumrow->prevision;
+            $sumrow->realisations += $rrubrique->sumrow->realisations;
+            $sumrow->realisationsMois += $rrubrique->sumrow->realisationsMois;
+            $sumrow->realisationsMoisPrecedents += $rrubrique->sumrow->realisationsMoisPrecedents;
+            $sumrow->engagements += $rrubrique->sumrow->engagements;
+            $sumrow->execution += $rrubrique->sumrow->execution;
+            $sumrow->solde += $rrubrique->sumrow->solde;            
+            array_push($collection, $rrubrique);
         }
         //TODO add properties
-        return $rchapitre;
+        $sumrow->tauxExecution = floor(100 * ($sumrow->solde/$sumrow->prevision));
+        
+        $recap = new stdClass();
+        $recap->collection = $collection;        
+        $recap->sumrow = $sumrow;
+
+        echo "recap for chapitre".$recap->libelle;
+        echo "\n";
+        echo "prevision : ".$recap->sumrow->prevision;
+        echo "\n";
+        echo "realisations : ".$recap->sumrow->realisations;
+        echo "\n";
+        echo "realisationsMois : ".$recap->sumrow->realisationsMois;
+        echo "\n";
+        echo "realisationsMoisPrecedents : ".$recap->sumrow->realisationsMoisPrecedents;
+        echo "\n";
+        echo "engagements : ".$recap->sumrow->engagements;
+        echo "\n";
+        echo "execution : ".$recap->sumrow->execution;
+        echo "\n";
+        echo "solde : ".$recap->sumrow->solde;
+        echo "\n";
+        echo "tauxExecution : ".$recap->sumrow->tauxExecution;
+        echo "\n";
+        //return "everything went pretty well";
+
+        //TODO 
+        //nullify relationships that eloquent adds after database selects (chapitres, rubriques, lignes, ...) to keep variable small
+
+        return $recap;
     }
 
     public function getRecapTitre($titre_id, $critere, $params){
@@ -137,15 +318,74 @@ class RecapService {
 
     public function getRecapSousSectionFonctionnement($critere, $params){
         //get names in sous sectio fonctionnement
-        $recap = new stdClass();
-        $names = DB::table('rubriques')->where('sous_section','fonctionnement')->select('label')->distinct()->get();
+        echo "before";
+        echo "\n";
+        $recapsoussection = new stdClass();
+        //$names = Rubrique::where('sous_section','Fonctionnement')->select('label')->distinct()->get();
+        $names = DB::table('rubriques')->select('rubriques.label')->where('sous_section','Fonctionnement')->distinct()->get();
 
-        $recap->rrubriques = [];
+        echo "after finding names";
+        echo "\n";
+
+        echo "found these names ";
+        echo "\n";
+        //echo var_dump($names);
+        //$recapsoussection->collection = [];
+        $collection = [];
+        $sumrow = new stdClass();
+        $sumrow->prevision = 0;
+        $sumrow->libelle = "Fonctionnement";
+        $sumrow->realisations = 0;
+        $sumrow->realisationsMois = 0;
+        $sumrow->realisationsMoisPrecedents = 0;
+        $sumrow->engagements = 0;
+        $sumrow->execution = 0;
+        $sumrow->solde = 0;
+        
         foreach($names as $name){
-            array_push($recap->rrubriques, $this->getRecapNamedRubrique ($name, $critere, $params));
+            //array_push($recapsoussection->rrubriques, $this->getRecapRubriqueGroup ($name, $critere, $params));
+            echo "inside foreach";
+            echo "\n";
+            $recaprubriquegroup = $this->getRecapRubriqueGroup($name->label, $critere, $params);
+            $sumrow->prevision += $recaprubriquegroup->sumrow->prevision;
+            $sumrow->realisations += $recaprubriquegroup->sumrow->realisations;
+            $sumrow->realisationsMois += $recaprubriquegroup->sumrow->realisationsMois;
+            $sumrow->realisationsMoisPrecedents += $recaprubriquegroup->sumrow->realisationsMoisPrecedents;
+            $sumrow->engagements += $recaprubriquegroup->sumrow->engagements;
+            $sumrow->execution += $recaprubriquegroup->sumrow->execution;
+            $sumrow->solde += $recaprubriquegroup->sumrow->solde;            
+            array_push($collection, $recaprubriquegroup);
         }
 
+        $sumrow->tauxExecution = floor(100 * ($sumrow->solde/$sumrow->prevision));
+        // $recapsoussection->collection = $collection;        
+        // $recapsoussection->sumrow = $sumrow;
+
+
+        $recap = new stdClass();
+        //$recap->collection = $collection;        
+        $recap->sumrow = $sumrow;
+        
         //TODO add properties
+        echo "recap for sous section fonctionnement";
+        echo "\n";
+        echo "prevision : ".$recap->sumrow->prevision;
+        echo "\n";
+        echo "realisations : ".$recap->sumrow->realisations;
+        echo "\n";
+        echo "realisationsMois : ".$recap->sumrow->realisationsMois;
+        echo "\n";
+        echo "realisationsMoisPrecedents : ".$recap->sumrow->realisationsMoisPrecedents;
+        echo "\n";
+        echo "engagements : ".$recap->sumrow->engagements;
+        echo "\n";
+        echo "execution : ".$recap->sumrow->execution;
+        echo "\n";
+        echo "solde : ".$recap->sumrow->solde;
+        echo "\n";
+        echo "tauxExecution : ".$recap->sumrow->tauxExecution;
+        echo "\n";
+        //return "everything went pretty well";
         return $recap;
     }
 
@@ -197,6 +437,10 @@ class RecapService {
     }
 
     public function getRecapBudgetMandat(){
+
+    }
+
+    private function computeCollections($collection, $field, $method, $critere, $params){
 
     }
 }
