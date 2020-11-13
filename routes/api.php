@@ -41,11 +41,5 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::post("engagement/valider/peg/{id}", "EngagementController@validerPreeng")->name("validerPreeng");
     Route::post("engagement/cancelValider/peg/{id}", "EngagementController@cancelValiderPreeng")->name("cancelValiderPreeng");
     
-    Route::post("engagement/validerp/peg/{id}", "EngagementController@validerpPreeng")->name("validerpPreeng");
-    Route::post("engagement/cancelvaliderp/peg/{id}", "EngagementController@cancelValiderpPeg")->name("cancelValiderpPeg");
-
-    Route::post("engagement/validers/peg/{id}", "EngagementController@validersPreeng")->name("validersPreeng");
-    Route::post("engagement/cancelvaliders/peg/{id}", "EngagementController@cancelValidersPeg")->name("cancelValidersPeg");
-
     Route::get("getvariables", "VariableController@getvariables")->name('getvariables');
 });
