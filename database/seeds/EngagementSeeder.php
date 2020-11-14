@@ -170,7 +170,7 @@ class EngagementSeeder extends Seeder
             'valideur_first' => in_array($statutEng, array('VALIDP', 'VALIDS','VALIDF' )) ? User::find(2)->matricule : null,
             'valideur_second' => in_array($statutEng, array('VALIDS','VALIDF' )) ? User::find(1)->matricule : null,
             'valideur_final' => in_array($statutEng, array('VALIDF')) ? User::find(1)->matricule : null,
-            'source' => Config::get('laratrust.constants.user_creation_source.SEEDER')
+            'source' => Config::get('gesbudget.source.SEEDER')[0]
         ]);
         $this->command->info('Created Engagement '. $engagement->code
             . '-' .$engagement->nature

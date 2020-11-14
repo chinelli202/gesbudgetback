@@ -42,6 +42,12 @@ return [
             'VALIDS' => ['Validé au second niveau', 'VALIDS'],
             'VALIDF' => ['Validé au niveau final', 'VALIDF']
         ],
+        'operateur' => [
+            'saisisseur' => ['Saisiseur', 'saisisseur'],
+            'valideur_first' => ['Valideur au premier niveau', 'valideur_first'],
+            'valideur_second' => ['Valideur au second niveau', 'valideur_second'],
+            'valideur_final' => ['Valideur au niveau final', 'valideur_final']
+        ],
         'constante' => [
             'TVA' => ['Taxe sur la valeur ajoutée au Cameroun', '19.25']
         ],
@@ -61,6 +67,11 @@ return [
             'PREENGAGER' => ['Pré engagement', 'PREENGAGER'],
             'IMPUTER' => ['Imputation', 'IMPUTATION'],
             'APURER' => ['Apurement', 'APUREMENT']
+        ],
+        'source' => [
+            'API' => ['API', 'API'],
+            'ADMIN_UI' => ['AdminUI', 'ADMIN_UI'],
+            'SEEDER' => ['Seeder', 'SEEDER']
         ]
     ]
 ];
