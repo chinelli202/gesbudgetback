@@ -16,13 +16,9 @@
         "laravel/passport": "9.3",
         "laravel/tinker": "^2.0",
         "laravel/ui": "2.4",
-<<<<<<< HEAD
         "santigarcor/laratrust": "^6.2",
-        "spatie/laravel-activitylog": "^3.16"
-=======
         "phpoffice/phpspreadsheet": "^1.15",
-        "santigarcor/laratrust": "^6.2"
->>>>>>> develop
+        "spatie/laravel-activitylog": "^3.16"
     },
     "require-dev": {
         "facade/ignition": "^2.0",
