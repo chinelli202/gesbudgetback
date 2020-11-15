@@ -30,24 +30,16 @@ class EngagementController extends Controller
         // . nb_... & cumul_... required ou >0 en fonction du statut de l'engagement
         // . source exists in l'ensemble des valeurs possible de source
         $this->engagementCreateValidator = [
-            'code'              =>          'required|alpha_dash|unique:engagements',
             'libelle'           =>          'required',
             'montant_ht'        =>          'required',
             'montant_ttc'       =>          'required',
             'devise'            =>          'required|exists:variables,code',
             'nature'            =>          'required|exists:variables,code',
             'type'              =>          'required|exists:variables,code',
-            'etat'              =>          'required|exists:variables,code',
-            'statut'            =>          'required|exists:variables,code',
             'nb_imputations'    =>          'nullable|integer',
             'cumul_imputations' =>          'nullable|integer',
             'nb_apurements'     =>          'nullable|integer',
-            'cumul_apurements'  =>          'nullable|integer',
-            'saisisseur'        =>          'required|exists:users,matricule',
-            'valideur_first'    =>          'nullable|exists:users,matricule',
-            'valideur_second'   =>          'nullable|exists:users,matricule',
-            'valideur_final'    =>          'nullable|exists:users,matricule',
-            'source'            =>          'required'
+            'cumul_apurements'  =>          'nullable|integer'
         ];
 
         $this->engagementUpdateValidator = [
@@ -115,43 +107,52 @@ class EngagementController extends Controller
         return response()->json(["status" => $this->success_status, "success" => true, "data" => $engagement]);
     }
 
-    public function create(Request $request){
-        $validator = Validator::make($request->all(), $this->engagementCreateValidator);
+    public function nouveau(Request $request){
+        // $validator = Validator::make($request->all(), $this->engagementCreateValidator);
 
-        if($validator->fails()) {
-            return response()->json(["validation_errors" => $validator->errors()]);
-        }
-
-        $engagement = Engagement::create([
-            "code" => $request->type .substr(now()->format('ymd-His-u'),0,17),
-            "libelle" => $request->libelle,
-            "montant_ttc" => $request->montant_ttc,
-            "montant_ht" => $request->montant_ht,
-            "devise" => $request->devise,
-            "type" => $request->type,
-            "nature" => $request->nature,
-
-            'etat' => Config::get('gesbudget.variables.etat_engagement.INIT')[1],
-            'statut' => Config::get('gesbudget.variables.statut_engagement.SAISI')[1],
-
-            'nb_imputations' => 0,
-            'cumul_imputations' => 0,
-            'nb_apurements' => 0,
-            'cumul_apurements' => 0,
-            'saisisseur' => Auth::user()->matricule,
-            'valideur_first' => null,
-            'valideur_second' => null,
-            'valideur_final' => null,
-            'source' => Config::get('gesbudget.source.API')[0]
-        ]);
-
-        $engagement = $this->enrichEngagement($engagement->id);
+        // if($validator->fails()) {
+        //     return response()->json([
+        //         "error" => true,
+        //         "message" => "Vérifiez que les champs saisis sont valides",
+        //         "validation_errors" => $validator->errors()
+        //     ]);
+        // }
+        
         return response()->json([
-            "status" => $this->success_status
-            , "success" => true
-            , "message" => "Engagement ". $engagement->code ." créé avec succès"
-            , "data" => $engagement
+            "error" => true,
+            "message" => "Vérifiez que les champs saisis sont valides"
         ]);
+
+        // $engagement = Engagement::create([
+        //     "code" => $request->type .substr(now()->format('ymd-His-u'),0,17),
+        //     "libelle" => $request->libelle,
+        //     "montant_ttc" => $request->montant_ttc,
+        //     "montant_ht" => $request->montant_ht,
+        //     "devise" => $request->devise,
+        //     "type" => $request->type,
+        //     "nature" => $request->nature,
+
+        //     'etat' => Config::get('gesbudget.variables.etat_engagement.INIT')[1],
+        //     'statut' => Config::get('gesbudget.variables.statut_engagement.SAISI')[1],
+
+        //     'nb_imputations' => 0,
+        //     'cumul_imputations' => 0,
+        //     'nb_apurements' => 0,
+        //     'cumul_apurements' => 0,
+        //     'saisisseur' => Auth::user()->matricule,
+        //     'valideur_first' => null,
+        //     'valideur_second' => null,
+        //     'valideur_final' => null,
+        //     'source' => Config::get('gesbudget.source.API')[0]
+        // ]);
+
+        // $engagement = $this->enrichEngagement($engagement->id);
+        // return response()->json([
+        //     "status" => $this->success_status
+        //     , "success" => true
+        //     , "message" => "Engagement ". $engagement->code ." créé avec succès"
+        //     , "data" => $engagement
+        // ]);
     }
 
     public function update(Request $request){

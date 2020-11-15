@@ -32,7 +32,7 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::get("getengagements", "EngagementController@getEngagements")->name('getEngagements');
     Route::get("engagement/{id}", "EngagementController@getEngagement")->name('getEngagement');
     Route::post("engagement/{id}", "EngagementController@update")->name("updateEngagement");
-    Route::post("engagement/create", "EngagementController@create")->name("createEngagement");
+    Route::post("engagement/nouveau", "EngagementController@nouveau")->name("createEngagement");
     Route::post("engagement/addcomment/{id}", "EngagementController@addComment")->name("addCommentEngagement");
     Route::post("engagement/close/{id}", "EngagementController@close")->name("closeEngagement");
     Route::post("engagement/restore/{id}", "EngagementController@restore")->name("restoreEngagement");
