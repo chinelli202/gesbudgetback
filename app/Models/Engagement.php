@@ -32,6 +32,18 @@ class Engagement extends Model
         ,'valideur_second','valideur_final','source'
     ];
 
+    public function ligne(){
+        return $this->belongsTo('App\Models\Ligne');
+    }
+
+    public function imputations(){
+        return $this->hasMany('App\Models\Imputation');
+    }
+
+    public function apurements(){
+        return $this->hasMany('App\Models\Apurement', 'engagement_id', 'code');
+    }
+
     public function tapActivity(Activity $activity, string $eventName)
     {
         $commentSessionKey = 'CommentEngagement'.Auth::user()->id.$this->id;

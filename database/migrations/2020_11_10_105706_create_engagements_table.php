@@ -51,8 +51,9 @@ class CreateEngagementsTable extends Migration
             $table->string('valideur_second')->nullable();
             $table->string('valideur_final')->nullable();
             $table->string('source');
+            $table->unsignedBigInteger('ligne_id');
             
-
+            $table->foreign('ligne_id')->references('id')->on('lignes')->onDelete('cascade');
             $table->foreign('saisisseur')->references('matricule')->on('users')
                 ->onUpdate('cascade')->onDelete('cascade');
             $table->foreign('valideur_first')->references('matricule')->on('users')

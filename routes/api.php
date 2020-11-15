@@ -44,3 +44,9 @@ Route::group(['middleware' => 'auth:api'], function () {
     
     Route::get("getvariables", "VariableController@getvariables")->name('getvariables');
 });
+
+Route::get('/budgetsfonctionnement',"BudgetFonctionnementController@index");
+Route::get('/etats/fonctionnement/depenses/groupe/{groupename}',"EtatsGroupesFonctionnementController@getGroupe");
+Route::get('/etats/fonctionnement/depenses/soussection/fonctionnement',"EtatsFonctionnementController@getRecapSousSectionFonctionnement");
+Route::get('/etats/fonctionnement/depenses/soussection/investissement',"EtatsFonctionnementController@getRecapSousSectionInvestissement");
+Route::get('/etats/fonctionnement/recette',"EtatsFonctionnementController@getRecapRecettes");

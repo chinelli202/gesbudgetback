@@ -16,7 +16,7 @@ class CreateApurementsTable extends Migration
         Schema::create('apurements', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->string('engagement_id');
+            $table->string('engagement_id');  //creates confusion. rename to code_engagement. 
             $table->string('libelle');
             $table->string('reference_paiement');
             $table->bigInteger('montant_ht')->nullable();
