@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Contracts\Activity;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-class Apurement extends Model
-{
+class Apurement extends Model {
+    
     use LogsActivity;
 
     /** Only the 'updated' and `deleted` events will get logged automatically
@@ -26,12 +26,15 @@ class Apurement extends Model
         , 'observations', 'statut', 'saisisseur', 'valideur_first', 'valideur_second', 'valideur_final', 'source'
     ];
 
-    public function tapActivity(Activity $activity, string $eventName)
-    {
+    public function tapActivity(Activity $activity, string $eventName) {
         $activity->causer = Auth::user();
         $actioncode = '';
         if($eventName === 'updated'){
             // TODO : specify the right description depending on the action
         }
+    }
+
+    public function engagement(){
+        return $this->belongsTo('App\Models\Engagement', 'engagement_id', 'code');
     }
 }

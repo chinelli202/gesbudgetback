@@ -17,6 +17,7 @@
         "laravel/tinker": "^2.0",
         "laravel/ui": "2.4",
         "santigarcor/laratrust": "^6.2",
+        "phpoffice/phpspreadsheet": "^1.15",
         "spatie/laravel-activitylog": "^3.16"
     },
     "require-dev": {

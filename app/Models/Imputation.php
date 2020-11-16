@@ -26,6 +26,10 @@ class Imputation extends Model
         , 'observations', 'statut', 'saisisseur', 'valideur_first', 'valideur_second', 'valideur_final', 'source'
     ];
 
+    public function engagement(){
+        return $this->belongsTo('App\Models\Engagement');
+    }
+    
     public function tapActivity(Activity $activity, string $eventName)
     {
         $activity->causer = Auth::user();
