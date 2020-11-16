@@ -30,24 +30,12 @@ class EngagementController extends Controller
         // . nb_... & cumul_... required ou >0 en fonction du statut de l'engagement
         // . source exists in l'ensemble des valeurs possible de source
         $this->engagementCreateValidator = [
-            'code'              =>          'required|alpha_dash|unique:engagements',
             'libelle'           =>          'required',
             'montant_ht'        =>          'required',
             'montant_ttc'       =>          'required',
             'devise'            =>          'required|exists:variables,code',
             'nature'            =>          'required|exists:variables,code',
-            'type'              =>          'required|exists:variables,code',
-            'etat'              =>          'required|exists:variables,code',
-            'statut'            =>          'required|exists:variables,code',
-            'nb_imputations'    =>          'nullable|integer',
-            'cumul_imputations' =>          'nullable|integer',
-            'nb_apurements'     =>          'nullable|integer',
-            'cumul_apurements'  =>          'nullable|integer',
-            'saisisseur'        =>          'required|exists:users,matricule',
-            'valideur_first'    =>          'nullable|exists:users,matricule',
-            'valideur_second'   =>          'nullable|exists:users,matricule',
-            'valideur_final'    =>          'nullable|exists:users,matricule',
-            'source'            =>          'required'
+            'type'              =>          'required|exists:variables,code'
         ];
 
         $this->engagementUpdateValidator = [
@@ -142,7 +130,7 @@ class EngagementController extends Controller
             'valideur_first' => null,
             'valideur_second' => null,
             'valideur_final' => null,
-            'source' => Config::get('gesbudget.source.API')[0]
+            'source' => Config::get('gesbudget.variables.source.API')[0]
         ]);
 
         $engagement = $this->enrichEngagement($engagement->id);
@@ -152,6 +140,7 @@ class EngagementController extends Controller
             , "message" => "Engagement ". $engagement->code ." créé avec succès"
             , "data" => $engagement
         ]);
+
     }
 
     public function update(Request $request){
