@@ -61,7 +61,7 @@ class EngagementController extends Controller
             'valideur_second'   =>          'nullable|exists:users,matricule',
             'valideur_final'    =>          'nullable|exists:users,matricule',
             'source'            =>          'required',
-            'ligne_id'          =>          'required|exists:lignes,code'
+            'ligne_id'          =>          'required|exists:lignes,id'
 
         ];
     }
@@ -96,6 +96,7 @@ class EngagementController extends Controller
 
         $engagement["chapitre_id"] = $chapitre->id;
         $engagement["rubrique_id"] = $rubrique->id;
+        $engagement["domaine"] = $chapitre->domaine;
         $engagement["ligne_libelle"] = $chapitre->label . " // " . $rubrique->label . " // " . $ligne->label;
 
         return $engagement;
@@ -171,7 +172,8 @@ class EngagementController extends Controller
             "montant_ht" => $request->montant_ht,
             "devise" => $request->devise,
             "type" => $request->type,
-            "nature" => $request->nature
+            "nature" => $request->nature,
+            "ligne_id" => $request->ligne_id
         ]);
         $engagement = $this->enrichEngagement($engagement->id);
         return response()->json([
