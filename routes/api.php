@@ -45,13 +45,13 @@ Route::get('/maquettes/mandat',"MaquetteTreeController@getMandatTree");
 Route::get('/maquettes/all',"MaquetteTreeController@getGlobalTree");
 
 //routes for recap requests
-Route::get('/etats/fonctionnement/recette/rubriquegroupe/{groupename}',"EtatsFonctionnementController@getRecapRubriqueGroupe");
+Route::get('/etats/fonctionnement/groupe/{groupename}',"EtatsFonctionnementController@getRecapRubriqueGroupe");
 Route::get('/etats/fonctionnement/rubrique/{rubriqueid}',"EtatsFonctionnementController@getRecapRubrique");
 Route::get('/etats/fonctionnement/chapitre/{chapitreid}',"EtatsFonctionnementController@getRecapChapitre");
 Route::get('/etats/fonctionnement/ligne/{ligneid}',"EtatsFonctionnementController@getRecapLigne");
 
 //routes for months recaps
-Route::get('/etats/fonctionnement/recette/monthsrecap/rubriquegroupe/{groupename}',"EtatsFonctionnementController@getRecapRubriqueGroupe");
+Route::get('/etats/fonctionnement/monthsrecap/groupe/{groupename}',"EtatsFonctionnementController@getRecapRubriqueGroupe");
 Route::get('/etats/fonctionnement/monthsrecap/rubrique/{rubriqueid}',"EtatsFonctionnementController@getMonthsRecapRubrique");
 Route::get('/etats/fonctionnement/monthsrecap/chapitre/{chapitreid}',"EtatsFonctionnementController@getMonthsRecapChapitre");
 Route::get('/etats/fonctionnement/monthsrecap/ligne/{ligneid}',"EtatsFonctionnementController@getMonthsRecapLigne");

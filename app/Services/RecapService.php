@@ -212,7 +212,7 @@ class RecapService {
         $collection = [];
         $sumrow = new stdClass();
         $recap = new stdClass();
-        $recap->libelle = $name;
+        
         $recap->prevision = 0;
         $recap->realisations = 0;
         $recap->realisationsMois = 0;
@@ -227,6 +227,7 @@ class RecapService {
         foreach($rubriques as $rubrique){
             $recaprubrique = $this->getRecapRubrique($rubrique->id, $critere, $params);
             $recap->prevision += $recaprubrique->prevision;
+            $recap->libelle = $recaprubrique->chapitre;
             $recap->realisations += $recaprubrique->realisations;
             $recap->realisationsMois += $recaprubrique->realisationsMois;
             $recap->realisationsMoisPrecedents += $recaprubrique->realisationsMoisPrecedents;
@@ -236,11 +237,11 @@ class RecapService {
             array_push($collection, $recaprubrique);
         }
         //TODO add properties
-        $sumrow->tauxExecution = floor(100 * ($sumrow->execution/$sumrow->prevision));
+        $recap->tauxExecution = floor(100 * ($recap->execution/$recap->prevision));
         
        
         $recap->collection = $collection;        
-        $recap->sumrow = $sumrow;
+        //$recap->sumrow = $sumrow;
         
         Log::info( "added a new recap for rubrique group".$name);
         Log::info( "prevision : ".$recap->prevision);

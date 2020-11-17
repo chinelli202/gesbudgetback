@@ -48,8 +48,10 @@ class EtatsFonctionnementController extends Controller
 
     public function getRecapRubriqueGroupe(RecapService $recapService, $groupename, Request $request){
         $params = $this->validateParams($request, $recapService);
+        //validate groupename, make sure its formatted correctly
+        $formatedname = str_replace("+", " ", $groupename);
         if(!is_null($params)){
-            $recap = $recapService->getRecapRubriqueGroup($groupename, $request->critere, $params);
+            $recap = $recapService->getRecapRubriqueGroup($formatedname, $request->critere, $params);
             return response()->json(["status" => $this->success_status, "success" => true, "data" => $recap]);
         }
         else return "missing or incorrect parameters";
