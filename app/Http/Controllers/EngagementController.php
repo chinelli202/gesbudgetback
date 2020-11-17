@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use App\Models\Engagement;
 use App\Models\User;
 use App\Models\Variable;
+use App\Models\Ligne;
+use App\Models\Rubrique;
+use App\Models\Chapitre;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Validator;
@@ -35,7 +38,8 @@ class EngagementController extends Controller
             'montant_ttc'       =>          'required',
             'devise'            =>          'required|exists:variables,code',
             'nature'            =>          'required|exists:variables,code',
-            'type'              =>          'required|exists:variables,code'
+            'type'              =>          'required|exists:variables,code',
+            'ligne_id'          =>          'required|exists:lignes,id'
         ];
 
         $this->engagementUpdateValidator = [
@@ -56,11 +60,13 @@ class EngagementController extends Controller
             'valideur_first'    =>          'nullable|exists:users,matricule',
             'valideur_second'   =>          'nullable|exists:users,matricule',
             'valideur_final'    =>          'nullable|exists:users,matricule',
-            'source'            =>          'required'
+            'source'            =>          'required',
+            'ligne_id'          =>          'required|exists:lignes,code'
+
         ];
     }
 
-    function enrichEngagement($engagementId){
+    private function enrichEngagement($engagementId) {
         $engagement = Engagement::findOrFail($engagementId);
         $saisisseur = User::where('matricule', $engagement->saisisseur)->first();
         $valideurP = User::where('matricule', $engagement->valideur_first)->first();
@@ -73,6 +79,10 @@ class EngagementController extends Controller
         $etat = Variable::where('code', $engagement->etat)->first();
         $statut = Variable::where('code', $engagement->statut)->first();
 
+        $ligne = Ligne::where('id', $engagement->ligne_id)->first();
+        $rubrique = Rubrique::where('id', $ligne->rubrique_id)->first();
+        $chapitre = Chapitre::where('id', $rubrique->chapitre_id)->first();
+
         $engagement["saisisseur_name"] = $saisisseur->name;
         $engagement["valideurp_name"] = $valideurP->name ?? '';
         $engagement["valideurs_name"] = $valideurS->name ?? '';
@@ -84,6 +94,10 @@ class EngagementController extends Controller
         $engagement["etat_libelle"] = $etat->libelle ?? '';
         $engagement["statut_libelle"] = $statut->libelle ?? '';
 
+        $engagement["chapitre_id"] = $chapitre->id;
+        $engagement["rubrique_id"] = $rubrique->id;
+        $engagement["ligne_libelle"] = $chapitre->label . " // " . $rubrique->label . " // " . $ligne->label;
+
         return $engagement;
     }
 
@@ -92,8 +106,10 @@ class EngagementController extends Controller
 
         $engagements = Engagement::where('etat', $etat)
             ->orderBy('created_at', 'desc')
-            ->get();
-
+            ->get()
+            ->map(function ($eng) {
+                return $this->enrichEngagement($eng->id);
+            });
         return response()->json(["status" => $this->success_status, "success" => true, "data" => $engagements]);
     }
 
@@ -102,14 +118,13 @@ class EngagementController extends Controller
         $engagement = $this->enrichEngagement($engagementId);
         return response()->json(["status" => $this->success_status, "success" => true, "data" => $engagement]);
     }
-
-    public function nouveau(Request $request){
-        // $validator = Validator::make($request->all(), $this->engagementCreateValidator);
-
+    
+    public function create(Request $request){
+        $validator = Validator::make($request->all(), $this->engagementCreateValidator);
+        
         if($validator->fails()) {
             return response()->json(["validation_errors" => $validator->errors()]);
         }
-
         $engagement = Engagement::create([
             "code" => $request->type .substr(now()->format('ymd-His-u'),0,17),
             "libelle" => $request->libelle,
@@ -118,10 +133,10 @@ class EngagementController extends Controller
             "devise" => $request->devise,
             "type" => $request->type,
             "nature" => $request->nature,
-
+            
             'etat' => Config::get('gesbudget.variables.etat_engagement.INIT')[1],
             'statut' => Config::get('gesbudget.variables.statut_engagement.SAISI')[1],
-
+            
             'nb_imputations' => 0,
             'cumul_imputations' => 0,
             'nb_apurements' => 0,
@@ -130,11 +145,15 @@ class EngagementController extends Controller
             'valideur_first' => null,
             'valideur_second' => null,
             'valideur_final' => null,
-            'source' => Config::get('gesbudget.variables.source.API')[0]
+            'source' => Config::get('gesbudget.variables.source.API')[0],
+            'ligne_id' => $request->ligne_id
         ]);
-
-        $engagement = $this->enrichEngagement($engagement->id);
-
+            
+        return response()->json([
+            "status" => $this->success_status
+            , "success" => true
+            , "data" => $this->enrichEngagement($engagement->id)
+        ]); 
     }
 
     public function update(Request $request){

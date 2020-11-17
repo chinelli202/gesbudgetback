@@ -29,7 +29,7 @@ class Engagement extends Model
     protected $fillable = [
         'code', 'libelle', 'montant_ht', 'montant_ttc', 'devise',  'nature','type', 'etat', 'statut', 'next_statut',
         'nb_imputations','cumul_imputations','nb_apurements','cumul_apurements','saisisseur','valideur_first'
-        ,'valideur_second','valideur_final','source'
+        ,'valideur_second','valideur_final','source', 'ligne_id'
     ];
 
     public function ligne(){
