@@ -15,7 +15,7 @@ class RecapService {
     public $criteres;
 
     public function __construct(){
-        $this->criteres = ['mois', 'jour', 'rapport_mensuel', 'groupemois'];
+        $this->criteres = ['mois', 'jour', 'rapport_mensuel', 'intervalle'];
     }
 
     //method for retrieving recap values of a given ligne
@@ -213,6 +213,7 @@ class RecapService {
         $sumrow = new stdClass();
         $recap = new stdClass();
         
+        $recap->libelle = $name;
         $recap->prevision = 0;
         $recap->realisations = 0;
         $recap->realisationsMois = 0;
@@ -227,7 +228,6 @@ class RecapService {
         foreach($rubriques as $rubrique){
             $recaprubrique = $this->getRecapRubrique($rubrique->id, $critere, $params);
             $recap->prevision += $recaprubrique->prevision;
-            $recap->libelle = $recaprubrique->chapitre;
             $recap->realisations += $recaprubrique->realisations;
             $recap->realisationsMois += $recaprubrique->realisationsMois;
             $recap->realisationsMoisPrecedents += $recaprubrique->realisationsMoisPrecedents;

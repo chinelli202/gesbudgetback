@@ -51,7 +51,7 @@ Route::get('/etats/fonctionnement/chapitre/{chapitreid}',"EtatsFonctionnementCon
 Route::get('/etats/fonctionnement/ligne/{ligneid}',"EtatsFonctionnementController@getRecapLigne");
 
 //routes for months recaps
-Route::get('/etats/fonctionnement/monthsrecap/groupe/{groupename}',"EtatsFonctionnementController@getRecapRubriqueGroupe");
+Route::get('/etats/fonctionnement/monthsrecap/groupe/{groupename}',"EtatsFonctionnementController@getMonthsRecapRubriqueGroupe");
 Route::get('/etats/fonctionnement/monthsrecap/rubrique/{rubriqueid}',"EtatsFonctionnementController@getMonthsRecapRubrique");
 Route::get('/etats/fonctionnement/monthsrecap/chapitre/{chapitreid}',"EtatsFonctionnementController@getMonthsRecapChapitre");
 Route::get('/etats/fonctionnement/monthsrecap/ligne/{ligneid}',"EtatsFonctionnementController@getMonthsRecapLigne");

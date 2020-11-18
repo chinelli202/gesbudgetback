@@ -57,8 +57,21 @@ class EtatsFonctionnementController extends Controller
         else return "missing or incorrect parameters";
     }
 
-    public function getMonthsRecapRubriqueGroupe($groupename){
-
+    public function getMonthsRecapRubriqueGroupe(RecapService $recapService, $groupename, Request $request){
+        $months = [];
+        $params = $this->validateParams($request, $recapService);
+        $formatedname = str_replace("+", " ", $groupename);
+        if(!is_null($params)){
+            for($i = $params->startmonth; $i <= $params->endmonth; $i++){
+                $params->mois = $i;
+                $monthrecap = $recapService->getRecapRubriqueGroup($formatedname, 'mois', $params);
+                array_push($months, $monthrecap);
+            }
+            $recap = new stdClass();
+            $recap->months = $months;
+            return response()->json(["status" => $this->success_status, "success" => true, "data" => $recap]);
+        }
+        else return "missiong or incorrect parameters";
     }
 
     public function getRecapChapitre(RecapService $recapService, $chapitreid, Request $request){
@@ -120,7 +133,7 @@ class EtatsFonctionnementController extends Controller
                 return $params;
             }
 
-             if($request->critere == 'groupemois'){
+             if($request->critere == 'intervalle'){
                 //TODO RULE : make sure the given month is before current month
                 Log::info("start month ".$request->startmonth.", endmonth : ".$request->endmonth);// implode(',', $request->all()));
                 if(isset($request->startmonth) && isset($request->endmonth)){
