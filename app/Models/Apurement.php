@@ -24,6 +24,7 @@ class Apurement extends Model {
      */
     protected $fillable = ['engagement_id', 'libelle', 'reference_paiement', 'montant_ht', 'montant_ttc', 'devise'
         , 'observations', 'statut', 'saisisseur', 'valideur_first', 'valideur_second', 'valideur_final', 'source'
+        , 'next_statut'
     ];
 
     public function tapActivity(Activity $activity, string $eventName) {

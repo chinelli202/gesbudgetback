@@ -25,6 +25,7 @@ class CreateApurementsTable extends Migration
             $table->string('observations');
 
             $table->string('statut');
+            $table->string('next_statut')->nullable();
 
             $table->string('saisisseur');
             $table->string('valideur_first')->nullable();

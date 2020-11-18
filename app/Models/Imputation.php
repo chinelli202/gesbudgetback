@@ -24,6 +24,7 @@ class Imputation extends Model
      */
     protected $fillable = ['engagement_id', 'reference', 'montant_ht', 'montant_ttc', 'devise'
         , 'observations', 'statut', 'saisisseur', 'valideur_first', 'valideur_second', 'valideur_final', 'source'
+        , 'next_statut'
     ];
 
     public function engagement(){
