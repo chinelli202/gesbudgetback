@@ -33,7 +33,7 @@ return [
             'CLOT' => ['Clôturé', 'CLOT'],
             'PEG' => ['Pré-engagé', 'PEG'],
             'IMP' => ['Imputé', 'IMP'],
-            'REA' => ['Réalisé', 'REA']
+            'APUR' => ['Apuré', 'APUR']
         ],
         'statut_engagement' => [
             // 'VALIDF_NOEXC' => ['Validé au niveau final sans exécution (imputation ou apurement)', 'NA'],
