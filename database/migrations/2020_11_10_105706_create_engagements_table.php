@@ -41,6 +41,7 @@ class CreateEngagementsTable extends Migration
             $table->string('etat');
             $table->string('statut');
             $table->string('next_statut')->nullable();
+            $table->json('documents')->nullable();
             
             $table->integer('nb_imputations')->default(0);
             $table->bigInteger('cumul_imputations')->default(0);

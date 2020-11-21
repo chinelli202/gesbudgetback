@@ -11,11 +11,14 @@ class Imputation extends Model
 {
     use LogsActivity;
 
-    /** Only the 'updated' and `deleted` events will get logged automatically
-     * 
+    /**
+     * The attributes that should be cast to native types.
+     *
      * @var array
-    */
-    protected static $recordEvents = ['updated', 'deleted'];
+     */
+    protected $casts = [
+        'documents' => 'array'
+    ];
 
     /**
      * The attributes that are mass assignable.
@@ -24,19 +27,10 @@ class Imputation extends Model
      */
     protected $fillable = ['engagement_id', 'reference', 'montant_ht', 'montant_ttc', 'devise'
         , 'observations', 'statut', 'saisisseur', 'valideur_first', 'valideur_second', 'valideur_final', 'source'
-        , 'next_statut'
+        , 'next_statut', 'documents'
     ];
 
     public function engagement(){
         return $this->belongsTo('App\Models\Engagement');
-    }
-    
-    public function tapActivity(Activity $activity, string $eventName)
-    {
-        $activity->causer = Auth::user();
-        $actioncode = '';
-        if($eventName === 'updated'){
-            // TODO : specify the right description depending on the action
-        }
     }
 }

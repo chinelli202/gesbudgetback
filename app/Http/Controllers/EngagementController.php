@@ -188,7 +188,7 @@ class EngagementController extends Controller
         $engagementId = $request->id;
         $engagement = Engagement::findOrFail($engagementId);
         if ($engagement->etat === Config::get('gesbudget.variables.etat_engagement.CLOT')[1]) {
-            return response()->json(["error" => true, "message" => "Cet engagement ". $engagement->code ." déjà clôturé"]);
+            return response()->json(["error" => true, "message" => "Cet engagement ". $engagement->code ." a déjà été clôturé"]);
         }
         session()->put('CommentEngagement'.Auth::user()->id.$engagementId, $request->comment);
         
