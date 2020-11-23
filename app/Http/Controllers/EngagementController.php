@@ -4,11 +4,15 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Engagement;
+use App\Models\Imputation;
 use App\Models\User;
 use App\Models\Variable;
 use App\Models\Ligne;
 use App\Models\Rubrique;
 use App\Models\Chapitre;
+
+use App\Services\EngagementService;
+
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Validator;
@@ -28,10 +32,12 @@ class EngagementController extends Controller
             ->first()['valeur'];
 
         // TODO : Améliorer la validation pour inclure 
-        // . montant_ttc = montant_ht*tva
-        // . valideur_... required en fonction du statut de l'engagement
-        // . nb_... & cumul_... required ou >0 en fonction du statut de l'engagement
-        // . source exists in l'ensemble des valeurs possible de source
+        // 1. montant_ttc = montant_ht*tva
+        // 2. valideur_... required en fonction du statut de l'engagement
+        // 3. nb_... & cumul_... required ou >0 en fonction du statut de l'engagement
+        // 4. source exists in l'ensemble des valeurs possible de source
+        // 5. Mieux gérer les retours des validations
+
         $this->engagementCreateValidator = [
             'libelle'           =>          'required',
             'montant_ht'        =>          'required',
@@ -66,67 +72,36 @@ class EngagementController extends Controller
         ];
     }
 
-    private function enrichEngagement($engagementId) {
-        $engagement = Engagement::findOrFail($engagementId);
-        $saisisseur = User::where('matricule', $engagement->saisisseur)->first();
-        $valideurP = User::where('matricule', $engagement->valideur_first)->first();
-        $valideurS = User::where('matricule', $engagement->valideur_second)->first();
-        $valideurF = User::where('matricule', $engagement->valideur_final)->first();
-
-        $devise = Variable::where('code', $engagement->devise)->first();
-        $nature = Variable::where('code', $engagement->nature)->first();
-        $type = Variable::where('code', $engagement->type)->first();
-        $etat = Variable::where('code', $engagement->etat)->first();
-        $statut = Variable::where('code', $engagement->statut)->first();
-
-        $ligne = Ligne::where('id', $engagement->ligne_id)->first();
-        $rubrique = Rubrique::where('id', $ligne->rubrique_id)->first();
-        $chapitre = Chapitre::where('id', $rubrique->chapitre_id)->first();
-
-        $engagement["saisisseur_name"] = $saisisseur->name;
-        $engagement["valideurp_name"] = $valideurP->name ?? '';
-        $engagement["valideurs_name"] = $valideurS->name ?? '';
-        $engagement["valideurf_name"] = $valideurF->name ?? '';
-
-        $engagement["devise_libelle"] = $devise->libelle ?? '';
-        $engagement["nature_libelle"] = $nature->libelle ?? '';
-        $engagement["type_libelle"] = $type->libelle ?? '';
-        $engagement["etat_libelle"] = $etat->libelle ?? '';
-        $engagement["statut_libelle"] = $statut->libelle ?? '';
-
-        $engagement["chapitre_id"] = $chapitre->id;
-        $engagement["rubrique_id"] = $rubrique->id;
-        $engagement["domaine"] = $chapitre->domaine;
-        $engagement["ligne_libelle"] = $chapitre->label . " // " . $rubrique->label . " // " . $ligne->label;
-
-        return $engagement;
-    }
-
-    public function getEngagements(Request $request){
+    public function getEngagements(EngagementService $engagementService, Request $request){
         $etat = $request->etat;
 
         $engagements = Engagement::where('etat', $etat)
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($eng) {
-                return $this->enrichEngagement($eng->id);
+                return $engagementService->enrichEngagement($eng->id);
             });
         return response()->json(["status" => $this->success_status, "success" => true, "data" => $engagements]);
     }
 
-    public function getEngagement(Request $request){
+    public function getEngagement(Request $request, EngagementService $engagementService){
         $engagementId = $request->id;
-        $engagement = $this->enrichEngagement($engagementId);
+        echo $engagementId;
+        $engagement = $engagementService->enrichEngagement($engagementId);
         return response()->json(["status" => $this->success_status, "success" => true, "data" => $engagement]);
     }
     
-    public function create(Request $request){
+    public function create(EngagementService $engagementService, Request $request){
         $validator = Validator::make($request->all(), $this->engagementCreateValidator);
         
         if($validator->fails()) {
             return response()->json(["validation_errors" => $validator->errors()]);
         }
         $engagement = Engagement::create([
+            /** TODO : generate the code in this format : 020-LDC-113 
+             * where '020' is the last 3 digit of the year
+             * '113' is the id of the newly created engagement
+             */
             "code" => $request->type .substr(now()->format('ymd-His-u'),0,17),
             "libelle" => $request->libelle,
             "montant_ttc" => $request->montant_ttc,
@@ -153,11 +128,11 @@ class EngagementController extends Controller
         return response()->json([
             "status" => $this->success_status
             , "success" => true
-            , "data" => $this->enrichEngagement($engagement->id)
+            , "data" => $engagementService->enrichEngagement($engagement->id)
         ]); 
     }
 
-    public function update(Request $request){
+    public function update(EngagementService $engagementService, Request $request){
         $engagementId = $request->id;
         $validator = Validator::make($request->all(), $this->engagementUpdateValidator);
 
@@ -175,7 +150,7 @@ class EngagementController extends Controller
             "nature" => $request->nature,
             "ligne_id" => $request->ligne_id
         ]);
-        $engagement = $this->enrichEngagement($engagement->id);
+        $engagement = $engagementService->enrichEngagement($engagement->id);
         return response()->json([
             "status" => $this->success_status
             , "success" => true
@@ -184,7 +159,7 @@ class EngagementController extends Controller
         ]);
     }
 
-    public function close(Request $request){
+    public function close(EngagementService $engagementService, Request $request){
         $engagementId = $request->id;
         $engagement = Engagement::findOrFail($engagementId);
         if ($engagement->etat === Config::get('gesbudget.variables.etat_engagement.CLOT')[1]) {
@@ -195,7 +170,7 @@ class EngagementController extends Controller
         $engagement->update([
             "etat" => Config::get('gesbudget.variables.etat_engagement.CLOT')[1],
         ]);
-        $engagement = $this->enrichEngagement($engagement->id);
+        $engagement = $engagementService->enrichEngagement($engagement->id);
         return response()->json([
             "status" => $this->success_status
             , "success" => true
@@ -204,7 +179,7 @@ class EngagementController extends Controller
         ]);
     }
 
-    public function restore(Request $request){
+    public function restore(EngagementService $engagementService, Request $request){
         $engagementId = $request->id;
         $engagement = Engagement::findOrFail($engagementId);
         if ($engagement->etat !== Config::get('gesbudget.variables.etat_engagement.CLOT')[1]) {
@@ -219,7 +194,7 @@ class EngagementController extends Controller
         $engagement->update([
             "etat" => Config::get('gesbudget.variables.etat_engagement.INIT')[1],
         ]);
-        $engagement = $this->enrichEngagement($engagement->id);
+        $engagement = $engagementService->enrichEngagement($engagement->id);
         return response()->json([
             "status" => $this->success_status
             , "success" => true
@@ -227,7 +202,7 @@ class EngagementController extends Controller
             , "data" => $engagement]);
     }
     
-    public function addComment(Request $request){
+    public function addComment(EngagementService $engagementService, Request $request){
         $engagementId = $request->id;
         $engagement = Engagement::findOrFail($engagementId);
 
@@ -238,7 +213,7 @@ class EngagementController extends Controller
                 $activity->comment = $request->comment;
             })
             ->log(Config::get('gesbudget.variables.actions.ADD_COMMENT')[1]);
-        $engagement = $this->enrichEngagement($engagement->id);
+        $engagement = $engagementService->enrichEngagement($engagement->id);
         return response()->json([
             "status" => $this->success_status
             , "success" => true
@@ -247,7 +222,7 @@ class EngagementController extends Controller
         ]);
     }
 
-    public function sendBack(Request $request){
+    public function sendBack(EngagementService $engagementService, Request $request){
         $engagementId = $request->id;
         $engagement = Engagement::findOrFail($engagementId);
 
@@ -259,7 +234,7 @@ class EngagementController extends Controller
             "valideur_second" => null,
             "valideur_final" => null
         ]);
-        $engagement = $this->enrichEngagement($engagement->id);
+        $engagement = $engagementService->enrichEngagement($engagement->id);
         return response()->json([
             "status" => $this->success_status
             , "success" => true
@@ -268,7 +243,7 @@ class EngagementController extends Controller
         ]);
     }
 
-    public function resendUpdate(Request $request){
+    public function resendUpdate(EngagementService $engagementService, Request $request){
         $engagementId = $request->id;
         $validator = Validator::make($request->all(), $this->engagementUpdateValidator);
 
@@ -286,7 +261,7 @@ class EngagementController extends Controller
             "type" => $request->type,
             "next_statut" => null
         ]);
-        $engagement = $this->enrichEngagement($engagement->id);
+        $engagement = $engagementService->enrichEngagement($engagement->id);
         return response()->json([
             "status" => $this->success_status
             , "success" => true, "message" => "Engagement ". $engagement->code ." mis à jour avec succès'"
@@ -294,7 +269,7 @@ class EngagementController extends Controller
         ]);
     }
 
-    public function validerPreeng(Request $request){
+    public function validerPreeng(EngagementService $engagementService, Request $request){
         $statutsEngagement = Config::get('gesbudget.variables.statut_engagement');
         $statutsEngagementKeys = array_keys($statutsEngagement);
         $operateursKeys = array_keys(Config::get('gesbudget.variables.operateur'));
@@ -363,7 +338,7 @@ class EngagementController extends Controller
             "statut" => $statutsEngagementKeys[$statutIndice],
             $operateursKeys[$statutIndice] => Auth::user()->matricule
         ]);
-        $engagement = $this->enrichEngagement($engagement->id);
+        $engagement = $engagementService->enrichEngagement($engagement->id);
         return response()->json([
             "status" => $this->success_status
             , "success" => true
@@ -372,7 +347,7 @@ class EngagementController extends Controller
         ]);
     }
 
-    public function cancelValiderPreeng(Request $request){
+    public function cancelValiderPreeng(EngagementService $engagementService, Request $request){
         $statutsEngagement = Config::get('gesbudget.variables.statut_engagement');
         $statutsEngagementKeys = array_keys($statutsEngagement);
         $operateursKeys = array_keys(Config::get('gesbudget.variables.operateur'));
@@ -431,7 +406,7 @@ class EngagementController extends Controller
             "statut" => $statutsEngagementKeys[$statutIndice - 1],
             $operateursKeys[$statutIndice] => null
         ]);
-        $engagement = $this->enrichEngagement($engagement->id);
+        $engagement = $engagementService->enrichEngagement($engagement->id);
         return response()->json([
             "status" => $this->success_status
             , "success" => true

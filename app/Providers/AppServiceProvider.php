@@ -5,6 +5,9 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
 
+use App\Services\ImputationService;
+use App\Services\EngagementService;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -14,7 +17,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        $this->app->bind('App\Services\ImputationService', function ($app) {
+            return new ImputationService();
+        });
+        
+        $this->app->bind('App\Services\EngagementService', function ($app) {
+            return new EngagementService();
+        });
     }
 
     /**

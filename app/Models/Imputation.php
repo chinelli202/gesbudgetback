@@ -31,6 +31,6 @@ class Imputation extends Model
     ];
 
     public function engagement(){
-        return $this->belongsTo('App\Models\Engagement');
+        return $this->belongsTo('App\Models\Engagement', 'engagement_id', 'code');
     }
 }

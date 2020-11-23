@@ -41,6 +41,9 @@ Route::group(['middleware' => 'auth:api'], function () {
     
     Route::post("engagement/valider/peg/{id}", "EngagementController@validerPreeng")->name("validerPreeng");
     Route::post("engagement/cancelValider/peg/{id}", "EngagementController@cancelValiderPreeng")->name("cancelValiderPreeng");
+    Route::post("imputation/create/{id}", "EngagementController@createImputation")->name("createImputation");
+
+    Route::post("engagement/uploadfile", "FileuploadController@uploadfile")->name("uploadfile");
     
     Route::get("getvariables", "VariableController@getvariables")->name('getvariables');
 });
