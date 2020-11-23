@@ -21,7 +21,7 @@ use stdClass;
 //include 'BudgetRecapMockElement.php';
 
 
-class ExcellParser {
+class MonthExcellParser {
     public function __construct(){
         $this->spreadsheet = new Spreadsheet();
         $this->sheet = $this->spreadsheet->getActiveSheet();
@@ -36,10 +36,8 @@ class ExcellParser {
         $this->sheet->getColumnDimension('C')->setWidth(21);
         $this->sheet->getColumnDimension('D')->setWidth(20);
         $this->sheet->getColumnDimension('E')->setWidth(18);
-        $this->sheet->getColumnDimension('F')->setWidth(20);
-        $this->sheet->getColumnDimension('G')->setWidth(20);
-        $this->sheet->getColumnDimension('H')->setWidth(21);
-        $this->sheet->getColumnDimension('I')->setWidth(15);
+        $this->sheet->getColumnDimension('F')->setWidth(15);
+
         //setting general column width
         
         $this->thinborders['borders']['outline']['borderStyle'] = BORDER::BORDER_THIN;
@@ -88,7 +86,7 @@ class ExcellParser {
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 
          //make it an attachment so we can define filename
-        header('Content-Disposition: attachment;filename="result.xlsx"');
+        header('Content-Disposition: attachment;filename="'.$params->filename.'"');
 
         // //create IOFactory object
         $writer = IOFactory::createWriter($this->spreadsheet, 'Xlsx');
@@ -118,10 +116,10 @@ class ExcellParser {
     
         $this->sheet->setCellValue('A'.$this->row, $baniere);
     
-        $this->sheet->mergeCells("A".$this->row.":I".$this->row);
+        $this->sheet->mergeCells("A".$this->row.":F".$this->row);
         
         //setting title border
-        $this->sheet->getStyle("A".$this->row.":I".$this->row)->applyFromArray($this->thickborders);
+        $this->sheet->getStyle("A".$this->row.":F".$this->row)->applyFromArray($this->thickborders);
     
         //set title Font style
         $this->sheet->getStyle('A'.$this->row)->getFont()->setSize(22);
@@ -233,18 +231,13 @@ class ExcellParser {
         // echo "\n";
         $this->sheet->setCellValue('A'.$this->row,$ligne->libelle)
             ->setCellValue('B'.$this->row,$ligne->prevision)
-            ->setCellValue('C'.$this->row,$ligne->realisationsMois)
-            ->setCellValue('D'.$this->row,$ligne->realisationsMoisPrecedents)
-            ->setCellValue('E'.$this->row,$ligne->realisations)
-            ->setCellValue('F'.$this->row,$ligne->engagements)
-            ->setCellValue('G'.$this->row,$ligne->execution)
-            ->setCellValue('H'.$this->row,$ligne->solde)
-            ->setCellValue('I'.$this->row,$ligne->tauxExecution);
+            ->setCellValue('C'.$this->row,$ligne->realisations)
+            ->setCellValue('D'.$this->row,$ligne->engagements)
+            ->setCellValue('E'.$this->row,$ligne->execution)
+            ->setCellValue('F'.$this->row,$ligne->tauxExecution);
         
-        //setting solde column bold
-        $this->sheet->getStyle('H'.$this->row)->getFont()->setBold(true);
         //setting taux execution column bold
-        $this->sheet->getStyle('I'.$this->row)->getFont()->setBold(true);
+        $this->sheet->getStyle('F'.$this->row)->getFont()->setBold(true);
     }
 
     function makeheaderandbody($data, $tableheader){
@@ -252,7 +245,7 @@ class ExcellParser {
         // echo "building header and body";
         // echo "\n";
         //header title row
-        $this->sheet->getStyle("A".$this->row.":I".$this->row)->getBorders()->getTop()->setBorderStyle(Border::BORDER_THICK);
+        $this->sheet->getStyle("A".$this->row.":F".$this->row)->getBorders()->getTop()->setBorderStyle(Border::BORDER_THICK);
         
         $this->sheet->getStyle("A".$this->row)->getBorders()->getLeft()->setBorderStyle(Border::BORDER_THICK);
         $this->sheet->getStyle("A".$this->row)->getBorders()->getRight()->setBorderStyle(Border::BORDER_THICK);
@@ -264,12 +257,12 @@ class ExcellParser {
         // $this->sheet->getStyle("A".$this->row+1)->getBorders()->getBottom()->setBorderStyle(Border::BORDER_THICK);
         
         //merging header title cells
-        $this->sheet->mergeCells("B".$this->row.":I".$this->row);
+        $this->sheet->mergeCells("B".$this->row.":F".$this->row);
         //set styles alignment, borders, value, etc.
-        $this->sheet->getStyle("B".$this->row.":I".$this->row)->getAlignment()->setHorizontal(ALIGNMENT::HORIZONTAL_CENTER);
-        $this->sheet->getStyle("B".$this->row.":I".$this->row)->getBorders()->getLeft()->setBorderStyle(Border::BORDER_THICK);
-        $this->sheet->getStyle("B".$this->row.":I".$this->row)->getBorders()->getRight()->setBorderStyle(Border::BORDER_THICK);
-        $this->sheet->getStyle("B".$this->row.":I".$this->row)->getBorders()->getBottom()->setBorderStyle(Border::BORDER_THICK);
+        $this->sheet->getStyle("B".$this->row.":F".$this->row)->getAlignment()->setHorizontal(ALIGNMENT::HORIZONTAL_CENTER);
+        $this->sheet->getStyle("B".$this->row.":F".$this->row)->getBorders()->getLeft()->setBorderStyle(Border::BORDER_THICK);
+        $this->sheet->getStyle("B".$this->row.":F".$this->row)->getBorders()->getRight()->setBorderStyle(Border::BORDER_THICK);
+        $this->sheet->getStyle("B".$this->row.":F".$this->row)->getBorders()->getBottom()->setBorderStyle(Border::BORDER_THICK);
         // row height
         $this->sheet->getRowDimension($this->row)->setRowHeight(30);
         // cell value
@@ -292,7 +285,7 @@ class ExcellParser {
         
 
         //header column titles
-        foreach(['B','C','D','E','F','G','H','I'] as $x){
+        foreach(['B','C','D','E','F'] as $x){
             $this->sheet->getStyle($x.$this->row.":".$x.($this->row+1))->applyFromArray($this->thinborders);
             $this->sheet->mergeCells($x.$this->row.":".$x.($this->row+1));
         }
@@ -302,31 +295,28 @@ class ExcellParser {
         
         //setting values
         $this->sheet->setCellValue('B'.$this->row,$tableheader->previsionsLabel)
-            ->setCellValue('C'.$this->row,$tableheader->realisationsMoisLabel)
-            ->setCellValue('D'.$this->row,$tableheader->realisationsMoisPrecedentsLabel)
-            ->setCellValue('E'.$this->row,$tableheader->realisationsLabel)
-            ->setCellValue('F'.$this->row,$tableheader->engagementsLabel)
-            ->setCellValue('G'.$this->row,$tableheader->executionLabel)
-            ->setCellValue('H'.$this->row,$tableheader->soldeLabel)
-            ->setCellValue('I'.$this->row,$tableheader->tauxExecutionLabel);
+            ->setCellValue('C'.$this->row,$tableheader->realisationsLabel)
+            ->setCellValue('D'.$this->row,$tableheader->engagementsLabel)
+            ->setCellValue('E'.$this->row,$tableheader->executionLabel)
+            ->setCellValue('F'.$this->row,$tableheader->tauxExecutionLabel);
     
         //fonts, row dimensions, alignment
         $this->sheet->getStyle('B'.$this->row)->getFont()->setSize(14);
         $this->sheet->getStyle('B'.$this->row)->getFont()->setBold(true);
-        $this->sheet->getStyle("C".$this->row.":I".$this->row)->getFont()->setSize(12);
-        $this->sheet->getStyle("C".$this->row.":I".$this->row)->getFont()->setBold(true);
+        $this->sheet->getStyle("C".$this->row.":F".$this->row)->getFont()->setSize(12);
+        $this->sheet->getStyle("C".$this->row.":F".$this->row)->getFont()->setBold(true);
         $this->sheet->getRowDimension($this->row+1)->setRowHeight(28);
-        $this->sheet->getStyle("B".$this->row.":I".$this->row)->getAlignment()->setHorizontal(ALIGNMENT::HORIZONTAL_CENTER);
-        $this->sheet->getStyle("B".$this->row.":I".$this->row)->getAlignment()->setVertical(ALIGNMENT::VERTICAL_CENTER);
-        $this->sheet->getStyle("B".$this->row.":I".$this->row)->getAlignment()->setWrapText(true);
+        $this->sheet->getStyle("B".$this->row.":F".$this->row)->getAlignment()->setHorizontal(ALIGNMENT::HORIZONTAL_CENTER);
+        $this->sheet->getStyle("B".$this->row.":F".$this->row)->getAlignment()->setVertical(ALIGNMENT::VERTICAL_CENTER);
+        $this->sheet->getStyle("B".$this->row.":F".$this->row)->getAlignment()->setWrapText(true);
         //make text green
-        $this->sheet->getStyle("B".$this->row.":I".$this->row)->applyFromArray($this->greentext);
-//setting thick borders around the header row
+        $this->sheet->getStyle("B".$this->row.":F".$this->row)->applyFromArray($this->greentext);
+        //setting thick borders around the header row
         $this->sheet->getStyle("A".$this->row)->getBorders()->getRight()->setBorderStyle(Border::BORDER_THICK);
         $this->sheet->getStyle("A".$this->row)->getBorders()->getLeft()->setBorderStyle(Border::BORDER_THICK);
-        $this->sheet->getStyle("I".$this->row)->getBorders()->getRight()->setBorderStyle(Border::BORDER_THICK);
+        $this->sheet->getStyle("F".$this->row)->getBorders()->getRight()->setBorderStyle(Border::BORDER_THICK);
         $this->row++;
-        $this->sheet->getStyle("I".$this->row)->getBorders()->getRight()->setBorderStyle(Border::BORDER_THICK);
+        $this->sheet->getStyle("F".$this->row)->getBorders()->getRight()->setBorderStyle(Border::BORDER_THICK);
         $this->sheet->getStyle("A".$this->row)->getBorders()->getRight()->setBorderStyle(Border::BORDER_THICK);
         $this->sheet->getStyle("A".$this->row)->getBorders()->getLeft()->setBorderStyle(Border::BORDER_THICK);
         $this->sheet->getStyle("A".$this->row)->getBorders()->getBottom()->setBorderStyle(Border::BORDER_THICK);
@@ -336,11 +326,11 @@ class ExcellParser {
         //create and style two row that will serve as templates
         for($i = 0; $i < 2; $i++){
             $this->row++;
-            foreach(['A','B','C','D','E','F','G','H','I'] as $x){
+            foreach(['A','B','C','D','E','F'] as $x){
                 $this->sheet->getStyle($x.$this->row.":".$x.($this->row+1))->applyFromArray($this->thinborders);
             }
             $this->sheet->getStyle('A'.$this->row)->getBorders()->getLeft()->setBorderStyle(Border::BORDER_THICK);
-            $this->sheet->getStyle('I'.$this->row)->getBorders()->getRight()->setBorderStyle(Border::BORDER_THICK);
+            $this->sheet->getStyle('F'.$this->row)->getBorders()->getRight()->setBorderStyle(Border::BORDER_THICK);
         }
         $this->row = $this->row-2;
     }

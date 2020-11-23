@@ -16,6 +16,7 @@ class RecapService {
 
     public function __construct(){
         $this->criteres = ['mois', 'jour', 'rapport_mensuel', 'intervalle'];
+        $this->mois_fr = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
     }
 
     //method for retrieving recap values of a given ligne
@@ -132,6 +133,39 @@ class RecapService {
                 $parameters->jour = $day;
                 return $this->getRecapLigne($ligne_id, 'jour',  $parameters);
             }
+            else if($critere == 'intervalle'){
+
+                $recap->prevision = $rligne->montant;
+                //get realisations, engagements, execution depending on $critere : 
+                //1. up to a certain day
+                $realisations = DB::table('apurements')
+                    ->join('engagements', 'apurements.engagement_id', '=', 'engagements.code')
+                    ->join('lignes', 'engagements.ligne_id', '=', 'lignes.id')
+                    ->select('apurements.montant_ttc','apurements.created_at')
+                    ->where('lignes.id',$ligne_id)
+                    ->whereMonth('apurements.created_at', '<=', $params->endmonth)
+                    ->whereMonth('apurements.created_at', '>=', $params->startmonth)
+                   // ->whereMonth('apurements.created_at', $params['month'])
+                    ->sum('apurements.montant_ttc');
+
+                    //engagements : sum of imputation - sum of apurements
+                //$soe_imputations = DB::table('imputations')
+                $soe_imputations = DB::table('engagements')
+                    //->join('engagements', 'imputations.engagement_id', '=', 'engagements.code')
+                    ->join('lignes', 'engagements.ligne_id', '=', 'lignes.id')
+                    //->whereMonth('imputation.created_at', $params['month'])
+                    ->select('engagements.montant_ttc','engagements.created_at')
+                    ->where('lignes.id',$ligne_id)
+                    ->whereMonth('engagements.created_at','<=', $params->endmonth)
+                    ->whereMonth('engagements.created_at','>=', $params->startmonth)
+                    ->sum('engagements.montant_ttc');
+                //2. on a given month
+                $recap->realisations = $realisations;
+                $recap->engagements = $soe_imputations;//$soe_imputations - $realisations;
+                $recap->execution = $recap->engagements + $recap->realisations;
+                //$recap->solde = $recap->prevision - $recap->execution;
+                $recap->tauxExecution = floor(100 * ($recap->execution/$recap->prevision));
+            }
         }
 
         return $recap;
@@ -192,17 +226,8 @@ class RecapService {
         Log::info( "tauxExecution : ".$recap->tauxExecution);
         Log::info( "prevision : ".$recap->prevision);
 
-        $header = new stdClass();
-        $header->name = $rrubrique->label;
-        $header->labelLabel = "Lignes";
-        $header->previsionsLabel = "Prévisions";
-        $header->realisationsLabel = "Réalisations";
-        $header->realisationsMoisPrecedentsLabel = "Réalisations mois précédents";
-        $header->realisationsMoisLabel = "Réalisations cumulées";
-        $header->executionLabel = "Exécution";
-        $header->soldeLabel = "Solde";
-        $header->tauxExecutionLabel = "Taux d'exécution";
-        $recap->header = $header;
+        $periode = $this->computePeriodeLabels($critere, $params);
+        $recap->header = $this->setHeader($rrubrique->label, $periode);
         return $recap;
     }
 
@@ -254,17 +279,8 @@ class RecapService {
         Log::info( "tauxExecution : ".$recap->tauxExecution);
         Log::info( "prevision : ".$recap->prevision);
 
-        $header = new stdClass();
-        $header->name = $name;
-        $header->labelLabel = "Divisions / Directions";
-        $header->previsionsLabel = "Prévisions";
-        $header->realisationsLabel = "Réalisations";
-        $header->realisationsMoisPrecedentsLabel = "Réalisations mois précédents";
-        $header->realisationsMoisLabel = "Réalisations cumulées";
-        $header->executionLabel = "Exécution";
-        $header->soldeLabel = "Solde";
-        $header->tauxExecutionLabel = "Taux d'exécution";
-        $recap->header = $header;
+        $periode = $this->computePeriodeLabels($critere, $params);
+        $recap->header = $this->setHeader($name, $periode);
         return $recap;
     }
 
@@ -273,8 +289,6 @@ class RecapService {
         //$rchapitre->rrubriques = [];
         
         $collection = [];
-        $sumrow = new stdClass();
-        $header = new stdClass();
         $recap = new stdClass();
         $recap->prevision = 0;
         $recap->libelle = $rchapitre->label;
@@ -304,19 +318,8 @@ class RecapService {
         
         
         $recap->collection = $collection;        
-        //$recap->sumrow = $sumrow;
-
-        
-        $header->name = $rchapitre->label;
-        $header->labelLabel = "Rubriques";
-        $header->previsionsLabel = "Prévisions";
-        $header->realisationsLabel = "Réalisations";
-        $header->realisationsMoisPrecedentsLabel = "Réalisations mois précédents";
-        $header->realisationsMoisLabel = "Réalisations cumulées";
-        $header->executionLabel = "Exécution";
-        $header->soldeLabel = "Solde";
-        $header->tauxExecutionLabel = "Taux d'exécution";
-        $recap->header = $header;
+        $periode = $this->computePeriodeLabels($critere, $params);
+        $recap->header = $this->setHeader($rchapitre->label, $periode);
         
         return $recap;
     }
@@ -424,6 +427,44 @@ class RecapService {
         return $recap;
     }
 
+    public function getRecapSection($critere, $params){
+        $recap = new stdClass();
+        $chapitres_id = DB::table('chapitres')->where('section',$params->section)->where('domaine',$params->domaine)->select('id','label')->get();
+        $recap->rchapitres = [];
+        $collection = [];
+        $recap->prevision = 0;
+        $recap->libelle = $params->section." - ".$params->domaine;
+        $recap->realisations = 0;
+        $recap->realisationsMois = 0;
+        $recap->realisationsMoisPrecedents = 0;
+        $recap->engagements = 0;
+        $recap->execution = 0;
+        $recap->solde = 0;
+
+        foreach($chapitres_id as $chapitre_id){
+            //array_push($recap->rchapitres, $this->getRecapChapitre($chapitre_id, $critere, $params));
+            //$recaprubriquegroup = $this->getRecapRubriqueGroup($name->label, $critere, $params);
+            //$recapligne = $this->getRecapLigne($ligne->id, $critere, $params);
+            $rchapitre = $this->getRecapChapitre($chapitre_id->id, $critere, $params);
+            $recap->prevision += $rchapitre->prevision;
+            $recap->realisations += $rchapitre->realisations;
+            $recap->realisationsMois += $rchapitre->realisationsMois;
+            $recap->realisationsMoisPrecedents += $rchapitre->realisationsMoisPrecedents;
+            $recap->engagements += $rchapitre->engagements;
+            $recap->execution += $rchapitre->execution;
+            $recap->solde += $rchapitre->solde;            
+            array_push($collection, $rchapitre);
+        }
+
+        //TODO add properties
+        $recap->tauxExecution = floor(100 * ($recap->execution/$recap->prevision));
+        
+        $recap->collection = $collection;        
+        $periode = $this->computePeriodeLabels($critere, $params);
+        $recap->header = $this->setHeader($recap->libelle, $periode);
+        return $recap;
+    }
+
     public function getRecapGeneralFonctionnement($critere, $params){
         //combines recap sous section fonctionnement, sous section investissement and section recettes
         $recap = new stdClass();
@@ -491,5 +532,47 @@ class RecapService {
 
     private function computeCollections($collection, $field, $method, $critere, $params){
 
+    }
+
+    private function setHeader($name, $periode){
+        $header = new stdClass();
+        $header->name = $name;
+        $header->labelLabel = "Rubriques";
+        $header->previsionsLabel = "Prévisions";
+        $header->realisationsLabel = "Réalisations cumulées ".$periode;//"Réalisations ".$periode;
+        $header->realisationsMoisPrecedentsLabel = "Réalisations précédentes";
+        $header->realisationsMoisLabel = "Réalisations ".$periode;
+        $header->engagementsLabel = "Engagements ".$periode;
+        $header->executionLabel = "Exécution ".$periode;
+        $header->soldeLabel = "Solde";
+        $header->tauxExecutionLabel = "Taux d'exécution";
+        return $header;
+    }
+
+    private function computePeriodeLabels($critere, $params){
+        //
+        $text = "";
+        if($critere == 'jour' || $critere == 'rapport_mensuel'){
+            $date = date_create($params->jour);
+            $formatted = date_format($date,"d/m/Y");
+            $text = "au ".$formatted;
+        }
+        if($critere == 'mois'){
+            $mois = $this->mois_fr[$params->mois - 1];
+            $text = $mois." ".date("Y");
+        }
+        if($critere == 'intervalle'){
+            $start_month_name = date("F", mktime(0, 0, 0, $params->startmonth, 10));
+            $start_month_time = strtotime("last day of ".$start_month_name);
+            $formatted_start_month = date("m/Y", $start_month_time);
+
+            $end_month_name = date("F", mktime(0, 0, 0, $params->endmonth, 10));
+            $end_month_time = strtotime("last day of ".$end_month_name);
+            $formatted_end_month = date("m/Y", $end_month_time);
+
+            $text = $formatted_start_month." à ".$formatted_end_month;
+        }
+
+        return $text;
     }
 }

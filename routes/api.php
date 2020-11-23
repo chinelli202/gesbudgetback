@@ -55,3 +55,6 @@ Route::get('/etats/fonctionnement/monthsrecap/groupe/{groupename}',"EtatsFonctio
 Route::get('/etats/fonctionnement/monthsrecap/rubrique/{rubriqueid}',"EtatsFonctionnementController@getMonthsRecapRubrique");
 Route::get('/etats/fonctionnement/monthsrecap/chapitre/{chapitreid}',"EtatsFonctionnementController@getMonthsRecapChapitre");
 Route::get('/etats/fonctionnement/monthsrecap/ligne/{ligneid}',"EtatsFonctionnementController@getMonthsRecapLigne");
+
+//routes for excell exports
+Route::get('/export/chapitre/{chapitreid}',"ExcellExportController@exportChapitre");
