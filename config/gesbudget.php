@@ -30,10 +30,10 @@ return [
         ],
         'etat_engagement'    => [
             'INIT' => ['Initié', 'INIT'],
-            'CLOT' => ['Clôturé', 'CLOT'],
             'PEG' => ['Pré-engagé', 'PEG'],
             'IMP' => ['Imputé', 'IMP'],
-            'APUR' => ['Apuré', 'APUR']
+            'REA' => ['Apuré', 'REA'],
+            'CLOT' => ['Clôturé', 'CLOT']
         ],
         'statut_engagement' => [
             // 'VALIDF_NOEXC' => ['Validé au niveau final sans exécution (imputation ou apurement)', 'NA'],
@@ -64,9 +64,37 @@ return [
             'SEND_BACK' => ['Renvoi', 'SEND_BACK'],
             'RESEND' => ['Re-soumission', 'RESEND'],
             'ADD_COMMENT' => ['Ajout commentaire', 'ADD_COMMENT'],
+
             'PREENGAGER' => ['Pré engagement', 'PREENGAGER'],
             'IMPUTER' => ['Imputation', 'IMPUTATION'],
-            'APURER' => ['Apurement', 'APUREMENT']
+            'APURER' => ['Apurement', 'APUREMENT'],
+
+            'IMP_VALIDP' => ['Validation premier niveau (Imputation)', 'IMP_VALIDP'],
+            'IMP_VALIDS' => ['Validation second niveau (Imputation)', 'IMP_VALIDS'],
+            'IMP_VALIDF' => ['Validation niveau final (Imputation)', 'IMP_VALIDF'],
+            'IMP_CANCEL_VALIDP' => ['Annulation validation premier niveau (Imputation)', 'IMP_CANCEL_VALIDP'],
+            'IMP_CANCEL_VALIDS' => ['Annulation validation second niveau (Imputation)', 'IMP_CANCEL_VALIDS'],
+            'IMP_CANCEL_VALIDF' => ['Annulation validation niveau final (Imputation)', 'IMP_CANCEL_VALIDF'],
+            'IMP_UPDATE' => ['Mise à jour (Imputation)', 'IMP_UPDATE'],
+            'IMP_CLOSE' => ['Clôture (Imputation)', 'IMP_CLOSE'],
+            'IMP_RESTORE' => ['Restauration (Imputation)', 'IMP_RESTORE'],
+            'IMP_SEND_BACK' => ['Renvoi (Imputation)', 'IMP_SEND_BACK'],
+            'IMP_RESEND' => ['Re-soumission (Imputation)', 'IMP_RESEND'],
+            'IMP_ADD_COMMENT' => ['Ajout commentaire (Imputation)', 'IMP_ADD_COMMENT'],
+            
+            'REA_VALIDP' => ['Validation premier niveau (Réalisation)', 'REA_VALIDP'],
+            'REA_VALIDS' => ['Validation second niveau (Réalisation)', 'REA_VALIDS'],
+            'REA_VALIDF' => ['Validation niveau final (Réalisation)', 'REA_VALIDF'],
+            'REA_CANCEL_VALIDP' => ['Annulation validation premier niveau (Réalisation)', 'REA_CANCEL_VALIDP'],
+            'REA_CANCEL_VALIDS' => ['Annulation validation second niveau (Réalisation)', 'REA_CANCEL_VALIDS'],
+            'REA_CANCEL_VALIDF' => ['Annulation validation niveau final (Réalisation)', 'REA_CANCEL_VALIDF'],
+            'REA_UPDATE' => ['Mise à jour (Réalisation)', 'REA_UPDATE'],
+            'REA_CLOSE' => ['Clôture (Réalisation)', 'REA_CLOSE'],
+            'REA_RESTORE' => ['Restauration (Réalisation)', 'REA_RESTORE'],
+            'REA_SEND_BACK' => ['Renvoi (Réalisation)', 'REA_SEND_BACK'],
+            'REA_RESEND' => ['Re-soumission (Réalisation)', 'REA_RESEND'],
+            'REA_ADD_COMMENT' => ['Ajout commentaire (Réalisation)', 'REA_ADD_COMMENT'],
+            
         ],
         'source' => [
             'API' => ['API', 'API'],

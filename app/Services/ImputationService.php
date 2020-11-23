@@ -6,13 +6,22 @@ namespace App\Services;
 use App\Models\Imputation;
 use App\Models\User;
 use App\Models\Variable;
-class ImputationSercice {
+
+class ImputationService {
 
   public function __construct(){
 
   }
+  public const ImputationCreateValidator = [
+      'engagement_id'     =>          'required|exists:engagements,code',
+      'reference'         =>          'required',
+      'montant_ht'        =>          'required',
+      'montant_ttc'       =>          'required',
+      'devise'            =>          'required|exists:variables,code',
+      'observations'      =>          'required'
+  ];
 
-  private function enrichImputation($imputationId) {
+  public static function enrichImputation($imputationId) {
       $imputation = Imputation::findOrFail($imputationId);
       $saisisseur = User::where('matricule', $imputation->saisisseur)->first();
       $valideurP = User::where('matricule', $imputation->valideur_first)->first();
@@ -20,7 +29,6 @@ class ImputationSercice {
       $valideurF = User::where('matricule', $imputation->valideur_final)->first();
 
       $devise = Variable::where('code', $imputation->devise)->first();
-      $nature = Variable::where('code', $imputation->nature)->first();
       $type = Variable::where('code', $imputation->type)->first();
       $etat = Variable::where('code', $imputation->etat)->first();
       $statut = Variable::where('code', $imputation->statut)->first();

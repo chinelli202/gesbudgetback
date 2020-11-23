@@ -76,10 +76,11 @@ class EngagementSeeder extends Seeder
                                             }
                                         }
                                     }
-                                }else{
-                                    // Create a new engagement
-                                    $engagement = $this->createEngagement($typeEng,$montant, $devise, $natureEng, $etatEng, $statutEng);
-                                }
+                                }/** else{
+                                    *   // Create a new engagement
+                                    *   $engagement = $this->createEngagement($typeEng,$montant, $devise, $natureEng, $etatEng, $statutEng);
+                                    * }
+                                */
                             }elseif($etatEng == 'IMP'){
                                 foreach($statutsEngagement as $statutapur => $statutapurdesc){
                                     // Create a new engagement

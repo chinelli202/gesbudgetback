@@ -10,23 +10,39 @@ use App\Models\Ligne;
 use App\Models\Rubrique;
 use App\Models\Chapitre;
 
+use Illuminate\Support\Facades\Config;
 use App\Services\ImputationService;
 
-class EngagementSercice {
+class EngagementService {
 
   public function __construct(){
 
   }
 
    
-  private function enrichEngagement(ImputationService $imputationService, $engagementId) {
+  public static function enrichEngagement($engagementId) {
     $imputations = [];
     $engagement = Engagement::findOrFail($engagementId);
 
-    foreach($engagement->imputations as $imputation) {
-        array_push($imputations, $imputationService->enrichImputation($imputation));
-    }
-    $engagement['imputations'] = $imputations;
+    /** Add all enriched imputations */
+    $engagement['imputations_labelled'] = $engagement->imputations
+      ->filter(function($imp) {
+        return $imp->etat !== Config::get('gesbudget.variables.etat_engagement.CLOT')[1];
+      })
+      ->map(function ($imp) {
+        return ImputationService::enrichImputation($imp->id);
+      });
+    
+    /** Add pending apurements and imputations */
+    $engagement['cumul_imputations_initie_ht'] = $engagement->imputations
+      ->reduce(function ($cumul, $imp) {
+        return $cumul + $imp->montant_ht;
+      }, 0);
+    
+    $engagement['cumul_apurements_initie_ht'] = $engagement->apurements
+      ->reduce(function ($cumul, $apur) {
+        return $cumul + $apur->montant_ht;
+      }, 0);
 
     $saisisseur = User::where('matricule', $engagement->saisisseur)->first();
     $valideurP = User::where('matricule', $engagement->valideur_first)->first();
@@ -60,5 +76,5 @@ class EngagementSercice {
     $engagement["ligne_libelle"] = $chapitre->label . " // " . $rubrique->label . " // " . $ligne->label;
 
     return $engagement;
-}
+  }
 }

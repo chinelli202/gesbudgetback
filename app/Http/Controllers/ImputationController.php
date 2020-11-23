@@ -12,29 +12,23 @@ use App\Models\Imputation;
 use App\Models\User;
 use App\Models\Variable;
 use App\Services\ImputationService;
+use App\Services\EngagementService;
 
 class ImputationController extends Controller
 {
-    
-    protected $imputationCreateValidator;
+    private $success_status = 200;
 
     public function __construct() {
-        $this->imputationCreateValidator = [
-            'engagement_id'     =>          'required|exists:engagements,code',
-            'reference'         =>          'required',
-            'montant_ht'        =>          'required',
-            'montant_ttc'       =>          'required',
-            'devise'            =>          'required|exists:variables,code',
-            'observations'      =>          'required'
-        ];
+
     }
 
     public function createImputation(Request $request) {
-        $validator = Validator::make($request->all(), $this->imputationCreateValidator);
+        $validator = Validator::make($request->all(), ImputationService::ImputationCreateValidator);
         
         if($validator->fails()) {
             return response()->json(["validation_errors" => $validator->errors()]);
         }
+
         $imputation = Imputation::create([
             "engagement_id" => $request->engagement_id,
             "reference" => $request->reference,
@@ -53,12 +47,39 @@ class ImputationController extends Controller
             'source' => Config::get('gesbudget.variables.source.API')[0]
         ]);
         
-        $engagement = $imputations->engagement;
+        $engagement = $imputation->engagement;
 
         return response()->json([
             "status" => $this->success_status
             , "success" => true
-            , "data" => $this->enrichEngagement($engagement->id)
-        ]); 
+            , "data" => EngagementService::enrichEngagement($engagement->id)
+        ]);
+    }
+
+    public function update(Request $request){
+        $imputationId = $request->id;
+        $validator = Validator::make($request->all(), ImputationService::ImputationCreateValidator);
+
+        if($validator->fails()) {
+            return response()->json(["validation_errors" => $validator->errors()]);
+        }
+
+        $imputation = Imputation::findOrFail($imputationId);
+        $imputation->update([
+            "observations" => $request->observations,
+            "reference" => $request->reference,
+            "montant_ttc" => $request->montant_ttc,
+            "montant_ht" => $request->montant_ht,
+            "devise" => $request->devise
+        ]);
+        
+        $engagement = $imputation->engagement;
+
+        return response()->json([
+            "status" => $this->success_status
+            , "success" => true
+            , "message" => "Imputation ". $imputation->code ." mis à jour avec succès"
+            , "data" => EngagementService::enrichEngagement($engagement->id)
+        ]);
     }
 }

@@ -12,6 +12,7 @@ use App\Models\Rubrique;
 use App\Models\Chapitre;
 
 use App\Services\EngagementService;
+use App\Services\ImputationService;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
@@ -72,26 +73,25 @@ class EngagementController extends Controller
         ];
     }
 
-    public function getEngagements(EngagementService $engagementService, Request $request){
+    public function getEngagements(Request $request){
         $etat = $request->etat;
 
         $engagements = Engagement::where('etat', $etat)
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($eng) {
-                return $engagementService->enrichEngagement($eng->id);
+                return EngagementService::enrichEngagement($eng->id);
             });
         return response()->json(["status" => $this->success_status, "success" => true, "data" => $engagements]);
     }
 
-    public function getEngagement(Request $request, EngagementService $engagementService){
+    public function getEngagement(Request $request){
         $engagementId = $request->id;
-        echo $engagementId;
-        $engagement = $engagementService->enrichEngagement($engagementId);
+        $engagement = EngagementService::enrichEngagement($engagementId);
         return response()->json(["status" => $this->success_status, "success" => true, "data" => $engagement]);
     }
     
-    public function create(EngagementService $engagementService, Request $request){
+    public function create(Request $request){
         $validator = Validator::make($request->all(), $this->engagementCreateValidator);
         
         if($validator->fails()) {
@@ -128,11 +128,11 @@ class EngagementController extends Controller
         return response()->json([
             "status" => $this->success_status
             , "success" => true
-            , "data" => $engagementService->enrichEngagement($engagement->id)
+            , "data" => EngagementService::enrichEngagement($engagement->id)
         ]); 
     }
 
-    public function update(EngagementService $engagementService, Request $request){
+    public function update(Request $request){
         $engagementId = $request->id;
         $validator = Validator::make($request->all(), $this->engagementUpdateValidator);
 
@@ -150,7 +150,7 @@ class EngagementController extends Controller
             "nature" => $request->nature,
             "ligne_id" => $request->ligne_id
         ]);
-        $engagement = $engagementService->enrichEngagement($engagement->id);
+        $engagement = EngagementService::enrichEngagement($engagement->id);
         return response()->json([
             "status" => $this->success_status
             , "success" => true
@@ -159,7 +159,7 @@ class EngagementController extends Controller
         ]);
     }
 
-    public function close(EngagementService $engagementService, Request $request){
+    public function close(Request $request){
         $engagementId = $request->id;
         $engagement = Engagement::findOrFail($engagementId);
         if ($engagement->etat === Config::get('gesbudget.variables.etat_engagement.CLOT')[1]) {
@@ -170,7 +170,7 @@ class EngagementController extends Controller
         $engagement->update([
             "etat" => Config::get('gesbudget.variables.etat_engagement.CLOT')[1],
         ]);
-        $engagement = $engagementService->enrichEngagement($engagement->id);
+        $engagement = EngagementService::enrichEngagement($engagement->id);
         return response()->json([
             "status" => $this->success_status
             , "success" => true
@@ -179,7 +179,7 @@ class EngagementController extends Controller
         ]);
     }
 
-    public function restore(EngagementService $engagementService, Request $request){
+    public function restore(Request $request){
         $engagementId = $request->id;
         $engagement = Engagement::findOrFail($engagementId);
         if ($engagement->etat !== Config::get('gesbudget.variables.etat_engagement.CLOT')[1]) {
@@ -194,7 +194,7 @@ class EngagementController extends Controller
         $engagement->update([
             "etat" => Config::get('gesbudget.variables.etat_engagement.INIT')[1],
         ]);
-        $engagement = $engagementService->enrichEngagement($engagement->id);
+        $engagement = EngagementService::enrichEngagement($engagement->id);
         return response()->json([
             "status" => $this->success_status
             , "success" => true
@@ -202,7 +202,7 @@ class EngagementController extends Controller
             , "data" => $engagement]);
     }
     
-    public function addComment(EngagementService $engagementService, Request $request){
+    public function addComment(Request $request){
         $engagementId = $request->id;
         $engagement = Engagement::findOrFail($engagementId);
 
@@ -213,7 +213,7 @@ class EngagementController extends Controller
                 $activity->comment = $request->comment;
             })
             ->log(Config::get('gesbudget.variables.actions.ADD_COMMENT')[1]);
-        $engagement = $engagementService->enrichEngagement($engagement->id);
+        $engagement = EngagementService::enrichEngagement($engagement->id);
         return response()->json([
             "status" => $this->success_status
             , "success" => true
@@ -222,7 +222,7 @@ class EngagementController extends Controller
         ]);
     }
 
-    public function sendBack(EngagementService $engagementService, Request $request){
+    public function sendBack(Request $request){
         $engagementId = $request->id;
         $engagement = Engagement::findOrFail($engagementId);
 
@@ -234,7 +234,7 @@ class EngagementController extends Controller
             "valideur_second" => null,
             "valideur_final" => null
         ]);
-        $engagement = $engagementService->enrichEngagement($engagement->id);
+        $engagement = EngagementService::enrichEngagement($engagement->id);
         return response()->json([
             "status" => $this->success_status
             , "success" => true
@@ -243,7 +243,7 @@ class EngagementController extends Controller
         ]);
     }
 
-    public function resendUpdate(EngagementService $engagementService, Request $request){
+    public function resendUpdate(Request $request){
         $engagementId = $request->id;
         $validator = Validator::make($request->all(), $this->engagementUpdateValidator);
 
@@ -261,7 +261,7 @@ class EngagementController extends Controller
             "type" => $request->type,
             "next_statut" => null
         ]);
-        $engagement = $engagementService->enrichEngagement($engagement->id);
+        $engagement = EngagementService::enrichEngagement($engagement->id);
         return response()->json([
             "status" => $this->success_status
             , "success" => true, "message" => "Engagement ". $engagement->code ." mis à jour avec succès'"
@@ -269,14 +269,21 @@ class EngagementController extends Controller
         ]);
     }
 
-    public function validerPreeng(EngagementService $engagementService, Request $request){
+    public function validerPreeng(Request $request){
         $statutsEngagement = Config::get('gesbudget.variables.statut_engagement');
         $statutsEngagementKeys = array_keys($statutsEngagement);
-        $operateursKeys = array_keys(Config::get('gesbudget.variables.operateur'));
 
-        $engagementId = $request->id;
+        $etatsEngagement = Config::get('gesbudget.variables.etat_engagement');
+        $etatsEngagementKeys = array_keys($etatsEngagement);
+        
         $statut = $request->statut;
+        $etat = $request->etat;
+        
         $statutIndice = array_search($statut, $statutsEngagementKeys);
+        $etatIndice = array_search($etat, $etatsEngagementKeys);
+        
+        $engagementId = $request->id;
+        $operateursKeys = array_keys(Config::get('gesbudget.variables.operateur'));
 
         /** Previous blocking statut */
         if ( $statutIndice === array_search(Config::get('gesbudget.variables.statut_engagement.VALIDS')[1], $statutsEngagementKeys) + 1) {
@@ -289,6 +296,7 @@ class EngagementController extends Controller
         }
 
         $engagement = Engagement::findOrFail($engagementId);
+
         if ($engagement->etat === Config::get('gesbudget.variables.etat_engagement.CLOT')[1]) {
             /** The engagement is closed */
             return response()->json([
@@ -333,21 +341,32 @@ class EngagementController extends Controller
         }
 
         session()->put('CommentEngagement'.Auth::user()->id.$engagementId, $request->comment);
-        
-        $engagement->update([
-            "statut" => $statutsEngagementKeys[$statutIndice],
-            $operateursKeys[$statutIndice] => Auth::user()->matricule
-        ]);
-        $engagement = $engagementService->enrichEngagement($engagement->id);
+
+        /** We change the 'etat' attribute to the next state if the validation to perform is a 'VALIDF' type of validation */
+        if($statut === Config::get('gesbudget.variables.statut_engagement.VALIDF')[1]) {
+            
+            $engagement->update([
+                "statut" => $statutsEngagementKeys[$statutIndice],
+                $operateursKeys[$statutIndice] => Auth::user()->matricule,
+                "etat" => $etatsEngagementKeys[
+                    $engagement->etat === Config::get('gesbudget.variables.etat_engagement.REA')[1] ? $etatIndice: $etatIndice + 1]
+            ]);
+        } else {
+            $engagement->update([
+                "statut" => $statutsEngagementKeys[$statutIndice],
+                $operateursKeys[$statutIndice] => Auth::user()->matricule
+            ]);
+        }
+
         return response()->json([
             "status" => $this->success_status
             , "success" => true
             , "message" => "Engagement ". $engagement->code . " ". $statutsEngagement[$statut][0]. " avec succès"
-            , "data" => $engagement
+            , "data" => EngagementService::enrichEngagement($engagement->id)
         ]);
     }
 
-    public function cancelValiderPreeng(EngagementService $engagementService, Request $request){
+    public function cancelValiderPreeng(Request $request){
         $statutsEngagement = Config::get('gesbudget.variables.statut_engagement');
         $statutsEngagementKeys = array_keys($statutsEngagement);
         $operateursKeys = array_keys(Config::get('gesbudget.variables.operateur'));
@@ -406,7 +425,7 @@ class EngagementController extends Controller
             "statut" => $statutsEngagementKeys[$statutIndice - 1],
             $operateursKeys[$statutIndice] => null
         ]);
-        $engagement = $engagementService->enrichEngagement($engagement->id);
+        $engagement = EngagementService::enrichEngagement($engagement->id);
         return response()->json([
             "status" => $this->success_status
             , "success" => true
