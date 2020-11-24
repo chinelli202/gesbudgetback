@@ -203,7 +203,7 @@ class EngagementController extends Controller
             , "data" => $engagement]);
     }
     
-    public function addComment(Request $request){
+    public function addcomment(Request $request){
         $engagementId = $request->id;
         $engagement = Engagement::findOrFail($engagementId);
 
@@ -244,7 +244,7 @@ class EngagementController extends Controller
         ]);
     }
 
-    public function resendUpdate(Request $request){
+    public function resendupdate(Request $request){
         $engagementId = $request->id;
         $validator = Validator::make($request->all(), $this->engagementUpdateValidator);
 

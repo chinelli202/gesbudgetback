@@ -25,7 +25,7 @@ class ImputationController extends Controller
     /** Refactor all this class. It should be merged with EngagementController and Apurement Controller to obtain only one class
      * that will handle all these operations with the correct App\Models\... and App\Services\...
     */
-    public function createImputation(Request $request) {
+    public function create(Request $request) {
         $validator = Validator::make($request->all(), ImputationService::ImputationCreateValidator);
         
         if($validator->fails()) {
@@ -125,6 +125,72 @@ class ImputationController extends Controller
             , "success" => true
             , "message" => "Imputation ". $imputation->id ." restauré avec succès"
             , "data" => EngagementService::enrichEngagement($imputation->engagement->id)]);
+    }
+
+    public function addcomment(Request $request){
+        $imputationId = $request->id;
+        $imputation = Imputation::findOrFail($imputationId);
+
+        activity()
+            ->causedBy(Auth::user())
+            ->performedOn($imputation)
+            ->tap(function(Activity $activity) use (&$request) {
+                $activity->comment = $request->comment;
+            })
+            ->log(Config::get('gesbudget.variables.actions.ADD_COMMENT')[1]);
+
+        return response()->json([
+            "status" => $this->success_status
+            , "success" => true
+            , "message" => "Commentaire ajouté à l'Imputation ". $imputation->id ." avec succès"
+            , "data" => EngagementService::enrichEngagement($imputation->engagement->id)
+        ]);
+    }
+
+    public function sendback(Request $request){
+        $imputationId = $request->id;
+        $imputation = Imputation::findOrFail($imputationId);
+
+        session()->put('CommentImputation'.Auth::user()->id.$imputationId, $request->comment);
+        $imputation->update([
+            "next_statut" => Config::get('gesbudget.variables.statut_engagement.SAISI')[1],
+            "statut" => Config::get('gesbudget.variables.statut_engagement.SAISI')[1],
+            "valideur_first" => null,
+            "valideur_second" => null,
+            "valideur_final" => null
+        ]);
+
+        return response()->json([
+            "status" => $this->success_status
+            , "success" => true
+            , "message" => "Imputation ". $imputation->id ." renvoyé avec succès." //$engagement->next_statut 
+            , "data" => EngagementService::enrichEngagement($imputation->engagement->id)
+        ]);
+    }
+
+    public function resendupdate(Request $request){
+        $imputationId = $request->id;
+        $validator = Validator::make($request->all(), ImputationService::ImputationCreateValidator);
+
+        if($validator->fails()) {
+            return response()->json(["validation_errors" => $validator->errors()]);
+        }
+        session()->put('CommentImputation'.Auth::user()->id.$imputationId, $request->comment);
+        $imputation = Imputation::findOrFail($imputationId);
+        $imputation->update([
+            "observations" => $request->observations,
+            "reference" => $request->reference,
+            "montant_ttc" => $request->montant_ttc,
+            "montant_ht" => $request->montant_ht,
+            "devise" => $request->devise,
+            "next_statut" => null
+        ]);
+
+        return response()->json([
+            "status" => $this->success_status
+            , "success" => true, "message" => "Imputation ". $imputation->id ." mis à jour avec succès'"
+            , "data" => EngagementService::enrichEngagement($imputation->engagement->id)
+        ]);
     }
 
     public function valider(Request $request){

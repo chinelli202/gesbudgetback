@@ -35,7 +35,7 @@ class Imputation extends Model
      *
      * @var array
      */
-    protected $fillable = ['engagement_id', 'reference', 'montant_ht', 'montant_ttc', 'devise'
+    protected $fillable = ['engagement_id', 'reference', 'montant_ht', 'montant_ttc', 'devise', 'etat'
         , 'observations', 'statut', 'saisisseur', 'valideur_first', 'valideur_second', 'valideur_final', 'source'
         , 'next_statut', 'documents'
     ];
@@ -100,6 +100,9 @@ class Imputation extends Model
                     $activity->description = 'UNKNOWN_STATUT_CHANGE';
                 }
             } else if (isset($activity->properties['attributes']['etat'])) {
+                $newEtat = $activity->properties['attributes']['etat'];
+                $oldEtat = $activity->properties['old']['etat'];
+                
                 if ($newEtat === 'CLOT') {
                     /** The engagement has been closed
                      * 
