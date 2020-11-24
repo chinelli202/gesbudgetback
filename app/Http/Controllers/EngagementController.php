@@ -389,7 +389,7 @@ class EngagementController extends Controller
             /** The engagement doesn't have the INIT state */
             return response()->json([
                 "error" => true
-                , "message" => "Annulation de validation au 1er niveau Impossible. Cet engagement ". $engagement->code .", n'est pas à l'état 'Initié'."
+                , "message" => "Annulation de validation Impossible. Cet engagement ". $engagement->code .", n'est pas à l'état 'Initié'."
             ]);
         }
 
@@ -397,7 +397,7 @@ class EngagementController extends Controller
             /** The current validation hasn't been done by the current user */
             return response()->json([
                 "error" => true
-                , "message" => "Annulation de validation au 1er niveau Impossible pour l'engagement ". $engagement->code 
+                , "message" => "Annulation de validation Impossible pour l'engagement ". $engagement->code 
                     .", car que vous n'êtes pas celui qui l'a ". $statutsEngagement[$statutsEngagementKeys[$statutIndice - 1]][0]
             ]);
         }
@@ -422,16 +422,27 @@ class EngagementController extends Controller
 
         session()->put('CommentEngagement'.Auth::user()->id.$engagementId, $request->comment);
         
-        $engagement->update([
-            "statut" => $statutsEngagementKeys[$statutIndice - 1],
-            $operateursKeys[$statutIndice] => null
-        ]);
-        $engagement = EngagementService::enrichEngagement($engagement->id);
+        /** We change the 'etat' attribute to the next state if the validation to perform is a 'VALIDF' type of validation */
+        if($statut === Config::get('gesbudget.variables.statut_engagement.VALIDF')[1]) {
+            
+            $engagement->update([
+                "statut" => $statutsEngagementKeys[$statutIndice - 1],
+                $operateursKeys[$statutIndice] => null,
+                "etat" => $etatsEngagementKeys[
+                    $engagement->etat === Config::get('gesbudget.variables.etat_engagement.REA')[1] ? $etatIndice : $etatIndice - 1]
+            ]);
+        } else {
+            $engagement->update([
+                "statut" => $statutsEngagementKeys[$statutIndice - 1],
+                $operateursKeys[$statutIndice] => null
+            ]);
+        }
+
         return response()->json([
             "status" => $this->success_status
             , "success" => true
             , "message" => "Annulation de validation réussie pour l'engagement ". $engagement->code
-            , "data" => $engagement
+            , "data" => EngagementService::enrichEngagement($engagement->id)
         ]);
     }
 }

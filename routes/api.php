@@ -38,12 +38,13 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::post("engagement/restore/{id}", "EngagementController@restore")->name("restoreEngagement");
     Route::post("engagement/sendback/{id}", "EngagementController@sendBack")->name("sendBackEngagement");
     Route::post("engagement/resend/{id}", "EngagementController@resendUpdate")->name("resendUpdateEngagement");
-    
     Route::post("engagement/valider/peg/{id}", "EngagementController@validerPreeng")->name("validerPreeng");
     Route::post("engagement/cancelValider/peg/{id}", "EngagementController@cancelValiderPreeng")->name("cancelValiderPreeng");
     
     Route::post("imputation/create/", "ImputationController@createImputation")->name("createImputation");
     Route::post("imputation/update/{id}", "ImputationController@update")->name("updateImputation");
+    Route::post("imputation/valider/{id}", "ImputationController@valider")->name("validerImputation");
+    Route::post("imputation/cancelvalider/{id}", "ImputationController@cancelvalider")->name("cancelValiderImputation");
 
     Route::post("engagement/uploadfile", "FileuploadController@uploadfile")->name("uploadfile");
     
