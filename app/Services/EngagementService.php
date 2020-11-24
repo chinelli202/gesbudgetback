@@ -49,11 +49,22 @@ class EngagementService {
     $valideurS = User::where('matricule', $engagement->valideur_second)->first();
     $valideurF = User::where('matricule', $engagement->valideur_final)->first();
 
-    $devise = Variable::where('code', $engagement->devise)->first();
-    $nature = Variable::where('code', $engagement->nature)->first();
-    $type = Variable::where('code', $engagement->type)->first();
-    $etat = Variable::where('code', $engagement->etat)->first();
-    $statut = Variable::where('code', $engagement->statut)->first();
+    $devise = Variable::where([
+      ['code', $engagement->devise],
+      ['cle', 'DEVISE'],
+      ])->first();
+    $nature = Variable::where([
+      ['code', $engagement->nature]
+      ,['cle', 'NATURE_ENGAGEMENT']])->first();
+    $type = Variable::where([
+      ['code', $engagement->type]
+      ,['cle', 'TYPE_ENGAGEMENT']])->first();
+    $etat = Variable::where([
+      ['code', $engagement->etat]
+      ,['cle', 'ETAT_ENGAGEMENT']])->first();
+    $statut = Variable::where([
+      ['code', $engagement->statut]
+      ,['cle', 'STATUT_ENGAGEMENT']])->first();
 
     $ligne = Ligne::where('id', $engagement->ligne_id)->first();
     $rubrique = Rubrique::where('id', $ligne->rubrique_id)->first();
