@@ -30,7 +30,7 @@ return [
         ],
         'etat_engagement'    => [
             'INIT' => ['Initié', 'INIT'],
-            'PEG' => ['Pré-engagé', 'PEG'],
+            'PEG' => ['Engagé', 'PEG'],
             'IMP' => ['Imputé', 'IMP'],
             'REA' => ['Apuré', 'REA'],
             'CLOT' => ['Clôturé', 'CLOT']

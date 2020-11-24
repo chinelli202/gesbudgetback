@@ -200,6 +200,7 @@ class EngagementSeeder extends Seeder
             'devise' => $engagement->devise,
             'observations' => 'Imputation sur ' . $engagement->libelle,
             'statut' => $statut,
+            'etat' => Config::get('gesbudget.variables.etat_engagement.INIT')[1],
             'saisisseur' => User::find(3)->matricule,
             'valideur_first' => User::find(2)->matricule,
             'valideur_second' => User::find(1)->matricule,
