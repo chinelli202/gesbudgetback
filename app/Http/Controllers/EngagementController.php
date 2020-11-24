@@ -128,6 +128,7 @@ class EngagementController extends Controller
         return response()->json([
             "status" => $this->success_status
             , "success" => true
+            , "message" => "Engagement créé avec succès"
             , "data" => EngagementService::enrichEngagement($engagement->id)
         ]); 
     }
