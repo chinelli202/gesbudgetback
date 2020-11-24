@@ -51,8 +51,7 @@ class EngagementService {
 
     $devise = Variable::where([
       ['code', $engagement->devise],
-      ['cle', 'DEVISE'],
-      ])->first();
+      ['cle', 'DEVISE']])->first();
     $nature = Variable::where([
       ['code', $engagement->nature]
       ,['cle', 'NATURE_ENGAGEMENT']])->first();
