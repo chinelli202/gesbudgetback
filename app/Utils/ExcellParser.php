@@ -10,11 +10,13 @@
 //use App\Http\Resources\LigneResource;
 namespace App\Utils;
 
+use Illuminate\Support\Facades\Log;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 //call iofactory instead of xlsx writer
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\FILL;
+use PhpOffice\PhpSpreadsheet\Style\PHPExcel_Style_Fill;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use stdClass;
 
@@ -45,9 +47,35 @@ class ExcellParser {
         $this->thinborders['borders']['outline']['borderStyle'] = BORDER::BORDER_THIN;
         $this->thickborders['borders']['outline']['borderStyle'] = BORDER::BORDER_THICK;
         $this->greentext['font']['color']['rgb'] = '227447';
+        //$this->greyrow['fill']['fillType']['startColor'] = 'BFBFBF';
+        
+        $this->greyrow = array(
+            'fill' => array(
+                'type' => FILL::FILL_SOLID,
+                'color' => array('rgb' => '538ED')
+            )
+            );
+
+        $this->tablehead = [
+            'font'=>[
+                'color'=>[
+                    'rgb'=>'FFFFFF'
+                ],
+                'bold'=>true,
+                'size'=>11
+            ],
+            'fill'=>[
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => [
+                    'rgb' => '538ED5'
+                ]
+            ],
+        ];
         $this->row = 1;
-        $this->gapindex = 0;
+        $this->rowgap = 0;
+        $this->deletegap = 'chapitre';
         $this->criteres = ['mois', 'jour', 'rapport_mensuel', 'intervalle'];
+        $this->datatype = ['chapitre', 'rubrique', 'collection'];
     }
 
 
@@ -69,7 +97,20 @@ class ExcellParser {
         // header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         $this->makeheaderandbody($data, $data->header);
         $this->row++; //we always increase row index after processing either header or rubriques or lignes
-        $this->processchapitre($data, $data->header);
+        
+        //depending on param type, send to chapitre, collection, or other
+        if($params->type == 'chapitre'){
+            $this->deletegap = 'chapitre';
+            $this->processchapitre($data, $data->header);
+        }
+        else if($params->type == 'rubrique'){
+            $this->deletegap = 'rubrique';
+            $this->processrubrique($data, $data->header);
+        } 
+        else if($params->type == 'collection'){
+            $this->deletegap = 'collection';
+            $this->processcollection($data, $data->header);
+        }
         // foreach($data->collection as $granderubrique){
         //     $this->processgranderubrique($granderubrique, $this->row, $data->tableheader);
         //     $this->row++; //we always increase row index after processing either header or rubriques or lignes
@@ -84,20 +125,20 @@ class ExcellParser {
         //save into php output
         //$writer->save('php://output');
 
-        //set the header first, so the result will be treated as an xlsx file.
-        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        // //set the header first, so the result will be treated as an xlsx file.
+        // header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 
-         //make it an attachment so we can define filename
-        header('Content-Disposition: attachment;filename="result.xlsx"');
+        //  //make it an attachment so we can define filename
+        // header('Content-Disposition: attachment;filename="result.xlsx"');
 
-        // //create IOFactory object
+        // // //create IOFactory object
         $writer = IOFactory::createWriter($this->spreadsheet, 'Xlsx');
-        //save into php output
-        $writer->save('php://output');
+        // //save into php output
+        // $writer->save('php://output');
 
 
         $filename = $params->filename;
-        $myfile = fopen("file:///C:/Dev/milky/gesbudgetback/storage/app/public/files/".$filename, "w") or die("Unable to open file!");
+        $myfile = fopen("file:///C:/Dev/Git/budget/gesbudget/storage/app/public/files/".$filename, "w") or die("Unable to open file!");
         
         //$writer->save('file:///C:/laragon/www/saturn/app/public/files/result.xlsx');
         $writer->save($myfile);
@@ -141,6 +182,7 @@ class ExcellParser {
        //global $this->sheet, $types, $row, $thickborders;
         // echo "processing rubrique ".$data->libelle;
         // echo "\n";
+        $this->rowgap = $this->row;
         $this->sheet->insertNewRowBefore($this->row, 1);
         $this->sheet->setCellValue('A'.$this->row,$data->libelle);
         $this->sheet->getStyle('A'.$this->row)->getFont()->setBold(true);
@@ -153,23 +195,49 @@ class ExcellParser {
             $this->row+=1; //we always increase row index after processing either header or rubriques or lignes
         }
 
-        //add sum 
-        //TODO
+        // //add sum 
+        // //TODO
+        // $this->sheet->insertNewRowBefore($this->row, 1);
+        // $this->sheet->setCellValue('A'.$this->row,"Sous-Total");
+        // $this->sheet->getStyle('A'.$this->row)->getFont()->setBold(true);
+        // //set sum data.
+
+        // $this->row++;
+
+
+
         $this->sheet->insertNewRowBefore($this->row, 1);
         $this->sheet->setCellValue('A'.$this->row,"Sous-Total");
-        $this->sheet->getStyle('A'.$this->row)->getFont()->setBold(true);
+        //setting sum style
+        $this->sheet->getStyle('A'.$this->row.":I".$this->row)->getFont()->setBold(true);
+        $this->sheet->getStyle("B".$this->row.":I".$this->row)->applyFromArray($this->greentext);
+        $this->sheet->getStyle("A".$this->row.":I".$this->row)->applyFromArray($this->tablehead);
         //set sum data.
-
+        $this->sheet->setCellValue('B'.$this->row,$data->prevision)
+        ->setCellValue('C'.$this->row,$data->realisationsMois)
+        ->setCellValue('D'.$this->row,$data->realisationsMoisPrecedents)
+        ->setCellValue('E'.$this->row,$data->realisations)
+        ->setCellValue('F'.$this->row,$data->engagements)
+        ->setCellValue('G'.$this->row,$data->execution)
+        ->setCellValue('H'.$this->row,$data->solde)
+        ->setCellValue('I'.$this->row,$data->tauxExecution);
+        if($this->deletegap == 'rubrique')
+            $this->sheet->removeRow($this->rowgap-1,1);
+        $this->sheet->removeRow($this->row,2);
+        Log::info("row gap value ".$this->rowgap);
         $this->row++;
     }
 
     function processcollection($data){
         // echo "processing collection ".$data->libelle;
         // echo "\n";
-        
+        $this->row++;
+        $this->rowgap = $this->row;
         foreach($data->collection as $ligne){
             $this->sheet->insertNewRowBefore($this->row, 1);
             $this->processligne($ligne);
+            //$this->row--;
+            //$this->row--;
             //set A content to bold
             $this->sheet->getStyle('A'.$this->row)->getFont()->setBold(true);
             //increase row height a little bit
@@ -181,36 +249,33 @@ class ExcellParser {
         //TODO
         $this->sheet->insertNewRowBefore($this->row, 1);
         $this->sheet->setCellValue('A'.$this->row,"Sous-Total");
-        $this->sheet->getStyle('A'.$this->row)->getFont()->setBold(true);
+        //setting sum style
+        $this->sheet->getStyle('A'.$this->row.":I".$this->row)->getFont()->setBold(true);
+        $this->sheet->getStyle("B".$this->row.":I".$this->row)->applyFromArray($this->greentext);
+        $this->sheet->getStyle("A".$this->row.":I".$this->row)->applyFromArray($this->tablehead);
         //set sum data.
-
+        $this->sheet->setCellValue('B'.$this->row,$data->prevision)
+        ->setCellValue('C'.$this->row,$data->realisationsMois)
+        ->setCellValue('D'.$this->row,$data->realisationsMoisPrecedents)
+        ->setCellValue('E'.$this->row,$data->realisations)
+        ->setCellValue('F'.$this->row,$data->engagements)
+        ->setCellValue('G'.$this->row,$data->execution)
+        ->setCellValue('H'.$this->row,$data->solde)
+        ->setCellValue('I'.$this->row,$data->tauxExecution);
+        if($this->deletegap == 'collection')
+            $this->sheet->removeRow($this->rowgap-1,1);
+        $this->sheet->removeRow($this->row,2);
+        Log::info("row gap value ".$this->rowgap);
         $this->row++;
     }
 
     function processchapitre($data, $tableheader){
-        // //add categorie title, add space,
-        // //add header
-        // //for each rubrique, process rubrique
-        // //add total line.
-        // //global $this->sheet, $types, $row, $thickborders;
-        // //titre
-        //     //set titre
-        // $this->sheet->setCellValue('A'.$this->row, $data->label);
-        //     //merge cells
-        // $this->sheet->mergeCells("A".$this->row.":C".$this->row);
-    
-        //     //set title Font style
-        // $this->sheet->getStyle('A'.$this->row)->getFont()->setSize(20);
-        
-        //     //adding space
-        // $this->sheet->getRowDimension($this->row+1)->setRowHeight(24);
-        
-        //     //increasing row index.
-        //     $this->row+=2;
+
     
         // //header
         // $this->makeheaderandbody($data, $tableheader);
         $this->row+=1; //we always increase row index after processing either header or rubriques or lignes
+        $this->rowgap = $this->row;
         //rubriques
         foreach($data->collection as $rubrique){
             $this->processrubrique($rubrique);
@@ -218,10 +283,32 @@ class ExcellParser {
         }
         //sum row chapitre
         //TODO
+        // $this->sheet->insertNewRowBefore($this->row, 1);
+        // $this->sheet->setCellValue('A'.$this->row,"Total Titre");
+        // $this->sheet->getStyle('A'.$this->row)->getFont()->setBold(true);
+        // //delete unacessary rows 
+        // $this->row++;
+
+
         $this->sheet->insertNewRowBefore($this->row, 1);
         $this->sheet->setCellValue('A'.$this->row,"Total Titre");
-        $this->sheet->getStyle('A'.$this->row)->getFont()->setBold(true);
-        //delete unacessary rows 
+        //setting sum style
+        $this->sheet->getStyle('A'.$this->row.":I".$this->row)->getFont()->setBold(true);
+        $this->sheet->getStyle("B".$this->row.":I".$this->row)->applyFromArray($this->greentext);
+        $this->sheet->getStyle("A".$this->row.":I".$this->row)->applyFromArray($this->tablehead);
+        //set sum data.
+        $this->sheet->setCellValue('B'.$this->row,$data->prevision)
+        ->setCellValue('C'.$this->row,$data->realisationsMois)
+        ->setCellValue('D'.$this->row,$data->realisationsMoisPrecedents)
+        ->setCellValue('E'.$this->row,$data->realisations)
+        ->setCellValue('F'.$this->row,$data->engagements)
+        ->setCellValue('G'.$this->row,$data->execution)
+        ->setCellValue('H'.$this->row,$data->solde)
+        ->setCellValue('I'.$this->row,$data->tauxExecution);
+        if($this->deletegap == 'chapitre')
+            $this->sheet->removeRow($this->rowgap-1,1);
+        $this->sheet->removeRow($this->row,2);
+        Log::info("row gap value ".$this->rowgap);
         $this->row++;
     }
     
@@ -297,9 +384,6 @@ class ExcellParser {
             $this->sheet->mergeCells($x.$this->row.":".$x.($this->row+1));
         }
 
-        
-        
-        
         //setting values
         $this->sheet->setCellValue('B'.$this->row,$tableheader->previsionsLabel)
             ->setCellValue('C'.$this->row,$tableheader->realisationsMoisLabel)

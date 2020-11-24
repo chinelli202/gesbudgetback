@@ -58,3 +58,4 @@ Route::get('/etats/fonctionnement/monthsrecap/ligne/{ligneid}',"EtatsFonctionnem
 
 //routes for excell exports
 Route::get('/export/chapitre/{chapitreid}',"ExcellExportController@exportChapitre");
+Route::get('/export/rubrique/{rubiqueid}',"ExcellExportController@exportRubrique");

@@ -15,8 +15,37 @@ class ExcellExportController extends Controller
 
     }
 
-    public function exportIntervalleRubrique(){
+    public function exportIntervalleRubrique(Request $request, $chapitreid, ExcellParser $parser, RecapService $recapService){
+        $params = $this->validateParams($request, $parser);
+        if(!is_null($params)){
+            //set filename, request type, set baniere
+            $recap = $recapService->getRecapChapitre($chapitreid, $request->critere, $params);
+            $params->baniere = $recap->libelle;
+            $params->type = 'rubrique';
+            //$params->filename = "rapport_".$params->critere."_".$params->jour.".xlsx";
+            //$params->filename = "rapport_".$params->critere."_".$params->jour.".xlsx";
+            
+            if($params->critere == 'jour'||$params->critere == 'rapport_mensuel'){
+                $params->filename = "rapport_".$params->critere."_".$params->jour.".xlsx";
+                $parser->toExcell($recap, $params);  
+            }
 
+            if($params->critere == 'mois'){
+                $params->filename = "rapport_".$params->critere."_".$params->mois.".xlsx";
+                $monthparser = new MonthExcellParser();
+                $monthparser->toExcell($recap, $params);  
+            }
+
+            if($params->critere == 'intervalle'){
+                $params->filename = "rapport_".$params->critere."_".$params->startmonth."_".$params->endmonth.".xlsx";
+                $intervalleparser = new MonthExcellParser();
+                $intervalleparser->toExcell($recap, $params);
+            }
+           
+            return "file correctly saved";
+            //return response()->json(["status" => $this->success_status, "success" => true, "data" => $recap]);
+        }
+        else return "missing or incorrect parameters";
     }
 
     public function exportChapitre(Request $request, $chapitreid, ExcellParser $parser, RecapService $recapService){
