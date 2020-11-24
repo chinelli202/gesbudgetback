@@ -34,14 +34,14 @@ class EngagementService {
       });
     
     /** Add pending apurements and imputations */
-    $engagement['cumul_imputations_initie_ht'] = $engagement->imputations
+    $engagement['cumul_imputations_initie_ttc'] = $engagement->imputations
       ->reduce(function ($cumul, $imp) {
-        return $cumul + $imp->montant_ht;
+        return $cumul + $imp->montant_ttc;
       }, 0);
     
-    $engagement['cumul_apurements_initie_ht'] = $engagement->apurements
+    $engagement['cumul_apurements_initie_ttc'] = $engagement->apurements
       ->reduce(function ($cumul, $apur) {
-        return $cumul + $apur->montant_ht;
+        return $cumul + $apur->montant_ttc;
       }, 0);
 
     $saisisseur = User::where('matricule', $engagement->saisisseur)->first();

@@ -223,7 +223,7 @@ class EngagementController extends Controller
         ]);
     }
 
-    public function sendBack(Request $request){
+    public function sendback(Request $request){
         $engagementId = $request->id;
         $engagement = Engagement::findOrFail($engagementId);
 
@@ -270,7 +270,7 @@ class EngagementController extends Controller
         ]);
     }
 
-    public function validerPreeng(Request $request){
+    public function valider(Request $request){
         $statutsEngagement = Config::get('gesbudget.variables.statut_engagement');
         $statutsEngagementKeys = array_keys($statutsEngagement);
 
@@ -367,7 +367,7 @@ class EngagementController extends Controller
         ]);
     }
 
-    public function cancelValiderPreeng(Request $request){
+    public function cancelvalider(Request $request){
         $statutsEngagement = Config::get('gesbudget.variables.statut_engagement');
         $statutsEngagementKeys = array_keys($statutsEngagement);
         $operateursKeys = array_keys(Config::get('gesbudget.variables.operateur'));

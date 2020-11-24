@@ -49,13 +49,11 @@ class ImputationController extends Controller
             'valideur_final' => null,
             'source' => Config::get('gesbudget.variables.source.API')[0]
         ]);
-        
-        $engagement = $imputation->engagement;
 
         return response()->json([
             "status" => $this->success_status
             , "success" => true
-            , "data" => EngagementService::enrichEngagement($engagement->id)
+            , "data" => EngagementService::enrichEngagement($imputation->engagement->id)
         ]);
     }
 
@@ -84,6 +82,49 @@ class ImputationController extends Controller
             , "message" => "Imputation ". $imputation->code ." mis à jour avec succès"
             , "data" => EngagementService::enrichEngagement($engagement->id)
         ]);
+    }
+
+    public function close(Request $request){
+        $imputationId = $request->id;
+        $imputation = Imputation::findOrFail($imputationId);
+        if ($imputation->etat === Config::get('gesbudget.variables.etat_engagement.CLOT')[1]) {
+            return response()->json(["error" => true, "message" => "Cette imputation ". $imputation->id ." a déjà été clôturé"]);
+        }
+        session()->put('CommentImputation'.Auth::user()->id.$imputationId, $request->comment);
+        
+        $imputation->update([
+            "etat" => Config::get('gesbudget.variables.etat_engagement.CLOT')[1],
+        ]);
+
+        return response()->json([
+            "status" => $this->success_status
+            , "success" => true
+            , "message" => "Imputation ". $imputation->id ." cloturé avec succès"
+            , "data" => EngagementService::enrichEngagement($imputation->engagement->id)
+        ]);
+    }
+
+    public function restore(Request $request){
+        $imputationId = $request->id;
+        $imputation = Imputation::findOrFail($imputationId);
+        if ($imputation->etat !== Config::get('gesbudget.variables.etat_engagement.CLOT')[1]) {
+            return response()->json([
+                "error" => true
+                , "message" => "Cet engagement '". $imputation->id
+                    ."' n'est pas clôturé ". $imputation->etat
+            ]);
+        }
+        session()->put(['CommentImputation'.Auth::user()->id.$imputationId, $request->comment]);
+        
+        $imputation->update([
+            "etat" => Config::get('gesbudget.variables.etat_engagement.INIT')[1],
+        ]);
+
+        return response()->json([
+            "status" => $this->success_status
+            , "success" => true
+            , "message" => "Imputation ". $imputation->id ." restauré avec succès"
+            , "data" => EngagementService::enrichEngagement($imputation->engagement->id)]);
     }
 
     public function valider(Request $request){
