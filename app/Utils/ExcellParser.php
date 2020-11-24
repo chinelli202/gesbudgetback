@@ -71,6 +71,21 @@ class ExcellParser {
                 ]
             ],
         ];
+        $this->normalrow = [
+            'font'=>[
+                'color'=>[
+                    'rgb'=>'000000'
+                ],
+                'bold'=>true,
+                'size'=>11
+            ],
+            'fill'=>[
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => [
+                    'rgb' => 'FFFFFF'
+                ]
+            ],
+        ];
         $this->row = 1;
         $this->rowgap = 0;
         $this->deletegap = 'chapitre';
@@ -186,6 +201,7 @@ class ExcellParser {
         $this->sheet->insertNewRowBefore($this->row, 1);
         $this->sheet->setCellValue('A'.$this->row,$data->libelle);
         $this->sheet->getStyle('A'.$this->row)->getFont()->setBold(true);
+        $this->sheet->getStyle("A".$this->row.":I".$this->row)->applyFromArray($this->normalrow);
         $this->row++;
         
         foreach($data->collection as $ligne){
@@ -223,7 +239,7 @@ class ExcellParser {
         ->setCellValue('I'.$this->row,$data->tauxExecution);
         if($this->deletegap == 'rubrique')
             $this->sheet->removeRow($this->rowgap-1,1);
-        $this->sheet->removeRow($this->row,2);
+        //$this->sheet->removeRow($this->row,2);
         Log::info("row gap value ".$this->rowgap);
         $this->row++;
     }

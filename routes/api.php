@@ -50,6 +50,10 @@ Route::get('/etats/fonctionnement/rubrique/{rubriqueid}',"EtatsFonctionnementCon
 Route::get('/etats/fonctionnement/chapitre/{chapitreid}',"EtatsFonctionnementController@getRecapChapitre");
 Route::get('/etats/fonctionnement/ligne/{ligneid}',"EtatsFonctionnementController@getRecapLigne");
 
+Route::get('/etats/section/{section}/{domaine}',"EtatsFonctionnementController@getRecapSection");
+
+
+
 //routes for months recaps
 Route::get('/etats/fonctionnement/monthsrecap/groupe/{groupename}',"EtatsFonctionnementController@getMonthsRecapRubriqueGroupe");
 Route::get('/etats/fonctionnement/monthsrecap/rubrique/{rubriqueid}',"EtatsFonctionnementController@getMonthsRecapRubrique");
@@ -59,3 +63,6 @@ Route::get('/etats/fonctionnement/monthsrecap/ligne/{ligneid}',"EtatsFonctionnem
 //routes for excell exports
 Route::get('/export/chapitre/{chapitreid}',"ExcellExportController@exportChapitre");
 Route::get('/export/rubrique/{rubiqueid}',"ExcellExportController@exportRubrique");
+Route::get('/export/section/{section}/{domaine}',"ExcellExportController@exportSection");
+Route::get('/export/section/full/{section}/{domaine}',"ExcellExportController@exportSectionFull");
+Route::get('/export/domaine/{domainename}',"ExcellExportController@exportDomaine");

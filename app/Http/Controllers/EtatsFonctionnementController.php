@@ -112,6 +112,26 @@ class EtatsFonctionnementController extends Controller
 
     }
 
+    public function getRecapSection(RecapService $recapService, $section, $domaine, Request $request){
+        $params = $this->validateParams($request, $recapService);
+        if(!is_null($params)){
+            if(in_array($section, $recapService->sections)){
+                Log::info("in array ".$section);
+                $params->sectiontype = 'section';
+            }
+            else{
+                Log::info("in array ".$section);
+                $params->sectiontype = 'sous_section';
+            }
+            $params->sectionname = $section;
+            //$params->section = $sectionname;
+            $params->domaine = $domaine;
+            $recap = $recapService->getRecapSection($request->critere, $params);
+            return response()->json(["status" => $this->success_status, "success" => true, "data" => $recap]);
+        }
+        else return "missing or incorrect parameters";
+    }
+
     private function validateParams($request, $recapService){
         Log::info("received new request like this ".implode(',', $request->all()));
         if(isset($request->critere) && in_array($request->critere, $recapService->criteres) && isset($request->param)){
