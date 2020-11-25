@@ -12,6 +12,7 @@ use App\Models\Chapitre;
 
 use Illuminate\Support\Facades\Config;
 use App\Services\ImputationService;
+use App\Services\ApurementService;
 
 class EngagementService {
 
@@ -31,6 +32,15 @@ class EngagementService {
       })
       ->map(function ($imp) {
         return ImputationService::enrichImputation($imp->id);
+      });
+    
+    /** Add all enriched imputations */
+    $engagement['apurements_labelled'] = $engagement->apurements
+      ->filter(function($apur) {
+        return $apur->etat !== Config::get('gesbudget.variables.etat_engagement.CLOT')[1];
+      })
+      ->map(function ($apur) {
+        return ApurementService::enrichApurement($apur->id);
       });
     
     /** Add pending apurements and imputations */

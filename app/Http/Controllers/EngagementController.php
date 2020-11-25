@@ -350,7 +350,7 @@ class EngagementController extends Controller
                 "statut" => $statutsEngagementKeys[$statutIndice],
                 $operateursKeys[$statutIndice] => Auth::user()->matricule,
                 "etat" => $etatsEngagementKeys[
-                    $engagement->etat === Config::get('gesbudget.variables.etat_engagement.REA')[1] ? $etatIndice: $etatIndice + 1]
+                    $engagement->etat === Config::get('gesbudget.variables.etat_engagement.APUR')[1] ? $etatIndice: $etatIndice + 1]
             ]);
         } else {
             $engagement->update([
@@ -429,7 +429,7 @@ class EngagementController extends Controller
                 "statut" => $statutsEngagementKeys[$statutIndice - 1],
                 $operateursKeys[$statutIndice] => null,
                 "etat" => $etatsEngagementKeys[
-                    $engagement->etat === Config::get('gesbudget.variables.etat_engagement.REA')[1] ? $etatIndice : $etatIndice - 1]
+                    $engagement->etat === Config::get('gesbudget.variables.etat_engagement.APUR')[1] ? $etatIndice : $etatIndice - 1]
             ]);
         } else {
             $engagement->update([

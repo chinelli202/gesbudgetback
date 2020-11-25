@@ -57,6 +57,18 @@ Route::group(['middleware' => 'auth:api'], function () {
         Route::post("valider/{id}", "ImputationController@valider")->name("valider");
         Route::post("cancelvalider/{id}", "ImputationController@cancelvalider")->name("cancelvalider");
     });
+
+    Route::prefix('apurement')->name('apurement')->group(function () {
+        Route::post("addcomment/{id}", "ApurementController@addcomment")->name("addcomment");
+        Route::post("create/", "ApurementController@create")->name("create");
+        Route::post("update/{id}", "ApurementController@update")->name("update");
+        Route::post("close/{id}", "ApurementController@close")->name("close");
+        Route::post("restore/{id}", "ApurementController@restore")->name("restore");
+        Route::post("sendback/{id}", "ApurementController@sendback")->name("sendback");
+        Route::post("resend/{id}", "ApurementController@resendupdate")->name("resendupdate");
+        Route::post("valider/{id}", "ApurementController@valider")->name("valider");
+        Route::post("cancelvalider/{id}", "ApurementController@cancelvalider")->name("cancelvalider");
+    });
     
     Route::get("getvariables", "VariableController@getvariables")->name('getvariables');
 });

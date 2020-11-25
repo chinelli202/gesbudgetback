@@ -25,6 +25,7 @@ class CreateApurementsTable extends Migration
             $table->string('observations');
 
             $table->string('statut');
+            $table->string('etat')->nullable();
             $table->string('next_statut')->nullable();
             $table->json('documents')->nullable();
 
