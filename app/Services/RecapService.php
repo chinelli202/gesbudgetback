@@ -186,7 +186,7 @@ class RecapService {
         $recap->id = $rrubrique->id;
         $recap->type = 'rubrique';
         $recap->prevision = 0;
-        $recap->libelle = $rrubrique->label;
+        $recap->libelle = $rrubrique->label." - ".$rrubrique->chapitre->label;
         $recap->chapitre = $rrubrique->chapitre->label;
         $recap->realisations = 0;
         $recap->realisationsMois = 0;
@@ -557,21 +557,24 @@ class RecapService {
             $recap->sections = $sections;
         }
         else if($params->domaine == 'fonctionnement'){
-            foreach($this->sectionsfonctionnement as $section){
-                $params->sectionname = $section;
-                $params->sectiontype = 'section';
+            //add fonctionnement and investissement sous sections
+            foreach($this->soussections as $ssection){
+                $params->sectionname = $ssection;
+                $params->sectiontype = 'sous_section';
                 $sectionrecap = $this->getRecapSection($critere, $params);
                 array_push($sections, $sectionrecap);
             }
+            //add recettes section
+                $params->sectionname = 'recettes';
+                $params->sectiontype = 'section';
+                $sectionrecap = $this->getRecapSection($critere, $params);
+                array_push($sections, $sectionrecap);
+
             $recap->sections = $sections;
         }
         $periode = $this->computePeriodeLabels($critere, $params);
         $recap->header = $this->setHeader($recap->libelle, 'chapitres', $periode);
         return $recap;
-    }
-
-    private function computeCollections($collection, $field, $method, $critere, $params){
-
     }
 
     private function setHeader($name, $headerlabel, $periode){
