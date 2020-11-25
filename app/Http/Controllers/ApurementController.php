@@ -55,6 +55,7 @@ class ApurementController extends Controller
         return response()->json([
             "status" => $this->success_status
             , "success" => true
+            , "message" => "Création d'un apurement réussie pour l'engagement ". $apurement->engagement->id
             , "data" => EngagementService::enrichEngagement($apurement->engagement->id)
         ]);
     }

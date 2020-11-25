@@ -108,7 +108,7 @@ class Engagement extends Model
 
                     $activity->description = Config::get('gesbudget.variables.actions.CANCEL_VALIDF')[1];
                 } else {
-                    $activity->description = 'UNKNOWN_STATUT_CHANGE';
+                    $activity->description = 'UNKNOWN_STATUT_CHANGE+ old:'. $oldStatut . ' new:' . $newStatut;
                 }
             } else if (isset($activity->properties['attributes']['etat'])) {
                 // The 'etat' attribute has changed
@@ -127,7 +127,7 @@ class Engagement extends Model
                     */
 
                     $activity->description = Config::get('gesbudget.variables.actions.IMPUTER')[1];
-                } else if ($oldEtat === 'IMP' && $newEtat === 'REA') {
+                } else if ($oldEtat === 'IMP' && $newEtat === 'APUR') {
                     /** This is a validation at the second level
                      * 
                     */
