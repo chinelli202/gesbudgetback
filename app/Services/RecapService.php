@@ -137,8 +137,7 @@ class RecapService {
                 $parameters = new stdClass();
                 $parameters->jour = $day;
                 return $this->getRecapLigne($ligne_id, 'jour',  $parameters);
-            }
-            else if($critere == 'intervalle'){
+            } else if($critere == 'intervalle'){
 
                 $recap->prevision = $rligne->montant;
                 //get realisations, engagements, execution depending on $critere : 

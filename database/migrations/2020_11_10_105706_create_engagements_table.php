@@ -15,6 +15,19 @@ class CreateEngagementsTable extends Migration
     public function up()
     {
         Schema::create('engagements', function (Blueprint $table) {
+            /** 
+             * next_statut: Empty/null/undefined by default
+             *   When empty, the engagement will follow the normal workflow of statut evolution
+             *   INIT -> VALIDP -> VALIDP -> VALIDS -> VALIDF.
+             *   Elsewhere, the value will be an indicator of the next action to perform on the engagement.
+             *   We'll use it espacially to for the 'Renvoyer l'engagement' feature.
+             *   Ex: The operator n create the engagement X (statut = INIT, next_statut is empty).
+             *       The operator n+1 review engagement X and decide to send back to operator n.
+             *       The engagement X return back to X with (statut = INIT, next_statut = INIT)
+             *       meaning that the engagement should be 'INIT' again.
+             *       Once the operator re-INIT the engagement, it'll be updated to
+             *       (statut = INIT, next_statut to empty)
+             * */
             $table->id();
             $table->timestamps();
             $table->string('code')->unique();
@@ -27,6 +40,8 @@ class CreateEngagementsTable extends Migration
             $table->string('type');
             $table->string('etat');
             $table->string('statut');
+            $table->string('next_statut')->nullable();
+            $table->json('documents')->nullable();
             
             $table->integer('nb_imputations')->default(0);
             $table->bigInteger('cumul_imputations')->default(0);

@@ -24,6 +24,9 @@ class CreateImputationsTable extends Migration
             $table->string('observations');
 
             $table->string('statut');
+            $table->string('etat');
+            $table->string('next_statut')->nullable();
+            $table->json('documents')->nullable();
             
             $table->string('saisisseur');
             $table->string('valideur_first')->nullable();

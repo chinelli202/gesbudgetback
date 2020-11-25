@@ -15,11 +15,11 @@ class EngagementSeeder extends Seeder
     {
         $this->truncateTables();
 
-        $devises = Config::get('app_seeder.variables.devise');
-        $naturesEngagement = Config::get('app_seeder.variables.nature_engagement');
-        $etatsEngagement = Config::get('app_seeder.variables.etat_engagement');
-        $typesEngagement = Config::get('app_seeder.variables.type_engagement');
-        $statutsEngagement = Config::get('app_seeder.variables.statut_engagement');
+        $devises = Config::get('gesbudget.variables.devise');
+        $naturesEngagement = Config::get('gesbudget.variables.nature_engagement');
+        $etatsEngagement = Config::get('gesbudget.variables.etat_engagement');
+        $typesEngagement = Config::get('gesbudget.variables.type_engagement');
+        $statutsEngagement = Config::get('gesbudget.variables.statut_engagement');
 
         foreach ($naturesEngagement as $natureEng => $naturedesc) {
             foreach ($typesEngagement as $typeEng => $typedesc) {
@@ -44,30 +44,30 @@ class EngagementSeeder extends Seeder
                             ) && $statutEng != 'VALIDF_NOEXC'  
                         ){
                             
-                            $devise = array_values($devises)[rand(0,2)];
+                            $devise = array_keys($devises)[rand(0,2)];
                             $montant = rand(100000, 10000000);
 
                             if($etatEng == 'INIT'){
                                 // Create a new engagement
-                                $engagement = $this->createEngagement($typeEng, $typedesc,$montant, $devise, $naturedesc, $etatdesc, $statutdesc, $statutEng );
+                                $engagement = $this->createEngagement($typeEng,$montant, $devise, $natureEng, $etatEng, $statutEng);
                             }elseif($etatEng == 'PEG'){
                                 if($statutEng == 'VALIDF'){
                                     if($natureEng == 'REA'){
                                         // Create a new engagement
-                                        $engagement = $this->createEngagement($typeEng, $typedesc,$montant, $devise, $naturedesc, $etatdesc, $statutdesc, $statutEng );
+                                        $engagement = $this->createEngagement($typeEng,$montant, $devise, $natureEng, $etatEng, $statutEng);
                                         
                                         // Create a new Imputation
-                                        $imputation = $this->createImputation($engagement, Config::get('app_seeder.variables.statut_engagement.VALIDF') );
+                                        $imputation = $this->createImputation($engagement, 'VALIDF' );
                                         $engagement->cumul_imputations += $imputation->montant_ttc;
                                         $engagement->nb_imputations += 1;
-                                        $engagement->etat = Config::get('app_seeder.variables.etat_engagement.IMP');
+                                        $engagement->etat = 'IMP';
                                         $engagement->save();
             
                                         $this->command->info('Created Imputation '. $imputation->id . ' for engagement ' . $engagement->code);
                                     }else{
                                         foreach($statutsEngagement as $statutimp => $statutimpdesc){
                                             // Create a new engagement
-                                            $engagement = $this->createEngagement($typeEng, $typedesc,$montant, $devise, $naturedesc, $etatdesc, $statutdesc, $statutEng );
+                                            $engagement = $this->createEngagement($typeEng,$montant, $devise, $natureEng, $etatEng, $statutEng);
                                             
                                             // Create a new Imputation
                                             $imputation = $this->createImputation($engagement, $statutimp == 'VALIDF_NOEXC' ? null: $statutimp);
@@ -76,17 +76,18 @@ class EngagementSeeder extends Seeder
                                             }
                                         }
                                     }
-                                }else{
-                                    // Create a new engagement
-                                    $engagement = $this->createEngagement($typeEng, $typedesc,$montant, $devise, $naturedesc, $etatdesc, $statutdesc, $statutEng );
-                                }
+                                }/** else{
+                                    *   // Create a new engagement
+                                    *   $engagement = $this->createEngagement($typeEng,$montant, $devise, $natureEng, $etatEng, $statutEng);
+                                    * }
+                                */
                             }elseif($etatEng == 'IMP'){
                                 foreach($statutsEngagement as $statutapur => $statutapurdesc){
                                     // Create a new engagement
-                                    $engagement = $this->createEngagement($typeEng, $typedesc,$montant, $devise, $naturedesc, $etatdesc, $statutdesc, $statutEng );
+                                    $engagement = $this->createEngagement($typeEng,$montant, $devise, $natureEng, $etatEng, $statutEng);
                                     
                                     // Create a new Imputation with FINAL status
-                                    $imputation = $this->createImputation($engagement, Config::get('app_seeder.variables.statut_engagement.VALIDF') );
+                                    $imputation = $this->createImputation($engagement, 'VALIDF');
                                     $engagement->cumul_imputations += $imputation->montant_ttc;
                                     $engagement->nb_imputations += 1;
                                     $engagement->save();
@@ -102,17 +103,17 @@ class EngagementSeeder extends Seeder
                                 }
                             }elseif($etatEng == 'REA'){
                                 // Create a new engagement
-                                $engagement = $this->createEngagement($typeEng, $typedesc,$montant, $devise, $naturedesc, $etatdesc, $statutdesc, $statutEng );
+                                $engagement = $this->createEngagement($typeEng,$montant, $devise, $natureEng, $etatEng, $statutEng);
                                     
                                 // Create a new Imputation with FINAL status
-                                $imputation = $this->createImputation($engagement, Config::get('app_seeder.variables.statut_engagement.VALIDF') );
+                                $imputation = $this->createImputation($engagement, 'VALIDF');
                                 $engagement->cumul_imputations += $imputation->montant_ttc;
                                 $engagement->nb_imputations += 1;
                                 $engagement->save();
                                 $this->command->info('Created Imputation '. $imputation->id . ' for engagement ' . $engagement->code);
 
                                 // Create a new apurement with FINAL STATUS
-                                $apurement = $this->createApurement($engagement, Config::get('app_seeder.variables.statut_engagement.VALIDF'));
+                                $apurement = $this->createApurement($engagement, 'VALIDF');
                                 $engagement->cumul_apurements += $apurement->montant_ttc;
                                 $engagement->nb_apurements += 1;
                                 $engagement->save();
@@ -150,18 +151,18 @@ class EngagementSeeder extends Seeder
      *
      * @return    \App\Models\Engagement
      */
-    public function createEngagement($typeEng, $typedesc, $montant, $devise, $naturedesc, $etatdesc, $statutdesc, $statutEng ){
+    public function createEngagement($typeEng, $montant, $devise, $natureEng, $etatEng, $statutEng ){
         $engagement = \App\Models\Engagement::firstOrCreate([
-            'code' => $typeEng .substr(now()->format('ymd-His-u'),0,16), 
-            'libelle' => 'Engagement de type ' . $typedesc . ' du '. now(),
+            'code' => $typeEng .substr(now()->format('ymd-His-u'),0,17), 
+            'libelle' => 'Engagement de type ' . $typeEng . ' du '. now(),
             'montant_ht' => $montant,
             'montant_ttc' => $montant*1.1925,
             'devise' => $devise,
 
-            'nature' => $naturedesc,
-            'type' => $typedesc,
-            'etat' => $etatdesc,
-            'statut' => $statutdesc,
+            'nature' => $natureEng,
+            'type' => $typeEng,
+            'etat' => $etatEng,
+            'statut' => $statutEng,
             'nb_imputations' => 0,
             'cumul_imputations' => 0,
             'nb_apurements' => 0,
@@ -170,7 +171,8 @@ class EngagementSeeder extends Seeder
             'valideur_first' => in_array($statutEng, array('VALIDP', 'VALIDS','VALIDF' )) ? User::find(2)->matricule : null,
             'valideur_second' => in_array($statutEng, array('VALIDS','VALIDF' )) ? User::find(1)->matricule : null,
             'valideur_final' => in_array($statutEng, array('VALIDF')) ? User::find(1)->matricule : null,
-            'source' => Config::get('laratrust.constants.user_creation_source.SEEDER')
+            'source' => Config::get('gesbudget.variables.source.SEEDER')[0],
+            'ligne_id' => \App\Models\Ligne::all()->first()->id + rand(0, 475)
         ]);
         $this->command->info('Created Engagement '. $engagement->code
             . '-' .$engagement->nature
@@ -198,6 +200,7 @@ class EngagementSeeder extends Seeder
             'devise' => $engagement->devise,
             'observations' => 'Imputation sur ' . $engagement->libelle,
             'statut' => $statut,
+            'etat' => Config::get('gesbudget.variables.etat_engagement.INIT')[1],
             'saisisseur' => User::find(3)->matricule,
             'valideur_first' => User::find(2)->matricule,
             'valideur_second' => User::find(1)->matricule,

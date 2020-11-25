@@ -14,18 +14,19 @@ class VariablesSeeder extends Seeder
     public function run()
     {
         $this->truncateTables();
-        $variables = Config::get('app_seeder.variables');
+        $variables = Config::get('gesbudget.variables');
         foreach($variables as $keyvar => $codes){
             foreach($codes as $keycode => $libelle){
                 $variable = \App\Models\Variable::firstOrCreate([
                     'cle' => strtoupper($keyvar),
                     'code' => strtoupper($keycode),
-                    'libelle' => $libelle,
+                    'libelle' => $libelle[0],
+                    'valeur' => $libelle[1],
                     'saisisseur' => User::find(3)->matricule,
                     'source' => Config::get('laratrust.constants.user_creation_source.SEEDER')
                 ]);
 
-                $this->command->info('Creating variable \''. $variable->cle . '\'-\''. $variable->code . '\'-\''. $variable->libelle . '\'');
+                $this->command->info('Creating variable \''. $variable->cle . '\'-\''. $variable->code . '\'-\''. $variable->libelle[1] . '\'');
             }
         }
     }

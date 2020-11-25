@@ -2,14 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Validator;
+use Spatie\Activitylog\Traits\CausesActivity;
 
 class UserController extends Controller
 {
+    use CausesActivity;
+    
     private $sucess_status = 200;
 
     // ---------------- [ User Sign Up ] -----------------
@@ -93,7 +96,7 @@ class UserController extends Controller
         $request->user()->token()->revoke();
         return response()->json([
             "status" => $this->sucess_status,
-            'message' => 'Successfully logged out'
+            'message' => 'Deconnexion réussie'
         ]);
     }
 
@@ -101,6 +104,7 @@ class UserController extends Controller
     public function userDetail(Request $request) {
         $user           =       Auth::user();
         $user['roles'] = $request->user()->getRoles();
+        $user['permissions'] = $request->user()->allPermissions();
 
         if(!is_null($user)) {
             return response()->json(["status" => $this->sucess_status, "success" => true, "data" => $user]);
