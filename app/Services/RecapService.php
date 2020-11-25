@@ -17,6 +17,10 @@ class RecapService {
     public function __construct(){
         $this->criteres = ['mois', 'jour', 'rapport_mensuel', 'intervalle'];
         $this->mois_fr = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+        $this->sections = ['depenses', 'recettes'];
+        $this->soussections = ['investissement', 'fonctionnement'];
+        $this->sectionsmandat = ['depenses', 'recettes'];
+        $this->sectionsfonctionnement = ['fonctionnement', 'investissements', 'recettes'];
     }
 
     //method for retrieving recap values of a given ligne
@@ -25,6 +29,7 @@ class RecapService {
         
         $recap = new stdClass();
         $recap->libelle = $rligne->label;
+        $recap->id = $rligne->id;
         $recap->prevision = 0;
         $recap->realisations = 0;
         $recap->realisationsMois = 0;
@@ -177,6 +182,8 @@ class RecapService {
         $collection = [];
         $sumrow = new stdClass();
         $recap = new stdClass();
+        $recap->id = $rrubrique->id;
+        $recap->type = 'rubrique';
         $recap->prevision = 0;
         $recap->libelle = $rrubrique->label;
         $recap->chapitre = $rrubrique->chapitre->label;
@@ -226,7 +233,7 @@ class RecapService {
         Log::info( "prevision : ".$recap->prevision);
 
         $periode = $this->computePeriodeLabels($critere, $params);
-        $recap->header = $this->setHeader($rrubrique->label, $periode);
+        $recap->header = $this->setHeader($rrubrique->label, 'lignes', $periode);
         return $recap;
     }
 
@@ -238,6 +245,7 @@ class RecapService {
         $recap = new stdClass();
         
         $recap->libelle = $name;
+        $recap->type = 'groupe';
         $recap->prevision = 0;
         $recap->realisations = 0;
         $recap->realisationsMois = 0;
@@ -279,7 +287,7 @@ class RecapService {
         Log::info( "prevision : ".$recap->prevision);
 
         $periode = $this->computePeriodeLabels($critere, $params);
-        $recap->header = $this->setHeader($name, $periode);
+        $recap->header = $this->setHeader($name, 'chapitres', $periode);
         return $recap;
     }
 
@@ -289,6 +297,8 @@ class RecapService {
         
         $collection = [];
         $recap = new stdClass();
+        $recap->id = $rchapitre->id;
+        $recap->type = 'chapitre';
         $recap->prevision = 0;
         $recap->libelle = $rchapitre->label;
         $recap->realisations = 0;
@@ -318,7 +328,7 @@ class RecapService {
         
         $recap->collection = $collection;        
         $periode = $this->computePeriodeLabels($critere, $params);
-        $recap->header = $this->setHeader($rchapitre->label, $periode);
+        $recap->header = $this->setHeader($rchapitre->label, 'rubriques', $periode);
         
         return $recap;
     }
@@ -428,11 +438,12 @@ class RecapService {
 
     public function getRecapSection($critere, $params){
         $recap = new stdClass();
-        $chapitres_id = DB::table('chapitres')->where('section',$params->section)->where('domaine',$params->domaine)->select('id','label')->get();
+        Log::info("params : ".$params->sectiontype." - ".$params->sectionname);
+        $chapitres_id = DB::table('chapitres')->where($params->sectiontype, $params->sectionname)->where('domaine',$params->domaine)->select('id','label')->get();
         $recap->rchapitres = [];
         $collection = [];
         $recap->prevision = 0;
-        $recap->libelle = $params->section." - ".$params->domaine;
+        $recap->libelle = $params->sectionname." - ".$params->domaine;
         $recap->realisations = 0;
         $recap->realisationsMois = 0;
         $recap->realisationsMoisPrecedents = 0;
@@ -460,7 +471,7 @@ class RecapService {
         
         $recap->collection = $collection;        
         $periode = $this->computePeriodeLabels($critere, $params);
-        $recap->header = $this->setHeader($recap->libelle, $periode);
+        $recap->header = $this->setHeader($recap->libelle, 'chapitres', $periode);
         return $recap;
     }
 
@@ -529,14 +540,43 @@ class RecapService {
 
     }
 
+    public function getRecapDomaine($critere, $params){
+
+        //get sections and then join them
+        $recap = new stdClass();
+        $recap->libelle = 'Récapitulatif Général';
+        $sections = [];
+        if($params->domaine == 'mandat'){
+            foreach($this->sectionsmandat as $section){
+                $params->sectionname = $section;
+                $params->sectiontype = 'section';
+                $sectionrecap = $this->getRecapSection($critere, $params);
+                array_push($sections, $sectionrecap);
+            }
+            $recap->sections = $sections;
+        }
+        else if($params->domaine == 'fonctionnement'){
+            foreach($this->sectionsfonctionnement as $section){
+                $params->sectionname = $section;
+                $params->sectiontype = 'section';
+                $sectionrecap = $this->getRecapSection($critere, $params);
+                array_push($sections, $sectionrecap);
+            }
+            $recap->sections = $sections;
+        }
+        $periode = $this->computePeriodeLabels($critere, $params);
+        $recap->header = $this->setHeader($recap->libelle, 'chapitres', $periode);
+        return $recap;
+    }
+
     private function computeCollections($collection, $field, $method, $critere, $params){
 
     }
 
-    private function setHeader($name, $periode){
+    private function setHeader($name, $headerlabel, $periode){
         $header = new stdClass();
         $header->name = $name;
-        $header->labelLabel = "Rubriques";
+        $header->labelLabel = $headerlabel;
         $header->previsionsLabel = "Prévisions";
         $header->realisationsLabel = "Réalisations cumulées ".$periode;//"Réalisations ".$periode;
         $header->realisationsMoisPrecedentsLabel = "Réalisations précédentes";
