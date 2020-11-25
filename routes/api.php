@@ -63,6 +63,6 @@ Route::get('/etats/fonctionnement/monthsrecap/ligne/{ligneid}',"EtatsFonctionnem
 //routes for excell exports
 Route::get('/export/chapitre/{chapitreid}',"ExcellExportController@exportChapitre");
 Route::get('/export/rubrique/{rubiqueid}',"ExcellExportController@exportRubrique");
-Route::get('/export/section/{section}/{domaine}',"ExcellExportController@exportSection");
+Route::get('/export/section/{section}/{domaine}',"ExcellExportController@exportSectionSimple");
 Route::get('/export/section/full/{section}/{domaine}',"ExcellExportController@exportSectionFull");
 Route::get('/export/domaine/{domainename}',"ExcellExportController@exportDomaine");

@@ -19,6 +19,8 @@ class RecapService {
         $this->mois_fr = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
         $this->sections = ['depenses', 'recettes'];
         $this->soussections = ['investissement', 'fonctionnement'];
+        $this->sectionsmandat = ['depenses', 'recettes'];
+        $this->sectionsfonctionnement = ['fonctionnement', 'investissements', 'recettes'];
     }
 
     //method for retrieving recap values of a given ligne
@@ -537,6 +539,35 @@ class RecapService {
 
     public function getRecapBudgetMandat(){
 
+    }
+
+    public function getRecapDomaine($critere, $params){
+
+        //get sections and then join them
+        $recap = new stdClass();
+        $recap->libelle = 'Récapitulatif Général';
+        $sections = [];
+        if($params->domaine == 'mandat'){
+            foreach($this->sectionsmandat as $section){
+                $params->sectionname = $section;
+                $params->sectiontype = 'section';
+                $sectionrecap = $this->getRecapSection($critere, $params);
+                array_push($sections, $sectionrecap);
+            }
+            $recap->sections = $sections;
+        }
+        else if($params->domaine == 'fonctionnement'){
+            foreach($this->sectionsfonctionnement as $section){
+                $params->sectionname = $section;
+                $params->sectiontype = 'section';
+                $sectionrecap = $this->getRecapSection($critere, $params);
+                array_push($sections, $sectionrecap);
+            }
+            $recap->sections = $sections;
+        }
+        $periode = $this->computePeriodeLabels($critere, $params);
+        $recap->header = $this->setHeader($recap->libelle, 'chapitres', $periode);
+        return $recap;
     }
 
     private function computeCollections($collection, $field, $method, $critere, $params){

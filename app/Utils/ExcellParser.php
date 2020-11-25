@@ -62,7 +62,7 @@ class ExcellParser {
                     'rgb'=>'FFFFFF'
                 ],
                 'bold'=>true,
-                'size'=>11
+                'size'=>13
             ],
             'fill'=>[
                 'fillType' => Fill::FILL_SOLID,
@@ -126,6 +126,39 @@ class ExcellParser {
             $this->deletegap = 'collection';
             $this->processcollection($data, $data->header);
         }
+        else if($params->type == 'full'){
+            $this->processcollection($data, $data->header);
+            foreach($data->collection as $chapitre){
+                $this->row+=2;
+                $this->processbaniere($data, $chapitre->libelle);
+                // header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+                $this->makeheaderandbody($data, $data->header);
+                $this->row++;
+                $this->processchapitre($chapitre, $chapitre->header);
+            }
+        }
+        else if($params->type == 'domaine'){
+            //add recap of both sections
+            $this->processSections($data, $params->baniere);
+            $this->row+=2;
+            foreach($data->sections as $section){
+                //add full section 
+                $this->processbaniere($section, $section->libelle);
+                //header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+                $this->makeheaderandbody($section, $section->header);
+                $this->row++;
+
+                $this->processcollection($section, $data->header);
+                foreach($section->collection as $chapitre){
+                    $this->row+=2;
+                    $this->processbaniere($data, $chapitre->libelle);
+                    // header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+                    $this->makeheaderandbody($data, $data->header);
+                    $this->row++;
+                    $this->processchapitre($chapitre, $chapitre->header);
+                }             
+            }
+        }
         // foreach($data->collection as $granderubrique){
         //     $this->processgranderubrique($granderubrique, $this->row, $data->tableheader);
         //     $this->row++; //we always increase row index after processing either header or rubriques or lignes
@@ -140,19 +173,19 @@ class ExcellParser {
         //save into php output
         //$writer->save('php://output');
 
-        // //set the header first, so the result will be treated as an xlsx file.
-        // header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        $filename = $params->filename;
+        //set the header first, so the result will be treated as an xlsx file.
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 
-        //  //make it an attachment so we can define filename
-        // header('Content-Disposition: attachment;filename="result.xlsx"');
+         //make it an attachment so we can define filename
+        header('Content-Disposition: attachment;filename="'.$filename.'"');
 
         // // //create IOFactory object
         $writer = IOFactory::createWriter($this->spreadsheet, 'Xlsx');
         // //save into php output
-        // $writer->save('php://output');
+        $writer->save('php://output');
 
 
-        $filename = $params->filename;
         $myfile = fopen("file:///C:/Dev/Git/budget/gesbudget/storage/app/public/files/".$filename, "w") or die("Unable to open file!");
         
         //$writer->save('file:///C:/laragon/www/saturn/app/public/files/result.xlsx');
@@ -280,9 +313,9 @@ class ExcellParser {
         ->setCellValue('I'.$this->row,$data->tauxExecution);
         if($this->deletegap == 'collection')
             $this->sheet->removeRow($this->rowgap-1,1);
-        $this->sheet->removeRow($this->row,2);
+        //$this->sheet->removeRow($this->row,1);
         Log::info("row gap value ".$this->rowgap);
-        $this->row++;
+        $this->row+=2;
     }
 
     function processchapitre($data, $tableheader){
@@ -327,7 +360,14 @@ class ExcellParser {
         Log::info("row gap value ".$this->rowgap);
         $this->row++;
     }
-    
+
+    function processSections($sections, $baniere){
+        foreach($sections->sections as $section){
+            $this->processcollection($section);
+        }
+        //TODO add sum row
+    }
+
     function processligne($ligne){
         //global $this->sheet, $row;
         
@@ -421,7 +461,7 @@ class ExcellParser {
         $this->sheet->getStyle("B".$this->row.":I".$this->row)->getAlignment()->setWrapText(true);
         //make text green
         $this->sheet->getStyle("B".$this->row.":I".$this->row)->applyFromArray($this->greentext);
-//setting thick borders around the header row
+        //setting thick borders around the header row
         $this->sheet->getStyle("A".$this->row)->getBorders()->getRight()->setBorderStyle(Border::BORDER_THICK);
         $this->sheet->getStyle("A".$this->row)->getBorders()->getLeft()->setBorderStyle(Border::BORDER_THICK);
         $this->sheet->getStyle("I".$this->row)->getBorders()->getRight()->setBorderStyle(Border::BORDER_THICK);

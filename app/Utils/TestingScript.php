@@ -19,13 +19,23 @@ $service = new App\Services\RecapService();
 $params = new stdClass();
 $critere = 'jour';
 $params->jour = "2020-06-12";
-$params->section = "Dépenses";
+//$params->section = "Dépenses";
 $params->domaine = "Fonctionnement";
-$recapdata = $service->getRecapSection($critere, $params);
+$params->sectiontype = 'sous_section';
+$params->sectionname = 'investissement';
+
+//params for domaine
+$params->domaine = "mandat";
+$params->filename = "rapport_".$params->domaine."_".$params->jour.".xlsx";
+$recap = $service->getRecapDomaine($critere, $params);
+$params->baniere = $recap->libelle;
+
+
+//$recapdata = $service->getRecapSection($critere, $params);
 
 //now just print it to excell
  $parserservice = new App\Utils\ExcellParser();
- $params->baniere = $recapdata->libelle;
- $params->datatype = 'collection';
- $params->filename = "rapport_".$params->baniere.".xlsx";
- $parserservice->toExcell($recapdata, $params);
+ //$params->baniere = $recapdata->libelle;
+ $params->type = 'domaine';
+ //$params->filename = "rapport_".$params->baniere.".xlsx";
+ $parserservice->toExcell($recap, $params);
