@@ -10,11 +10,13 @@
 //use App\Http\Resources\LigneResource;
 namespace App\Utils;
 
+use Illuminate\Support\Facades\Log;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 //call iofactory instead of xlsx writer
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\FILL;
+use PhpOffice\PhpSpreadsheet\Style\PHPExcel_Style_Fill;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use stdClass;
 
@@ -36,16 +38,59 @@ class MonthExcellParser {
         $this->sheet->getColumnDimension('C')->setWidth(21);
         $this->sheet->getColumnDimension('D')->setWidth(20);
         $this->sheet->getColumnDimension('E')->setWidth(18);
-        $this->sheet->getColumnDimension('F')->setWidth(15);
-
+        $this->sheet->getColumnDimension('F')->setWidth(20);
+        $this->sheet->getColumnDimension('G')->setWidth(20);
+        $this->sheet->getColumnDimension('H')->setWidth(21);
+        $this->sheet->getColumnDimension('I')->setWidth(15);
         //setting general column width
         
         $this->thinborders['borders']['outline']['borderStyle'] = BORDER::BORDER_THIN;
         $this->thickborders['borders']['outline']['borderStyle'] = BORDER::BORDER_THICK;
         $this->greentext['font']['color']['rgb'] = '227447';
+        //$this->greyrow['fill']['fillType']['startColor'] = 'BFBFBF';
+        
+        $this->greyrow = array(
+            'fill' => array(
+                'type' => FILL::FILL_SOLID,
+                'color' => array('rgb' => '538ED')
+            )
+            );
+
+        $this->tablehead = [
+            'font'=>[
+                'color'=>[
+                    'rgb'=>'FFFFFF'
+                ],
+                'bold'=>true,
+                'size'=>13
+            ],
+            'fill'=>[
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => [
+                    'rgb' => '538ED5'
+                ]
+            ],
+        ];
+        $this->normalrow = [
+            'font'=>[
+                'color'=>[
+                    'rgb'=>'000000'
+                ],
+                'bold'=>true,
+                'size'=>11
+            ],
+            'fill'=>[
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => [
+                    'rgb' => 'FFFFFF'
+                ]
+            ],
+        ];
         $this->row = 1;
-        $this->gapindex = 0;
+        $this->rowgap = 0;
+        $this->deletegap = 'chapitre';
         $this->criteres = ['mois', 'jour', 'rapport_mensuel', 'intervalle'];
+        $this->datatype = ['chapitre', 'rubrique', 'collection'];
     }
 
 
@@ -67,7 +112,53 @@ class MonthExcellParser {
         // header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         $this->makeheaderandbody($data, $data->header);
         $this->row++; //we always increase row index after processing either header or rubriques or lignes
-        $this->processchapitre($data, $data->header);
+        
+        //depending on param type, send to chapitre, collection, or other
+        if($params->type == 'chapitre'){
+            $this->deletegap = 'chapitre';
+            $this->processchapitre($data, $data->header);
+        }
+        else if($params->type == 'rubrique'){
+            $this->deletegap = 'rubrique';
+            $this->processrubrique($data, $data->header);
+        } 
+        else if($params->type == 'collection'){
+            $this->deletegap = 'collection';
+            $this->processcollection($data, $data->header);
+        }
+        else if($params->type == 'full'){
+            $this->processcollection($data, $data->header);
+            foreach($data->collection as $chapitre){
+                $this->row+=2;
+                $this->processbaniere($data, $chapitre->libelle);
+                // header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+                $this->makeheaderandbody($data, $data->header);
+                $this->row++;
+                $this->processchapitre($chapitre, $chapitre->header);
+            }
+        }
+        else if($params->type == 'domaine'){
+            //add recap of both sections
+            $this->processSections($data, $params->baniere);
+            $this->row+=2;
+            foreach($data->sections as $section){
+                //add full section 
+                $this->processbaniere($section, $section->libelle);
+                //header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+                $this->makeheaderandbody($section, $section->header);
+                $this->row++;
+
+                $this->processcollection($section, $data->header);
+                foreach($section->collection as $chapitre){
+                    $this->row+=2;
+                    $this->processbaniere($data, $chapitre->libelle);
+                    // header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+                    $this->makeheaderandbody($data, $data->header);
+                    $this->row++;
+                    $this->processchapitre($chapitre, $chapitre->header);
+                }             
+            }
+        }
         // foreach($data->collection as $granderubrique){
         //     $this->processgranderubrique($granderubrique, $this->row, $data->tableheader);
         //     $this->row++; //we always increase row index after processing either header or rubriques or lignes
@@ -82,20 +173,20 @@ class MonthExcellParser {
         //save into php output
         //$writer->save('php://output');
 
+        $filename = $params->filename;
         //set the header first, so the result will be treated as an xlsx file.
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 
          //make it an attachment so we can define filename
-        header('Content-Disposition: attachment;filename="'.$params->filename.'"');
+        header('Content-Disposition: attachment;filename="'.$filename.'"');
 
-        // //create IOFactory object
+        // // //create IOFactory object
         $writer = IOFactory::createWriter($this->spreadsheet, 'Xlsx');
-        //save into php output
+        // //save into php output
         $writer->save('php://output');
 
 
-        $filename = $params->filename;
-        $myfile = fopen("file:///C:/Dev/milky/gesbudgetback/storage/app/public/files/".$filename, "w") or die("Unable to open file!");
+        $myfile = fopen("file:///C:/Dev/Git/budget/gesbudget/storage/app/public/files/".$filename, "w") or die("Unable to open file!");
         
         //$writer->save('file:///C:/laragon/www/saturn/app/public/files/result.xlsx');
         $writer->save($myfile);
@@ -116,10 +207,10 @@ class MonthExcellParser {
     
         $this->sheet->setCellValue('A'.$this->row, $baniere);
     
-        $this->sheet->mergeCells("A".$this->row.":F".$this->row);
+        $this->sheet->mergeCells("A".$this->row.":I".$this->row);
         
         //setting title border
-        $this->sheet->getStyle("A".$this->row.":F".$this->row)->applyFromArray($this->thickborders);
+        $this->sheet->getStyle("A".$this->row.":I".$this->row)->applyFromArray($this->thickborders);
     
         //set title Font style
         $this->sheet->getStyle('A'.$this->row)->getFont()->setSize(22);
@@ -139,9 +230,11 @@ class MonthExcellParser {
        //global $this->sheet, $types, $row, $thickborders;
         // echo "processing rubrique ".$data->libelle;
         // echo "\n";
+        $this->rowgap = $this->row;
         $this->sheet->insertNewRowBefore($this->row, 1);
         $this->sheet->setCellValue('A'.$this->row,$data->libelle);
         $this->sheet->getStyle('A'.$this->row)->getFont()->setBold(true);
+        $this->sheet->getStyle("A".$this->row.":I".$this->row)->applyFromArray($this->normalrow);
         $this->row++;
         
         foreach($data->collection as $ligne){
@@ -151,23 +244,50 @@ class MonthExcellParser {
             $this->row+=1; //we always increase row index after processing either header or rubriques or lignes
         }
 
-        //add sum 
-        //TODO
+        // //add sum 
+        // //TODO
+        // $this->sheet->insertNewRowBefore($this->row, 1);
+        // $this->sheet->setCellValue('A'.$this->row,"Sous-Total");
+        // $this->sheet->getStyle('A'.$this->row)->getFont()->setBold(true);
+        // //set sum data.
+
+        // $this->row++;
+
+
+
         $this->sheet->insertNewRowBefore($this->row, 1);
         $this->sheet->setCellValue('A'.$this->row,"Sous-Total");
-        $this->sheet->getStyle('A'.$this->row)->getFont()->setBold(true);
+        //setting sum style
+        $this->sheet->getStyle('A'.$this->row.":I".$this->row)->getFont()->setBold(true);
+        $this->sheet->getStyle("B".$this->row.":I".$this->row)->applyFromArray($this->greentext);
+        $this->sheet->getStyle("A".$this->row.":I".$this->row)->applyFromArray($this->tablehead);
         //set sum data.
-
+        $this->sheet->setCellValue('B'.$this->row,$data->prevision)
+        ->setCellValue('C'.$this->row,$data->realisationsMois)
+        ->setCellValue('D'.$this->row,$data->realisationsMoisPrecedents)
+        ->setCellValue('E'.$this->row,$data->realisations)
+        ->setCellValue('F'.$this->row,$data->engagements)
+        ->setCellValue('G'.$this->row,$data->execution)
+        ->setCellValue('H'.$this->row,$data->solde)
+        ->setCellValue('I'.$this->row,$data->tauxExecution);
+        $this->sheet->getStyle('B'.$this->row.":I".$this->row)->getNumberFormat()->setFormatCode('### ### ### ###0,00');
+        if($this->deletegap == 'rubrique')
+            $this->sheet->removeRow($this->rowgap-1,1);
+        //$this->sheet->removeRow($this->row,2);
+        Log::info("row gap value ".$this->rowgap);
         $this->row++;
     }
 
     function processcollection($data){
         // echo "processing collection ".$data->libelle;
         // echo "\n";
-        
+        $this->row++;
+        $this->rowgap = $this->row;
         foreach($data->collection as $ligne){
             $this->sheet->insertNewRowBefore($this->row, 1);
             $this->processligne($ligne);
+            //$this->row--;
+            //$this->row--;
             //set A content to bold
             $this->sheet->getStyle('A'.$this->row)->getFont()->setBold(true);
             //increase row height a little bit
@@ -179,36 +299,34 @@ class MonthExcellParser {
         //TODO
         $this->sheet->insertNewRowBefore($this->row, 1);
         $this->sheet->setCellValue('A'.$this->row,"Sous-Total");
-        $this->sheet->getStyle('A'.$this->row)->getFont()->setBold(true);
+        //setting sum style
+        $this->sheet->getStyle('A'.$this->row.":I".$this->row)->getFont()->setBold(true);
+        $this->sheet->getStyle("B".$this->row.":I".$this->row)->applyFromArray($this->greentext);
+        $this->sheet->getStyle("A".$this->row.":I".$this->row)->applyFromArray($this->tablehead);
         //set sum data.
-
-        $this->row++;
+        $this->sheet->setCellValue('B'.$this->row,$data->prevision)
+        ->setCellValue('C'.$this->row,$data->realisationsMois)
+        ->setCellValue('D'.$this->row,$data->realisationsMoisPrecedents)
+        ->setCellValue('E'.$this->row,$data->realisations)
+        ->setCellValue('F'.$this->row,$data->engagements)
+        ->setCellValue('G'.$this->row,$data->execution)
+        ->setCellValue('H'.$this->row,$data->solde)
+        ->setCellValue('I'.$this->row,$data->tauxExecution);
+        $this->sheet->getStyle('B'.$this->row.":I".$this->row)->getNumberFormat()->setFormatCode('### ### ### ###0,00');
+        if($this->deletegap == 'collection')
+            $this->sheet->removeRow($this->rowgap-1,1);
+        //$this->sheet->removeRow($this->row,1);
+        Log::info("row gap value ".$this->rowgap);
+        $this->row+=2;
     }
 
     function processchapitre($data, $tableheader){
-        // //add categorie title, add space,
-        // //add header
-        // //for each rubrique, process rubrique
-        // //add total line.
-        // //global $this->sheet, $types, $row, $thickborders;
-        // //titre
-        //     //set titre
-        // $this->sheet->setCellValue('A'.$this->row, $data->label);
-        //     //merge cells
-        // $this->sheet->mergeCells("A".$this->row.":C".$this->row);
-    
-        //     //set title Font style
-        // $this->sheet->getStyle('A'.$this->row)->getFont()->setSize(20);
-        
-        //     //adding space
-        // $this->sheet->getRowDimension($this->row+1)->setRowHeight(24);
-        
-        //     //increasing row index.
-        //     $this->row+=2;
+
     
         // //header
         // $this->makeheaderandbody($data, $tableheader);
         $this->row+=1; //we always increase row index after processing either header or rubriques or lignes
+        $this->rowgap = $this->row;
         //rubriques
         foreach($data->collection as $rubrique){
             $this->processrubrique($rubrique);
@@ -216,13 +334,43 @@ class MonthExcellParser {
         }
         //sum row chapitre
         //TODO
+        // $this->sheet->insertNewRowBefore($this->row, 1);
+        // $this->sheet->setCellValue('A'.$this->row,"Total Titre");
+        // $this->sheet->getStyle('A'.$this->row)->getFont()->setBold(true);
+        // //delete unacessary rows 
+        // $this->row++;
+
+
         $this->sheet->insertNewRowBefore($this->row, 1);
         $this->sheet->setCellValue('A'.$this->row,"Total Titre");
-        $this->sheet->getStyle('A'.$this->row)->getFont()->setBold(true);
-        //delete unacessary rows 
+        //setting sum style
+        $this->sheet->getStyle('A'.$this->row.":I".$this->row)->getFont()->setBold(true);
+        $this->sheet->getStyle("B".$this->row.":I".$this->row)->applyFromArray($this->greentext);
+        $this->sheet->getStyle("A".$this->row.":I".$this->row)->applyFromArray($this->tablehead);
+        //set sum data.
+        $this->sheet->setCellValue('B'.$this->row,$data->prevision)
+        ->setCellValue('C'.$this->row,$data->realisationsMois)
+        ->setCellValue('D'.$this->row,$data->realisationsMoisPrecedents)
+        ->setCellValue('E'.$this->row,$data->realisations)
+        ->setCellValue('F'.$this->row,$data->engagements)
+        ->setCellValue('G'.$this->row,$data->execution)
+        ->setCellValue('H'.$this->row,$data->solde)
+        ->setCellValue('I'.$this->row,$data->tauxExecution);
+        $this->sheet->getStyle('B'.$this->row.":I".$this->row)->getNumberFormat()->setFormatCode('### ### ### ###0,00');
+        if($this->deletegap == 'chapitre')
+            $this->sheet->removeRow($this->rowgap-1,1);
+        $this->sheet->removeRow($this->row,2);
+        Log::info("row gap value ".$this->rowgap);
         $this->row++;
     }
-    
+
+    function processSections($sections, $baniere){
+        foreach($sections->sections as $section){
+            $this->processcollection($section);
+        }
+        //TODO add sum row
+    }
+
     function processligne($ligne){
         //global $this->sheet, $row;
         
@@ -231,13 +379,19 @@ class MonthExcellParser {
         // echo "\n";
         $this->sheet->setCellValue('A'.$this->row,$ligne->libelle)
             ->setCellValue('B'.$this->row,$ligne->prevision)
-            ->setCellValue('C'.$this->row,$ligne->realisations)
-            ->setCellValue('D'.$this->row,$ligne->engagements)
-            ->setCellValue('E'.$this->row,$ligne->execution)
-            ->setCellValue('F'.$this->row,$ligne->tauxExecution);
+            ->setCellValue('C'.$this->row,$ligne->realisationsMois)
+            ->setCellValue('D'.$this->row,$ligne->realisationsMoisPrecedents)
+            ->setCellValue('E'.$this->row,$ligne->realisations)
+            ->setCellValue('F'.$this->row,$ligne->engagements)
+            ->setCellValue('G'.$this->row,$ligne->execution)
+            ->setCellValue('H'.$this->row,$ligne->solde)
+            ->setCellValue('I'.$this->row,$ligne->tauxExecution);
+            $this->sheet->getStyle('B'.$this->row.":I".$this->row)->getNumberFormat()->setFormatCode('### ### ### ###0,00');
         
+        //setting solde column bold
+        $this->sheet->getStyle('H'.$this->row)->getFont()->setBold(true);
         //setting taux execution column bold
-        $this->sheet->getStyle('F'.$this->row)->getFont()->setBold(true);
+        $this->sheet->getStyle('I'.$this->row)->getFont()->setBold(true);
     }
 
     function makeheaderandbody($data, $tableheader){
@@ -245,7 +399,7 @@ class MonthExcellParser {
         // echo "building header and body";
         // echo "\n";
         //header title row
-        $this->sheet->getStyle("A".$this->row.":F".$this->row)->getBorders()->getTop()->setBorderStyle(Border::BORDER_THICK);
+        $this->sheet->getStyle("A".$this->row.":I".$this->row)->getBorders()->getTop()->setBorderStyle(Border::BORDER_THICK);
         
         $this->sheet->getStyle("A".$this->row)->getBorders()->getLeft()->setBorderStyle(Border::BORDER_THICK);
         $this->sheet->getStyle("A".$this->row)->getBorders()->getRight()->setBorderStyle(Border::BORDER_THICK);
@@ -257,12 +411,12 @@ class MonthExcellParser {
         // $this->sheet->getStyle("A".$this->row+1)->getBorders()->getBottom()->setBorderStyle(Border::BORDER_THICK);
         
         //merging header title cells
-        $this->sheet->mergeCells("B".$this->row.":F".$this->row);
+        $this->sheet->mergeCells("B".$this->row.":I".$this->row);
         //set styles alignment, borders, value, etc.
-        $this->sheet->getStyle("B".$this->row.":F".$this->row)->getAlignment()->setHorizontal(ALIGNMENT::HORIZONTAL_CENTER);
-        $this->sheet->getStyle("B".$this->row.":F".$this->row)->getBorders()->getLeft()->setBorderStyle(Border::BORDER_THICK);
-        $this->sheet->getStyle("B".$this->row.":F".$this->row)->getBorders()->getRight()->setBorderStyle(Border::BORDER_THICK);
-        $this->sheet->getStyle("B".$this->row.":F".$this->row)->getBorders()->getBottom()->setBorderStyle(Border::BORDER_THICK);
+        $this->sheet->getStyle("B".$this->row.":I".$this->row)->getAlignment()->setHorizontal(ALIGNMENT::HORIZONTAL_CENTER);
+        $this->sheet->getStyle("B".$this->row.":I".$this->row)->getBorders()->getLeft()->setBorderStyle(Border::BORDER_THICK);
+        $this->sheet->getStyle("B".$this->row.":I".$this->row)->getBorders()->getRight()->setBorderStyle(Border::BORDER_THICK);
+        $this->sheet->getStyle("B".$this->row.":I".$this->row)->getBorders()->getBottom()->setBorderStyle(Border::BORDER_THICK);
         // row height
         $this->sheet->getRowDimension($this->row)->setRowHeight(30);
         // cell value
@@ -285,38 +439,38 @@ class MonthExcellParser {
         
 
         //header column titles
-        foreach(['B','C','D','E','F'] as $x){
+        foreach(['B','C','D','E','F','G','H','I'] as $x){
             $this->sheet->getStyle($x.$this->row.":".$x.($this->row+1))->applyFromArray($this->thinborders);
             $this->sheet->mergeCells($x.$this->row.":".$x.($this->row+1));
         }
 
-        
-        
-        
         //setting values
         $this->sheet->setCellValue('B'.$this->row,$tableheader->previsionsLabel)
-            ->setCellValue('C'.$this->row,$tableheader->realisationsLabel)
-            ->setCellValue('D'.$this->row,$tableheader->engagementsLabel)
-            ->setCellValue('E'.$this->row,$tableheader->executionLabel)
-            ->setCellValue('F'.$this->row,$tableheader->tauxExecutionLabel);
+            ->setCellValue('C'.$this->row,$tableheader->realisationsMoisLabel)
+            ->setCellValue('D'.$this->row,$tableheader->realisationsMoisPrecedentsLabel)
+            ->setCellValue('E'.$this->row,$tableheader->realisationsLabel)
+            ->setCellValue('F'.$this->row,$tableheader->engagementsLabel)
+            ->setCellValue('G'.$this->row,$tableheader->executionLabel)
+            ->setCellValue('H'.$this->row,$tableheader->soldeLabel)
+            ->setCellValue('I'.$this->row,$tableheader->tauxExecutionLabel);
     
         //fonts, row dimensions, alignment
         $this->sheet->getStyle('B'.$this->row)->getFont()->setSize(14);
         $this->sheet->getStyle('B'.$this->row)->getFont()->setBold(true);
-        $this->sheet->getStyle("C".$this->row.":F".$this->row)->getFont()->setSize(12);
-        $this->sheet->getStyle("C".$this->row.":F".$this->row)->getFont()->setBold(true);
+        $this->sheet->getStyle("C".$this->row.":I".$this->row)->getFont()->setSize(12);
+        $this->sheet->getStyle("C".$this->row.":I".$this->row)->getFont()->setBold(true);
         $this->sheet->getRowDimension($this->row+1)->setRowHeight(28);
-        $this->sheet->getStyle("B".$this->row.":F".$this->row)->getAlignment()->setHorizontal(ALIGNMENT::HORIZONTAL_CENTER);
-        $this->sheet->getStyle("B".$this->row.":F".$this->row)->getAlignment()->setVertical(ALIGNMENT::VERTICAL_CENTER);
-        $this->sheet->getStyle("B".$this->row.":F".$this->row)->getAlignment()->setWrapText(true);
+        $this->sheet->getStyle("B".$this->row.":I".$this->row)->getAlignment()->setHorizontal(ALIGNMENT::HORIZONTAL_CENTER);
+        $this->sheet->getStyle("B".$this->row.":I".$this->row)->getAlignment()->setVertical(ALIGNMENT::VERTICAL_CENTER);
+        $this->sheet->getStyle("B".$this->row.":I".$this->row)->getAlignment()->setWrapText(true);
         //make text green
-        $this->sheet->getStyle("B".$this->row.":F".$this->row)->applyFromArray($this->greentext);
+        $this->sheet->getStyle("B".$this->row.":I".$this->row)->applyFromArray($this->greentext);
         //setting thick borders around the header row
         $this->sheet->getStyle("A".$this->row)->getBorders()->getRight()->setBorderStyle(Border::BORDER_THICK);
         $this->sheet->getStyle("A".$this->row)->getBorders()->getLeft()->setBorderStyle(Border::BORDER_THICK);
-        $this->sheet->getStyle("F".$this->row)->getBorders()->getRight()->setBorderStyle(Border::BORDER_THICK);
+        $this->sheet->getStyle("I".$this->row)->getBorders()->getRight()->setBorderStyle(Border::BORDER_THICK);
         $this->row++;
-        $this->sheet->getStyle("F".$this->row)->getBorders()->getRight()->setBorderStyle(Border::BORDER_THICK);
+        $this->sheet->getStyle("I".$this->row)->getBorders()->getRight()->setBorderStyle(Border::BORDER_THICK);
         $this->sheet->getStyle("A".$this->row)->getBorders()->getRight()->setBorderStyle(Border::BORDER_THICK);
         $this->sheet->getStyle("A".$this->row)->getBorders()->getLeft()->setBorderStyle(Border::BORDER_THICK);
         $this->sheet->getStyle("A".$this->row)->getBorders()->getBottom()->setBorderStyle(Border::BORDER_THICK);
@@ -326,11 +480,11 @@ class MonthExcellParser {
         //create and style two row that will serve as templates
         for($i = 0; $i < 2; $i++){
             $this->row++;
-            foreach(['A','B','C','D','E','F'] as $x){
+            foreach(['A','B','C','D','E','F','G','H','I'] as $x){
                 $this->sheet->getStyle($x.$this->row.":".$x.($this->row+1))->applyFromArray($this->thinborders);
             }
             $this->sheet->getStyle('A'.$this->row)->getBorders()->getLeft()->setBorderStyle(Border::BORDER_THICK);
-            $this->sheet->getStyle('F'.$this->row)->getBorders()->getRight()->setBorderStyle(Border::BORDER_THICK);
+            $this->sheet->getStyle('I'.$this->row)->getBorders()->getRight()->setBorderStyle(Border::BORDER_THICK);
         }
         $this->row = $this->row-2;
     }

@@ -321,34 +321,34 @@ class DraftBudgetService{
                                                     .", id = ".$engagement->id;
                                     echo "\n";
                                 }
-                        //         //create realisations for two of the previous engagements
-                        //         // if($p > 0){
-                        //         //     //collect engagements
-                        //         //     for($r = 0; $r < 2; $r++){
-                        //         //         //getting engagements from previous month
-                        //         //         //$last_month_date = 
-                        //         //         $relations = $ligneEntry->engagements()->whereMonth('created_at',$p)->get();  
-                        //         //         echo "found ".count($relations)." engagements during month ".$p;
-                        //         //         echo "\n";
-                        //         //         //$relations = $ligneEntry->engagements()->get();
-                        //         //         $eng = $relations[$r];
-                        //         //         $realisation = new Apurement();
-                        //         //         $realisation->libelle = "realisation";
-                        //         //         $realisation->reference_paiement = "6qs546g5q4sdg";
-                        //         //         $realisation->montant_ttc = $eng->montant_ttc;
-                        //         //         $realisation->devise = "XAF";
-                        //         //         $realisation->observations = "observation";
-                        //         //         $realisation->statut = "validé";
-                        //         //         $realisation->source = "58e55qs5d55d";
-                        //         //         $realisation->created_at = $date;
-                        //         //         $realisation->saisisseur = "00002";
-                        //         //         $realisation->valideur_first = "00002";
-                        //         //         $realisation->valideur_second = "00002";
-                        //         //         $realisation->valideur_final = "00002";
+                                //create realisations for two of the previous engagements
+                                if($p > 0){
+                                    //collect engagements
+                                    for($r = 0; $r < 2; $r++){
+                                        //getting engagements from previous month
+                                        //$last_month_date = 
+                                        $relations = $ligneEntry->engagements()->whereMonth('created_at',$p)->get();  
+                                        echo "found ".count($relations)." engagements during month ".$p;
+                                        echo "\n";
+                                        //$relations = $ligneEntry->engagements()->get();
+                                        $eng = $relations[$r];
+                                        $realisation = new Apurement();
+                                        $realisation->libelle = "realisation";
+                                        $realisation->reference_paiement = "6qs546g5q4sdg";
+                                        $realisation->montant_ttc = $eng->montant_ttc;
+                                        $realisation->devise = "XAF";
+                                        $realisation->observations = "observation";
+                                        $realisation->statut = "validé";
+                                        $realisation->source = "58e55qs5d55d";
+                                        $realisation->created_at = $date;
+                                        $realisation->saisisseur = "00002";
+                                        $realisation->valideur_first = "00002";
+                                        $realisation->valideur_second = "00002";
+                                        $realisation->valideur_final = "00002";
 
-                        //         //         $eng->apurements()->save($realisation);
-                        //         //     }
-                        //         // }
+                                        $eng->apurements()->save($realisation);
+                                    }
+                                }
                              }
                          }
 
