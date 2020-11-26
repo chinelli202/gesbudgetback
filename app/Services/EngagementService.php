@@ -20,13 +20,37 @@ class EngagementService {
 
   }
 
-   
+  public static function getGreatestStatut($entitiesarray) {
+    if(gettype($entitiesarray) === 'object') {
+      /** $entitiesarray has only one entry. So we will put it in an array */
+      $entitiesarray = array($entitiesarray[0]);
+    }
+    
+    $greatestStatut = Config::get('gesbudget.variables.statut_engagement.SAISI')[1];
+    $statutsapurements = array_map(function($el) {
+      return $el->statut;
+    }, $entitiesarray);
+    
+    if(array_search(Config::get('gesbudget.variables.statut_engagement.VALIDF')[1], $statutsapurements) !== -1) {
+
+      $greatestStatut = Config::get('gesbudget.variables.statut_engagement.VALIDF')[1];
+    } else if(array_search(Config::get('gesbudget.variables.statut_engagement.VALIDS')[1], $statutsapurements) !== -1) {
+
+      $greatestStatut = Config::get('gesbudget.variables.statut_engagement.VALIDS')[1];
+    } else if(array_search(Config::get('gesbudget.variables.statut_engagement.VALIDP')[1], $statutsapurements) !== -1) {
+
+      $greatestStatut = Config::get('gesbudget.variables.statut_engagement.VALIDP')[1];
+    }
+    return $greatestStatut;
+  }
+
   public static function enrichEngagement($engagementId) {
-    $imputations = [];
     $engagement = Engagement::findOrFail($engagementId);
+    $imputations = $engagement->imputations;
+    $apurements = $engagement->apurements;
 
     /** Add all enriched imputations */
-    $engagement['imputations_labelled'] = $engagement->imputations
+    $engagement['imputations_labelled'] = $imputations
       ->filter(function($imp) {
         return $imp->etat !== Config::get('gesbudget.variables.etat_engagement.CLOT')[1];
       })
@@ -34,8 +58,8 @@ class EngagementService {
         return ImputationService::enrichImputation($imp->id);
       });
     
-    /** Add all enriched imputations */
-    $engagement['apurements_labelled'] = $engagement->apurements
+    /** Add all enriched apurements */
+    $engagement['apurements_labelled'] = $apurements
       ->filter(function($apur) {
         return $apur->etat !== Config::get('gesbudget.variables.etat_engagement.CLOT')[1];
       })
@@ -44,16 +68,28 @@ class EngagementService {
       });
     
     /** Add pending apurements and imputations */
-    $engagement['cumul_imputations_initie_ttc'] = $engagement->imputations
+    $engagement['cumul_imputations_initie_ttc'] = $imputations
       ->reduce(function ($cumul, $imp) {
         return $cumul + $imp->montant_ttc;
       }, 0);
     
-    $engagement['cumul_apurements_initie_ttc'] = $engagement->apurements
+    $engagement['cumul_apurements_initie_ttc'] = $apurements
       ->reduce(function ($cumul, $apur) {
         return $cumul + $apur->montant_ttc;
       }, 0);
 
+    /** Add last statut */
+    $greatestStatut = Config::get('gesbudget.variables.statut_engagement.SAISI')[1];
+    if(sizeof($apurements) !== 0) {
+      $greatestStatut = EngagementService::getGreatestStatut($apurements);
+    } else if ( sizeof($imputations) !== 0) {
+      $greatestStatut = EngagementService::getGreatestStatut($imputations);
+    } else if($engagement->etat !== Config::get('gesbudget.variables.etat_engagement.PEG')[1]) {
+      $greatestStatut = $engagement->statut;
+    }
+    $engagement['greatest_statut'] = $greatestStatut;
+
+    /** Add operators */
     $saisisseur = User::where('matricule', $engagement->saisisseur)->first();
     $valideurP = User::where('matricule', $engagement->valideur_first)->first();
     $valideurS = User::where('matricule', $engagement->valideur_second)->first();

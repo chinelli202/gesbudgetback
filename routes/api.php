@@ -33,15 +33,15 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::get("engagement/{id}", "EngagementController@getEngagement")->name('getEngagement');
 
     Route::prefix('engagement')->name('engagement')->group(function () {
-        Route::post("addcomment/{id}", "ImputationController@addcomment")->name("addcomment");
-        Route::post("create/", "ImputationController@create")->name("create");
-        Route::post("update/{id}", "ImputationController@update")->name("update");
-        Route::post("close/{id}", "ImputationController@close")->name("close");
-        Route::post("restore/{id}", "ImputationController@restore")->name("restore");
-        Route::post("sendback/{id}", "ImputationController@sendback")->name("sendback");
-        Route::post("resend/{id}", "ImputationController@resendupdate")->name("resendupdate");
-        Route::post("valider/{id}", "ImputationController@valider")->name("valider");
-        Route::post("cancelvalider/{id}", "ImputationController@cancelvalider")->name("cancelvalider");
+        Route::post("addcomment/{id}", "EngagementController@addcomment")->name("addcomment");
+        Route::post("create/", "EngagementController@create")->name("create");
+        Route::post("update/{id}", "EngagementController@update")->name("update");
+        Route::post("close/{id}", "EngagementController@close")->name("close");
+        Route::post("restore/{id}", "EngagementController@restore")->name("restore");
+        Route::post("sendback/{id}", "EngagementController@sendback")->name("sendback");
+        Route::post("resend/{id}", "EngagementController@resendupdate")->name("resendupdate");
+        Route::post("valider/{id}", "EngagementController@valider")->name("valider");
+        Route::post("cancelvalider/{id}", "EngagementController@cancelvalider")->name("cancelvalider");
         
         Route::post("uploadfile", "FileuploadController@uploadfile")->name("uploadfile");
     });

@@ -74,14 +74,28 @@ class EngagementController extends Controller
     }
 
     public function getEngagements(Request $request){
-        $etat = $request->etat;
+        $requestquery = $request->all();
+        $query = array();
+        foreach (array_keys($requestquery) as $key) {
+            array_push($query, [$key, '=', $requestquery[$key]]);
+        }
 
-        $engagements = Engagement::where('etat', $etat)
+        if (sizeof($query) === 0) {
+            $engagements = Engagement::all()
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->map(function ($eng) {
+                    return EngagementService::enrichEngagement($eng->id);
+                });
+        } else {
+            $engagements = Engagement::where($query)
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($eng) {
                 return EngagementService::enrichEngagement($eng->id);
             });
+        }
+        
         return response()->json(["status" => $this->success_status, "success" => true, "data" => $engagements]);
     }
 

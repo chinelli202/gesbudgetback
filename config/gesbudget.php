@@ -42,6 +42,11 @@ return [
             'VALIDS' => ['Validé au second niveau', 'VALIDS'],
             'VALIDF' => ['Validé au niveau final', 'VALIDF']
         ],
+        'statut_required' => [
+            'SAISI' => ['Saisi', 'SAISI'],
+            'VALIDP' => ['Validé au premier niveau', 'VALIDP'],
+            'VALIDF' => ['Validé au niveau final', 'VALIDF']
+        ],
         'operateur' => [
             'saisisseur' => ['Saisiseur', 'saisisseur'],
             'valideur_first' => ['Valideur au premier niveau', 'valideur_first'],
