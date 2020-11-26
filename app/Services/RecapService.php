@@ -185,7 +185,7 @@ class RecapService {
         $recap->id = $rrubrique->id;
         $recap->type = 'rubrique';
         $recap->prevision = 0;
-        $recap->libelle = $rrubrique->label." - ".$rrubrique->chapitre->label;
+        $recap->libelle = $rrubrique->label." / ".$rrubrique->chapitre->label;
         $recap->chapitre = $rrubrique->chapitre->label;
         $recap->realisations = 0;
         $recap->realisationsMois = 0;
@@ -233,7 +233,7 @@ class RecapService {
         Log::info( "prevision : ".$recap->prevision);
 
         $periode = $this->computePeriodeLabels($critere, $params);
-        $recap->header = $this->setHeader($rrubrique->label, 'lignes', $periode);
+        $recap->header = $this->setHeader($recap->libelle, 'lignes', $periode);
         return $recap;
     }
 

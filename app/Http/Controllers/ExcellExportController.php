@@ -15,7 +15,7 @@ class ExcellExportController extends Controller
         $params = $this->validateParams($request, $parser);
         if(!is_null($params)){
             //set filename, request type, set baniere
-            $recap = $recapService->getRecapChapitre($rubriqueid, $request->critere, $params);
+            $recap = $recapService->getRecapRubrique($rubriqueid, $request->critere, $params);
             $params->baniere = $recap->libelle;
             $params->type = 'rubrique';
             //$params->filename = "rapport_".$params->critere."_".$params->jour.".xlsx";
@@ -48,6 +48,7 @@ class ExcellExportController extends Controller
         $params = $this->validateParams($request, $parser);
         if(!is_null($params)){
             //set filename, request type, set baniere
+            Log::info("will be getting recap for this chapitre id : ".$chapitreid);
             $recap = $recapService->getRecapChapitre($chapitreid, $request->critere, $params);
             $params->baniere = $recap->libelle;
             $params->type = 'chapitre';
