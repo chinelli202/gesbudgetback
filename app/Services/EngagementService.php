@@ -20,28 +20,50 @@ class EngagementService {
 
   }
 
-  public static function getGreatestStatut($entitiesarray) {
+  public static function getLowestStatut($entitiesarray) {
     if(gettype($entitiesarray) === 'object') {
       /** $entitiesarray has only one entry. So we will put it in an array */
       $entitiesarray = array($entitiesarray[0]);
     }
     
-    $greatestStatut = Config::get('gesbudget.variables.statut_engagement.SAISI')[1];
+    $lowestStatut = Config::get('gesbudget.variables.statut_engagement.VALIDF')[1];
     $statutsapurements = array_map(function($el) {
       return $el->statut;
     }, $entitiesarray);
     
-    if(array_search(Config::get('gesbudget.variables.statut_engagement.VALIDF')[1], $statutsapurements) !== -1) {
+    if(in_array(Config::get('gesbudget.variables.statut_engagement.SAISI')[1], $statutsapurements)) {
 
-      $greatestStatut = Config::get('gesbudget.variables.statut_engagement.VALIDF')[1];
-    } else if(array_search(Config::get('gesbudget.variables.statut_engagement.VALIDS')[1], $statutsapurements) !== -1) {
+      $lowestStatut = Config::get('gesbudget.variables.statut_engagement.SAISI')[1];
+    } else if(in_array(Config::get('gesbudget.variables.statut_engagement.VALIDP')[1], $statutsapurements)) {
 
-      $greatestStatut = Config::get('gesbudget.variables.statut_engagement.VALIDS')[1];
-    } else if(array_search(Config::get('gesbudget.variables.statut_engagement.VALIDP')[1], $statutsapurements) !== -1) {
+      $lowestStatut = Config::get('gesbudget.variables.statut_engagement.VALIDP')[1];
 
-      $greatestStatut = Config::get('gesbudget.variables.statut_engagement.VALIDP')[1];
+    } else if(in_array(Config::get('gesbudget.variables.statut_engagement.VALIDS')[1], $statutsapurements)) {
+
+      $lowestStatut = Config::get('gesbudget.variables.statut_engagement.VALIDS')[1];
     }
-    return $greatestStatut;
+
+    // return $lowestStatut = json_encode([
+    //   "statutsapurements" => $statutsapurements,
+    //   "Configget" => Config::get('gesbudget.variables.statut_engagement.VALIDS')[1],
+    //   "array_search" => in_array(Config::get('gesbudget.variables.statut_engagement.VALIDS')[1], $statutsapurements)
+    //   ]);
+    return $lowestStatut;
+  }
+
+  public static function getLatestEditionDate($entitiesarray) {
+    if(gettype($entitiesarray) === 'object') {
+      /** $entitiesarray has only one entry. So we will put it in an array */
+      $entitiesarray = array($entitiesarray[0]);
+    }
+    usort($entitiesarray, function($a, $b) {
+      if($a->updated_at == $b->updated_at) {
+        return 0;
+      }
+      return ($a->updated_at < $b->updated_at) ? 1 : -1;
+    });
+  
+    return $entitiesarray[0]->updated_at;
   }
 
   public static function enrichEngagement($engagementId) {
@@ -79,17 +101,33 @@ class EngagementService {
       }, 0);
 
     /** Add last statut */
-    $greatestStatut = Config::get('gesbudget.variables.statut_engagement.SAISI')[1];
+    $lowestStatut = Config::get('gesbudget.variables.statut_engagement.SAISI')[1];
     if(sizeof($apurements) !== 0) {
-      $greatestStatut = EngagementService::getGreatestStatut($apurements);
+      $lowestStatut = EngagementService::getLowestStatut($apurements);
     } else if ( sizeof($imputations) !== 0) {
-      $greatestStatut = EngagementService::getGreatestStatut($imputations);
+      $lowestStatut = EngagementService::getLowestStatut($imputations);
+      if($lowestStatut === Config::get('gesbudget.variables.statut_engagement.VALIDF')[1]) {
+        $lowestStatut = 'NEW';
+      }
     } else if($engagement->etat === Config::get('gesbudget.variables.etat_engagement.PEG')[1]) {
-      $greatestStatut = 'NEW';
+      $lowestStatut = 'NEW';
     } else {
-      $greatestStatut = $engagement->statut;
+      $lowestStatut = $engagement->statut;
     }
-    $engagement['greatest_statut'] = $greatestStatut;
+
+    $engagement['lowest_statut'] = $lowestStatut;
+
+
+    $latestEditionDate = $engagement->updated_at;
+    if(sizeof($apurements) !== 0) {
+      $latestEditionDate = EngagementService::getLatestEditionDate($apurements);
+      $latestEditionSection = 'lowestToApurement';
+    } else if ( sizeof($imputations) !== 0) {
+      $latestEditionDate = EngagementService::getLatestEditionDate($imputations);
+      $latestEditionSection = 'lowestToImputation';
+
+    }
+    $engagement['latest_edited_at'] = $latestEditionDate;
 
     /** Add operators */
     $saisisseur = User::where('matricule', $engagement->saisisseur)->first();
