@@ -232,8 +232,8 @@ class LaratrustSeeder extends Seeder
                 // Create default user for each role
                 $user = \App\Models\User::create([
                     'matricule' => '0000'. $increment,
-                    'name' => ucwords(str_replace('_', ' ', $key)),
-                    'email' => $key.'@app.com',
+                    'name' => ucwords(str_replace('_', ' ', $key)).'1',
+                    'email' => $key.'1@app.com',
                     'password' => bcrypt('12345'),
                     'saisisseur' => 'NA',
                     'statut_utilisateur' => Config::get('laratrust.constants.user_status.INITIATED'),
@@ -243,8 +243,27 @@ class LaratrustSeeder extends Seeder
                     'fonction' => 'cadre'
                 ]);
                 $user->attachRole($role);
+                $increment += 1;
             }
-            $increment += 1;
+
+            if(Config::get('laratrust_seeder.create_users')) {
+                $this->command->info("Creating '{$key}' user");
+                // Create default user for each role
+                $user = \App\Models\User::create([
+                    'matricule' => '0000'. $increment,
+                    'name' => ucwords(str_replace('_', ' ', $key)).'2',
+                    'email' => $key.'2@app.com',
+                    'password' => bcrypt('12345'),
+                    'saisisseur' => 'NA',
+                    'statut_utilisateur' => Config::get('laratrust.constants.user_status.INITIATED'),
+                    'valideur' => 'NA',
+                    'source'  => Config::get('laratrust.constants.user_creation_source.SEEDER'),
+                    'division' => 'DBC',
+                    'fonction' => 'cadre'
+                ]);
+                $user->attachRole($role);
+                $increment += 1;
+            }
         }
     }
 
