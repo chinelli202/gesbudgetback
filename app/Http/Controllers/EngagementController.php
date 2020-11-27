@@ -77,11 +77,14 @@ class EngagementController extends Controller
         $requestquery = $request->all();
         $query = array();
         foreach (array_keys($requestquery) as $key) {
-            array_push($query, [$key, '=', $requestquery[$key]]);
+            $value = $requestquery[$key];
+            if(!empty($value)) {
+                array_push($query, [$key, '=', $value]);
+            }
         }
 
         if (sizeof($query) === 0) {
-            $engagements = Engagement::all()
+            $engagements = Engagement::whereNotIn('etat', [Config::get('gesbudget.variables.etat_engagement.CLOT')[1]])
                 ->orderBy('created_at', 'desc')
                 ->get()
                 ->map(function ($eng) {
