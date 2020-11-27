@@ -84,7 +84,9 @@ class EngagementService {
       $greatestStatut = EngagementService::getGreatestStatut($apurements);
     } else if ( sizeof($imputations) !== 0) {
       $greatestStatut = EngagementService::getGreatestStatut($imputations);
-    } else if($engagement->etat !== Config::get('gesbudget.variables.etat_engagement.PEG')[1]) {
+    } else if($engagement->etat === Config::get('gesbudget.variables.etat_engagement.PEG')[1]) {
+      $greatestStatut = 'NEW';
+    } else {
       $greatestStatut = $engagement->statut;
     }
     $engagement['greatest_statut'] = $greatestStatut;
