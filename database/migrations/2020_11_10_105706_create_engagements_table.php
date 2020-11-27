@@ -31,6 +31,7 @@ class CreateEngagementsTable extends Migration
             $table->id();
             $table->timestamps();
             $table->string('code')->unique();
+            $table->string('code_comptabilite')->unique();
             $table->string('libelle');
             $table->bigInteger('montant_ht')->nullable();
             $table->bigInteger('montant_ttc');
