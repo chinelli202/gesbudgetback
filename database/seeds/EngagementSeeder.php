@@ -122,9 +122,13 @@ class EngagementSeeder extends Seeder
      * @return    \App\Models\Engagement
      */
     public function createEngagement($typeEng, $montant, $devise, $natureEng, $etatEng, $statutEng ){
+        $ligne = \App\Models\Ligne::all()->first();
+        $ligne_id = $ligne->id + rand(0, 475);
+        $rubrique = \App\Models\Rubrique::where('id', $ligne->rubrique_id)->first();
+
         $engagement = \App\Models\Engagement::firstOrCreate([
             'code' => $typeEng .substr(now()->format('ymd-His-u'),0,17), 
-            'code_comptabilite' => $typeEng .strval(DB::getPdo()->lastInsertId()+1), 
+            'code_comptabilite' => $typeEng .strval(DB::getPdo()->lastInsertId()+1).'-'.substr(now()->format('ymd-His-u'),0,17), 
             'libelle' => 'Engagement de type ' . $typeEng . ' du '. now(),
             'montant_ht' => $montant,
             'montant_ttc' => $montant*1.1925,
@@ -145,7 +149,9 @@ class EngagementSeeder extends Seeder
             'valideur_second' => in_array($statutEng, array('VALIDS','VALIDF' )) ? User::find(4)->matricule : null,
             'valideur_final' => in_array($statutEng, array('VALIDF')) ? User::find(1)->matricule : null,
             'source' => Config::get('gesbudget.variables.source.SEEDER')[0],
-            'ligne_id' => \App\Models\Ligne::all()->first()->id + rand(0, 475)
+            'ligne_id' => $ligne_id,
+            'rubrique_id' => $rubrique->id,
+            'chapitre_id' => $rubrique->chapitre_id
         ]);
         $this->command->info('Created Engagement '. $engagement->code
             . '-' .$engagement->nature
@@ -238,6 +244,7 @@ class EngagementSeeder extends Seeder
             'montant_ttc' => $engagement->montant_ttc,
             'devise' => $engagement->devise,
             'statut' => $statut,
+            'etat' => Config::get('gesbudget.variables.etat_engagement.INIT')[1],
             'observations' => 'Observation Apurement sur ' . $engagement->libelle,
             'saisisseur' => User::find(5)->matricule,
             'valideur_first' => $vfirst,

@@ -46,7 +46,9 @@ class EngagementController extends Controller
             'devise'            =>          'required|exists:variables,code',
             'nature'            =>          'required|exists:variables,code',
             'type'              =>          'required|exists:variables,code',
-            'ligne_id'          =>          'required|exists:lignes,id'
+            'ligne_id'          =>          'required|exists:lignes,id',
+            'rubrique_id'       =>          'required|exists:rubriques,id',
+            'chapitre_id'       =>          'required|exists:chapitres,id'
         ];
 
         $this->engagementUpdateValidator = [
@@ -68,7 +70,9 @@ class EngagementController extends Controller
             'valideur_second'   =>          'nullable|exists:users,matricule',
             'valideur_final'    =>          'nullable|exists:users,matricule',
             'source'            =>          'required',
-            'ligne_id'          =>          'required|exists:lignes,id'
+            'ligne_id'          =>          'required|exists:lignes,id',
+            'rubrique_id'       =>          'required|exists:rubriques,id',
+            'chapitre_id'       =>          'required|exists:chapitres,id'
 
         ];
     }
@@ -77,20 +81,24 @@ class EngagementController extends Controller
         $requestquery = $request->all();
         $requestqueryKeys = array_keys($requestquery);
         $query = array();
-        $ligneQuery = array();
+        $lignes = $request->lignes ? array_map(function ($el) { return (int) $el;}, explode(',', $request->lignes)) : array();
+        $rubriques = $request->rubriques ? array_map(function ($el) { return (int) $el;}, explode(',', $request->rubriques)) : array();
+        $chapitres = $request->chapitres ? array_map(function ($el) { return (int) $el;}, explode(',', $request->chapitres)) : array();
+        
         $statutQuery = array_filter(explode(',', $request->statut));
         $etatQuery = array_filter(explode(',', $request->etat));
 
         foreach ($requestqueryKeys as $key) {
             $value = $requestquery[$key];
             if(!empty($value) 
-                && !in_array($key, array('page','limit', 'chapitre', 'rubrique', 'etat', 'statut'))) {
+                && !in_array($key, array('page','limit', 'chapitres', 'rubriques', 'lignes', 'etat', 'statut'))) {
                 
                 array_push($query, [($key === 'ligne') ? $key.'_id': $key, '=', $value]);
             }
         }
-
-        if (sizeof($query) === 0 && sizeof($statutQuery) === 0 && sizeof($etatQuery) === 0) {
+        if (sizeof($query) === 0 && sizeof($statutQuery) === 0 && sizeof($etatQuery) === 0
+            && sizeof($lignes) === 0 && sizeof($rubriques) === 0 && sizeof($chapitres) === 0
+        ) {
             $total = Engagement::whereNotIn('etat', [Config::get('gesbudget.variables.etat_engagement.CLOT')[1]])
                 ->count();
             $engagements = Engagement::whereNotIn('etat', [Config::get('gesbudget.variables.etat_engagement.CLOT')[1]])
@@ -101,10 +109,6 @@ class EngagementController extends Controller
                 });
         } else {
             $total = Engagement::where($query)
-                // ->join('lignes', 'engagements.ligne_id', '=', 'lignes.id')
-                // ->join('rubriques', 'lignes.rubrique_id', '=', 'rubriques.id')
-                // ->join('chapitres', 'rubriques.chapitre_id', '=', 'chapitres.id')
-                // ->where($ligneQuery)
                 ->where(function($q) use (&$etatQuery) {
                     if(sizeof($etatQuery) >0 ) {
                         $q->whereIn('etat', $etatQuery);
@@ -115,13 +119,24 @@ class EngagementController extends Controller
                         $q->whereIn('statut', $statutQuery);
                     }
                 })
+                ->where(function($q) use (&$chapitres) {
+                    if(sizeof($chapitres) >0 ) {
+                        $q->whereIn('chapitre_id', $chapitres);
+                    }
+                })
+                ->where(function($q) use (&$rubriques) {
+                    if(sizeof($rubriques) >0 ) {
+                        $q->whereIn('rubrique_id', $rubriques);
+                    }
+                })
+                ->where(function($q) use (&$lignes) {
+                    if(sizeof($lignes) >0 ) {
+                        $q->whereIn('ligne_id', $lignes);
+                    }
+                })
                 ->count();
                 
             $engagements = Engagement::where($query)
-                // ->join('lignes', 'engagements.ligne_id', '=', 'lignes.id')
-                // ->join('rubriques', 'lignes.rubrique_id', '=', 'rubriques.id')
-                // ->join('chapitres', 'rubriques.chapitre_id', '=', 'chapitres.id')
-                // ->where($ligneQuery)
                 ->where(function($q) use (&$etatQuery) {
                     if(sizeof($etatQuery) >0 ) {
                         $q->whereIn('etat', $etatQuery);
@@ -145,7 +160,9 @@ class EngagementController extends Controller
             "data" => $engagements,
             "total" => $total,
             "query" => $query,
-            "ligneQuery" => $ligneQuery,
+            "lignes" => $lignes,
+            "rubriques" => $rubriques,
+            "chapitres" => $chapitres,
             "etatQuery" => sizeof($etatQuery),
             "statutQuery" => sizeof($statutQuery),
         ]);
@@ -169,6 +186,7 @@ class EngagementController extends Controller
              * '113' is the id of the newly created engagement
              */
             "code" => $request->type .substr(now()->format('ymd-His-u'),0,17),
+            "code_comptabilite" => $request->type .substr(now()->format('ymd-His-u'),0,17),
             "libelle" => $request->libelle,
             "montant_ttc" => $request->montant_ttc,
             "montant_ht" => $request->montant_ht,
@@ -190,7 +208,9 @@ class EngagementController extends Controller
             'valideur_second' => null,
             'valideur_final' => null,
             'source' => Config::get('gesbudget.variables.source.API')[0],
-            'ligne_id' => $request->ligne_id
+            'ligne_id' => $request->ligne_id,
+            'rubrique_id' => $request->rubrique_id,
+            'chapitre_id' => $request->chapitre_id
         ]);
             
         return response()->json([
@@ -218,6 +238,8 @@ class EngagementController extends Controller
             "type" => $request->type,
             "nature" => $request->nature,
             "ligne_id" => $request->ligne_id,
+            'rubrique_id' => $request->rubrique_id,
+            'chapitre_id' => $request->chapitre_id,
             "latest_edited_at" => now()
         ]);
         $engagement = EngagementService::enrichEngagement($engagement->id);

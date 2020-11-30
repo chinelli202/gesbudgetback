@@ -155,8 +155,6 @@ class EngagementService {
     $engagement["etat_libelle"] = $etat->libelle ?? '';
     $engagement["statut_libelle"] = $statut->libelle ?? '';
 
-    $engagement["chapitre_id"] = $chapitre->id;
-    $engagement["rubrique_id"] = $rubrique->id;
     $engagement["domaine"] = $chapitre->domaine;
     $engagement["ligne_libelle"] = $chapitre->label . " // " . $rubrique->label . " // " . $ligne->label;
 
