@@ -81,9 +81,9 @@ class EngagementController extends Controller
         $requestquery = $request->all();
         $requestqueryKeys = array_keys($requestquery);
         $query = array();
-        $lignes = $request->lignes ? array_map(function ($el) { return (int) $el;}, explode(',', $request->lignes)) : array();
-        $rubriques = $request->rubriques ? array_map(function ($el) { return (int) $el;}, explode(',', $request->rubriques)) : array();
-        $chapitres = $request->chapitres ? array_map(function ($el) { return (int) $el;}, explode(',', $request->chapitres)) : array();
+        $lignes = $request->lignes ? array_filter(array_map(function ($el) { return (int) $el;}, explode(',', $request->lignes))) : array();
+        $rubriques = $request->rubriques ? array_filter(array_map(function ($el) { return (int) $el;}, explode(',', $request->rubriques))) : array();
+        $chapitres = $request->chapitres ? array_filter(array_map(function ($el) { return (int) $el;}, explode(',', $request->chapitres))) : array();
         
         $statutQuery = array_filter(explode(',', $request->statut));
         $etatQuery = array_filter(explode(',', $request->etat));
@@ -145,6 +145,21 @@ class EngagementController extends Controller
                 ->where(function($q) use (&$statutQuery) {
                     if(sizeof($statutQuery) >0 ) {
                         $q->whereIn('statut', $statutQuery);
+                    }
+                })
+                ->where(function($q) use (&$chapitres) {
+                    if(sizeof($chapitres) >0 ) {
+                        $q->whereIn('chapitre_id', $chapitres);
+                    }
+                })
+                ->where(function($q) use (&$rubriques) {
+                    if(sizeof($rubriques) >0 ) {
+                        $q->whereIn('rubrique_id', $rubriques);
+                    }
+                })
+                ->where(function($q) use (&$lignes) {
+                    if(sizeof($lignes) >0 ) {
+                        $q->whereIn('ligne_id', $lignes);
                     }
                 })
                 ->orderBy('latest_edited_at', 'desc')
