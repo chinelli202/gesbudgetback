@@ -120,11 +120,14 @@ class ExcellParser {
         }
         else if($params->type == 'rubrique'){
             $this->deletegap = 'rubrique';
+            $this->row++;
             $this->processrubrique($data, $data->header);
+            $this->sheet->removeRow($this->row-1,3);
         } 
         else if($params->type == 'collection'){
             $this->deletegap = 'collection';
             $this->processcollection($data, $data->header);
+            $this->sheet->removeRow($this->row-1,3);
         }
         else if($params->type == 'full'){
             $this->processcollection($data, $data->header);
@@ -230,6 +233,7 @@ class ExcellParser {
        //global $this->sheet, $types, $row, $thickborders;
         // echo "processing rubrique ".$data->libelle;
         // echo "\n";
+
         $this->rowgap = $this->row;
         $this->sheet->insertNewRowBefore($this->row, 1);
         $this->sheet->setCellValue('A'.$this->row,$data->libelle);
@@ -272,7 +276,7 @@ class ExcellParser {
         ->setCellValue('I'.$this->row,$data->tauxExecution);
         $this->sheet->getStyle('B'.$this->row.":I".$this->row)->getNumberFormat()->setFormatCode('### ### ### ###0,00');
         if($this->deletegap == 'rubrique')
-            $this->sheet->removeRow($this->rowgap-1,1);
+            $this->sheet->removeRow($this->rowgap,1);
         //$this->sheet->removeRow($this->row,2);
         Log::info("row gap value ".$this->rowgap);
         $this->row++;

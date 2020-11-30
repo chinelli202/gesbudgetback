@@ -82,7 +82,7 @@ Route::get('/etats/fonctionnement/recette',"EtatsFonctionnementController@getRec
 //routes for loading the maquette
 Route::get('/maquettes/fonctionnement/depenses',"MaquetteTreeController@getDepensesFonctionnementTree");
 Route::get('/maquettes/fonctionnement/recettes',"MaquetteTreeController@getRecettesFonctionnementTree");
-Route::get('/maquettes/fonctionnement/sections',"MaquetteTreeController@getSectionsFonctionnementTree");
+Route::get('/maquettes/fonctionnement/sections',"MaquetteTreeController@getFonctionnementWithSectionsTree");
 Route::get('/maquettes/mandat/depenses',"MaquetteTreeController@getDepensesMandatTree");
 Route::get('/maquettes/mandat/recettes',"MaquetteTreeController@getRecettesMandatTree");
 Route::get('/maquettes/fonctionnement',"MaquetteTreeController@getFonctionnementTree");

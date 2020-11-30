@@ -493,13 +493,17 @@ class RecapService {
         //recap sous section investissement, recap chapitres investissement, recap section recettes, recap chapitres recette
     }
 
-    public function getTree($domaine_p, $section_p){
+    public function getTree($domaine_p, $section_p, $sous_section_p){
         //load all chapitres of fonctionnement.
         //for each chapitre, load rubriques
         //for each rubrique, load lignes.
         $section = new stdClass();
+        $sous_section_type = 'section';
+        if(!is_null($sous_section_p)){
+            $sous_section_type = 'sous_section';
+        }
         $chapitresdepenses = Chapitre::where('domaine',$domaine_p)
-                    ->where('section',$section_p)->get();
+                    ->where($sous_section_type, $section_p)->get();
         $chapitres = [];
         foreach($chapitresdepenses as $chap){
             $newchap = new stdClass();
@@ -527,6 +531,19 @@ class RecapService {
             $newchap->rubriques = $rubriques;
             array_push($chapitres, $newchap);
         }
+        //loading groups if request is on sous section fonctionnement
+        $groupes = [];
+        if($sous_section_p == 'Fonctionnement'){
+            $names = DB::table('rubriques')->select('rubriques.label')->where('sous_section','Fonctionnement')->distinct()->get();
+            foreach($names as $groupname){
+                $groupe = new stdClass();
+                $groupe->label = $groupname->label;
+                
+                array_push($groupes, $groupe);
+            }
+        }
+        $section->groupes = $groupes;
+
         $section->section = $section_p;
         $section->chapitres = $chapitres;
         return $section;
