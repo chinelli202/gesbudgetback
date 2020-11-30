@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Config;
 use Spatie\Activitylog\Contracts\Activity;
 use Spatie\Activitylog\Traits\LogsActivity;
+use App\Models\Engagement;
 
 class Apurement extends Model {
     
@@ -46,19 +47,25 @@ class Apurement extends Model {
 
     public function tapActivity(Activity $activity, string $eventName)
     {
-        $commentSessionKey = 'CommentApurement'.Auth::user()->id.$this->id;
+        $commentSessionKey = 'CommentApurement'.(!Auth::user() ? '':Auth::user()->id).$this->id;
         $activity->comment = session()->pull($commentSessionKey, 'NA');
 
         if($eventName === 'updated'){
             // TODO : specify the right description depending on the action
-
+            $this->engagement->latest_edited_at = now();
             // Handle
             if (isset($activity->properties['attributes']['statut'])) {
+                /** The 'statut' has changed so we also change the 'latest_statut' and 'latest_edited_at'
+                 * attributes of the corresponding engagement
+                 */
+                $newStatut = $activity->properties['attributes']['statut'];
+                $oldStatut = $activity->properties['old']['statut'];
+
+                $this->engagement->latest_statut = $newStatut;
+
                 /** The 'Statut' has changed 
                  * So we'll set the description to the corresponding statut's change action : VALIDP, VALIDS, VALIDF 
                 */
-                $newStatut = $activity->properties['attributes']['statut'];
-                $oldStatut = $activity->properties['old']['statut'];
 
                 if ($oldStatut === 'SAISI' && $newStatut === 'VALIDP') {
                     /** This is a Validation at the first level 
@@ -132,7 +139,8 @@ class Apurement extends Model {
                 }
             } else {
                 $activity->description = Config::get('gesbudget.variables.actions.IMP_UPDATE')[1];
-            }
+            } 
+            $this->engagement->save();
         }
     }
 }

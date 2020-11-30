@@ -41,6 +41,8 @@ class CreateEngagementsTable extends Migration
             $table->string('type');
             $table->string('etat');
             $table->string('statut');
+            $table->string('latest_statut');
+            $table->string('latest_edited_at');
             $table->string('next_statut')->nullable();
             $table->json('documents')->nullable();
             

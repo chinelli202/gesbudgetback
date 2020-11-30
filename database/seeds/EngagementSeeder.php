@@ -134,11 +134,13 @@ class EngagementSeeder extends Seeder
             'type' => $typeEng,
             'etat' => $etatEng,
             'statut' => $statutEng,
+            'latest_statut' => $statutEng,
+            'latest_edited_at' => now(),
             'nb_imputations' => 0,
             'cumul_imputations' => 0,
             'nb_apurements' => 0,
             'cumul_apurements' => 0,
-            'saisisseur' => User::find(3)->matricule,
+            'saisisseur' => User::find(5)->matricule,
             'valideur_first' => in_array($statutEng, array('VALIDP', 'VALIDS','VALIDF' )) ? User::find(3)->matricule : null,
             'valideur_second' => in_array($statutEng, array('VALIDS','VALIDF' )) ? User::find(4)->matricule : null,
             'valideur_final' => in_array($statutEng, array('VALIDF')) ? User::find(1)->matricule : null,
@@ -178,6 +180,10 @@ class EngagementSeeder extends Seeder
             $vfinal = User::find(1)->matricule;
         }
 
+        $engagement->latest_statut = $statut;
+        $engagement->latest_edited_at = now();
+        $engagement->save();
+
         return \App\Models\Imputation::firstOrCreate([
             'engagement_id' => $engagement->code,
             'reference' => bin2hex(random_bytes(4)),
@@ -204,6 +210,26 @@ class EngagementSeeder extends Seeder
         if(is_null($statut)){
             return null;
         }
+
+        $vfirst = null;
+        $vsecond = null;
+        $vfinal = null;
+
+        if($statut === 'VALIDP') {
+            $vfirst = User::find(3)->matricule;
+        } else if($statut === 'VALIDS') {
+            $vfirst = User::find(3)->matricule;
+            $vsecond = User::find(4)->matricule;
+        } else if($statut === 'VALIDF') {
+            $vfirst = User::find(3)->matricule;
+            $vsecond = User::find(4)->matricule;
+            $vfinal = User::find(1)->matricule;
+        }
+
+        $engagement->latest_statut = $statut;
+        $engagement->latest_edited_at = now();
+        $engagement->save();
+
         return \App\Models\Apurement::firstOrCreate([
             'engagement_id' => $engagement->code,
             'libelle' => 'Apurement ' . $engagement->libelle,
@@ -213,10 +239,10 @@ class EngagementSeeder extends Seeder
             'devise' => $engagement->devise,
             'statut' => $statut,
             'observations' => 'Observation Apurement sur ' . $engagement->libelle,
-            'saisisseur' => User::find(3)->matricule,
-            'valideur_first' => User::find(2)->matricule,
-            'valideur_second' => User::find(1)->matricule,
-            'valideur_final' => User::find(1)->matricule,
+            'saisisseur' => User::find(5)->matricule,
+            'valideur_first' => $vfirst,
+            'valideur_second' => $vsecond,
+            'valideur_final' => $vfinal,
             'source' => Config::get('laratrust.constants.user_creation_source.SEEDER')
         ]);
     }

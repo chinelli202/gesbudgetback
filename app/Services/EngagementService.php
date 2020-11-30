@@ -100,34 +100,23 @@ class EngagementService {
         return $cumul + $apur->montant_ttc;
       }, 0);
 
-    /** Add last statut */
-    $lowestStatut = Config::get('gesbudget.variables.statut_engagement.SAISI')[1];
+    /** Add latest_statut */
+    $latestStatut = Config::get('gesbudget.variables.statut_engagement.SAISI')[1];
     if(sizeof($apurements) !== 0) {
-      $lowestStatut = EngagementService::getLowestStatut($apurements);
+      $latestStatut = $engagement->latest_statut;
     } else if ( sizeof($imputations) !== 0) {
-      $lowestStatut = EngagementService::getLowestStatut($imputations);
-      if($lowestStatut === Config::get('gesbudget.variables.statut_engagement.VALIDF')[1]) {
-        $lowestStatut = 'NEW';
+      if($engagement->latest_statut === Config::get('gesbudget.variables.statut_engagement.VALIDF')[1]) {
+        $latestStatut = 'NEW';
+      } else {
+        $latestStatut = $engagement->latest_statut;
       }
     } else if($engagement->etat === Config::get('gesbudget.variables.etat_engagement.PEG')[1]) {
-      $lowestStatut = 'NEW';
+      $latestStatut = 'NEW';
     } else {
-      $lowestStatut = $engagement->statut;
+      $latestStatut = $engagement->latest_statut;
     }
 
-    $engagement['lowest_statut'] = $lowestStatut;
-
-
-    $latestEditionDate = $engagement->updated_at;
-    if(sizeof($apurements) !== 0) {
-      $latestEditionDate = EngagementService::getLatestEditionDate($apurements);
-      $latestEditionSection = 'lowestToApurement';
-    } else if ( sizeof($imputations) !== 0) {
-      $latestEditionDate = EngagementService::getLatestEditionDate($imputations);
-      $latestEditionSection = 'lowestToImputation';
-
-    }
-    $engagement['latest_edited_at'] = $latestEditionDate;
+    $engagement['latest_statut'] = $latestStatut;
 
     /** Add operators */
     $saisisseur = User::where('matricule', $engagement->saisisseur)->first();
