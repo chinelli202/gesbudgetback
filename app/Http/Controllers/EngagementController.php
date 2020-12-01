@@ -82,22 +82,28 @@ class EngagementController extends Controller
         $requestqueryKeys = array_keys($requestquery);
         $query = array();
         $lignes = $request->lignes ? array_filter(array_map(function ($el) { return (int) $el;}, explode(',', $request->lignes))) : array();
-        $rubriques = $request->rubriques ? array_filter(array_map(function ($el) { return (int) $el;}, explode(',', $request->rubriques))) : array();
-        $chapitres = $request->chapitres ? array_filter(array_map(function ($el) { return (int) $el;}, explode(',', $request->chapitres))) : array();
+
+        $saisisseurs = $request->saisisseurs ? array_filter(explode(',', $request->saisisseurs)) : array();
+        $valideurs_first = $request->valideurs_first ? array_filter(explode(',', $request->valideurs_first)) : array();
+        $valideurs_second = $request->valideurs_second ? array_filter(explode(',', $request->valideurs_second)) : array();
+        $valideurs_final = $request->valideurs_final ? array_filter(explode(',', $request->valideurs_final)) : array();
         
-        $statutQuery = array_filter(explode(',', $request->statut));
+        $statutQuery = array_filter(explode(',', $request->latest_statut));
         $etatQuery = array_filter(explode(',', $request->etat));
 
         foreach ($requestqueryKeys as $key) {
             $value = $requestquery[$key];
             if(!empty($value) 
-                && !in_array($key, array('page','limit', 'chapitres', 'rubriques', 'lignes', 'etat', 'statut'))) {
+                && !in_array($key, array('page','limit', 'lignes', 'etat'
+                    , 'saisisseurs', 'valideurs_first', 'valideurs_second', 'valideurs_final', 'latest_statut'))) {
                 
                 array_push($query, [($key === 'ligne') ? $key.'_id': $key, '=', $value]);
             }
         }
         if (sizeof($query) === 0 && sizeof($statutQuery) === 0 && sizeof($etatQuery) === 0
-            && sizeof($lignes) === 0 && sizeof($rubriques) === 0 && sizeof($chapitres) === 0
+            && sizeof($lignes) === 0
+            && sizeof($saisisseurs) === 0
+            && sizeof($valideurs_first) === 0 && sizeof($valideurs_second) === 0 && sizeof($valideurs_final) === 0
         ) {
             $total = Engagement::whereNotIn('etat', [Config::get('gesbudget.variables.etat_engagement.CLOT')[1]])
                 ->count();
@@ -116,22 +122,32 @@ class EngagementController extends Controller
                 })
                 ->where(function($q) use (&$statutQuery) {
                     if(sizeof($statutQuery) >0 ) {
-                        $q->whereIn('statut', $statutQuery);
-                    }
-                })
-                ->where(function($q) use (&$chapitres) {
-                    if(sizeof($chapitres) >0 ) {
-                        $q->whereIn('chapitre_id', $chapitres);
-                    }
-                })
-                ->where(function($q) use (&$rubriques) {
-                    if(sizeof($rubriques) >0 ) {
-                        $q->whereIn('rubrique_id', $rubriques);
+                        $q->whereIn('latest_statut', $statutQuery);
                     }
                 })
                 ->where(function($q) use (&$lignes) {
                     if(sizeof($lignes) >0 ) {
                         $q->whereIn('ligne_id', $lignes);
+                    }
+                })
+                ->where(function($q) use (&$saisisseurs) {
+                    if(sizeof($saisisseurs) >0 ) {
+                        $q->whereIn('saisisseur', $saisisseurs);
+                    }
+                })
+                ->where(function($q) use (&$valideurs_first) {
+                    if(sizeof($valideurs_first) >0 ) {
+                        $q->whereIn('valideur_first', $valideurs_first);
+                    }
+                })
+                ->where(function($q) use (&$valideurs_second) {
+                    if(sizeof($valideurs_second) >0 ) {
+                        $q->whereIn('valideur_second', $valideurs_second);
+                    }
+                })
+                ->where(function($q) use (&$valideurs_final) {
+                    if(sizeof($valideurs_final) >0 ) {
+                        $q->whereIn('valideur_final', $valideurs_final);
                     }
                 })
                 ->count();
@@ -144,22 +160,32 @@ class EngagementController extends Controller
                 })
                 ->where(function($q) use (&$statutQuery) {
                     if(sizeof($statutQuery) >0 ) {
-                        $q->whereIn('statut', $statutQuery);
-                    }
-                })
-                ->where(function($q) use (&$chapitres) {
-                    if(sizeof($chapitres) >0 ) {
-                        $q->whereIn('chapitre_id', $chapitres);
-                    }
-                })
-                ->where(function($q) use (&$rubriques) {
-                    if(sizeof($rubriques) >0 ) {
-                        $q->whereIn('rubrique_id', $rubriques);
+                        $q->whereIn('latest_statut', $statutQuery);
                     }
                 })
                 ->where(function($q) use (&$lignes) {
                     if(sizeof($lignes) >0 ) {
                         $q->whereIn('ligne_id', $lignes);
+                    }
+                })
+                ->where(function($q) use (&$saisisseurs) {
+                    if(sizeof($saisisseurs) >0 ) {
+                        $q->whereIn('saisisseur', $saisisseurs);
+                    }
+                })
+                ->where(function($q) use (&$valideurs_first) {
+                    if(sizeof($valideurs_first) >0 ) {
+                        $q->whereIn('valideur_first', $valideurs_first);
+                    }
+                })
+                ->where(function($q) use (&$valideurs_second) {
+                    if(sizeof($valideurs_second) >0 ) {
+                        $q->whereIn('valideur_second', $valideurs_second);
+                    }
+                })
+                ->where(function($q) use (&$valideurs_final) {
+                    if(sizeof($valideurs_final) >0 ) {
+                        $q->whereIn('valideur_final', $valideurs_final);
                     }
                 })
                 ->orderBy('latest_edited_at', 'desc')
@@ -176,8 +202,10 @@ class EngagementController extends Controller
             "total" => $total,
             "query" => $query,
             "lignes" => $lignes,
-            "rubriques" => $rubriques,
-            "chapitres" => $chapitres,
+            "saisisseurs" => $saisisseurs,
+            "valideurs_first" => $valideurs_first,
+            "valideurs_second" => $valideurs_second,
+            "valideurs_final" => $valideurs_final,
             "etatQuery" => sizeof($etatQuery),
             "statutQuery" => sizeof($statutQuery),
         ]);
