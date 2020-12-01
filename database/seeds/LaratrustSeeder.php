@@ -22,8 +22,9 @@ class LaratrustSeeder extends Seeder
 
         /** Permissions à l'étape d'initialisation des préengagements */
         $perm = \App\Models\Permission::create([
-            'code' => 'INIT.SAISI',
-            'name' => 'Saisir un préengagement',
+            'code' => 'INIT_SAISI',
+            'name' => 'INIT_SAISI',
+            'display_name' => 'Saisir un préengagement',
             'description' => 'Saisir un préengagement',
             'saisisseur' => 'NA',
             'valideur' => 'NA',
@@ -31,9 +32,10 @@ class LaratrustSeeder extends Seeder
         ]);
 
         $perm = \App\Models\Permission::create([
-            'code' => 'INIT.VALIDP',
-            'to_perform_on' => 'INIT.SAISI',
-            'name' => 'Valider un préengagement au 1er niveau',
+            'code' => 'INIT_VALIDP',
+            'name' => 'INIT_VALIDP',
+            'to_perform_on' => 'INIT_SAISI',
+            'display_name' => 'Valider un préengagement au 1er niveau',
             'description' => 'Valider un préengagement au 1er niveau',
             'saisisseur' => 'NA',
             'valideur' => 'NA',
@@ -41,9 +43,10 @@ class LaratrustSeeder extends Seeder
         ]);
 
         $perm = \App\Models\Permission::create([
-            'code' => 'INIT.VALIDS',
-            'to_perform_on' => 'INIT.VALIDP',
-            'name' => 'Valider un préengagement au 2nd niveau',
+            'code' => 'INIT_VALIDS',
+            'name' => 'INIT_VALIDS',
+            'to_perform_on' => 'INIT_VALIDP',
+            'display_name' => 'Valider un préengagement au 2nd niveau',
             'description' => 'Valider un préengagement au 2nd niveau',
             'saisisseur' => 'NA',
             'valideur' => 'NA',
@@ -51,9 +54,10 @@ class LaratrustSeeder extends Seeder
         ]);
 
         $perm = \App\Models\Permission::create([
-            'code' => 'INIT.VALIDF',
-            'to_perform_on' => 'INIT.VALIDS',
-            'name' => 'Valider un préengagement au niveau final',
+            'code' => 'INIT_VALIDF',
+            'name' => 'INIT_VALIDF',
+            'to_perform_on' => 'INIT_VALIDS',
+            'display_name' => 'Valider un préengagement au niveau final',
             'description' => 'Valider un préengagement au niveau final',
             'saisisseur' => 'NA',
             'valideur' => 'NA',
@@ -61,8 +65,9 @@ class LaratrustSeeder extends Seeder
         ]);
 
         $perm = \App\Models\Permission::create([
-            'code' => 'INIT.CLOT',
-            'name' => 'Clôturer un préengagement',
+            'code' => 'INIT_CLOT',
+            'name' => 'INIT_CLOT',
+            'display_name' => 'Clôturer un préengagement',
             'description' => 'Clôturer un préengagement. Un préengagement ne peut être clôturé que lorsqu\'il n\'a pas encore été validé au niveau final.',
             'saisisseur' => 'NA',
             'valideur' => 'NA',
@@ -71,8 +76,9 @@ class LaratrustSeeder extends Seeder
         
         /** Permissions pour les engagements engagés */
         $perm = \App\Models\Permission::create([
-            'code' => 'PEG.SAISI',
-            'name' => 'Saisir une imputation',
+            'code' => 'PEG_SAISI',
+            'name' => 'PEG_SAISI',
+            'display_name' => 'Saisir une imputation',
             'description' => 'Saisir une imputation',
             'saisisseur' => 'NA',
             'valideur' => 'NA',
@@ -80,9 +86,10 @@ class LaratrustSeeder extends Seeder
         ]);
 
         $perm = \App\Models\Permission::create([
-            'code' => 'PEG.VALIDP',
-            'to_perform_on' => 'PEG.SAISI',
-            'name' => 'Valider une imputation au 1er niveau',
+            'code' => 'PEG_VALIDP',
+            'name' => 'PEG_VALIDP',
+            'to_perform_on' => 'PEG_SAISI',
+            'display_name' => 'Valider une imputation au 1er niveau',
             'description' => 'Valider une imputation au 1er niveau',
             'saisisseur' => 'NA',
             'valideur' => 'NA',
@@ -90,9 +97,10 @@ class LaratrustSeeder extends Seeder
         ]);
 
         $perm = \App\Models\Permission::create([
-            'code' => 'PEG.VALIDS',
-            'to_perform_on' => 'PEG.VALIDP',
-            'name' => 'Valider une imputation au 2nd niveau',
+            'code' => 'PEG_VALIDS',
+            'name' => 'PEG_VALIDS',
+            'to_perform_on' => 'PEG_VALIDP',
+            'display_name' => 'Valider une imputation au 2nd niveau',
             'description' => 'Valider une imputation au 2nd niveau',
             'saisisseur' => 'NA',
             'valideur' => 'NA',
@@ -100,9 +108,10 @@ class LaratrustSeeder extends Seeder
         ]);
 
         $perm = \App\Models\Permission::create([
-            'code' => 'PEG.VALIDF',
-            'to_perform_on' => 'PEG.VALIDS',
-            'name' => 'Valider une imputation au niveau final',
+            'code' => 'PEG_VALIDF',
+            'name' => 'PEG_VALIDF',
+            'to_perform_on' => 'PEG_VALIDS',
+            'display_name' => 'Valider une imputation au niveau final',
             'description' => 'Valider une imputation au niveau final',
             'saisisseur' => 'NA',
             'valideur' => 'NA',
@@ -110,8 +119,9 @@ class LaratrustSeeder extends Seeder
         ]);
 
         $perm = \App\Models\Permission::create([
-            'code' => 'PEG.CLOT',
-            'name' => 'Clôturer une imputation',
+            'code' => 'PEG_CLOT',
+            'name' => 'PEG_CLOT',
+            'display_name' => 'Clôturer une imputation',
             'description' => 'Clôturer une imputation. Une imputation ne peut être clôturé que lorsqu\'elle n\'a pas encore été validé au niveau final.',
             'saisisseur' => 'NA',
             'valideur' => 'NA',
@@ -120,8 +130,9 @@ class LaratrustSeeder extends Seeder
 
         /** Permissions pour les engagements imputés */
         $perm = \App\Models\Permission::create([
-            'code' => 'IMP.SAISI',
-            'name' => 'Saisir un apurement',
+            'code' => 'IMP_SAISI',
+            'name' => 'IMP_SAISI',
+            'display_name' => 'Saisir un apurement',
             'description' => 'Saisir un apurement',
             'saisisseur' => 'NA',
             'valideur' => 'NA',
@@ -129,9 +140,10 @@ class LaratrustSeeder extends Seeder
         ]);
 
         $perm = \App\Models\Permission::create([
-            'code' => 'IMP.VALIDP',
-            'to_perform_on' => 'IMP.SAISI',
-            'name' => 'Valider un apurement au 1er niveau',
+            'code' => 'IMP_VALIDP',
+            'name' => 'IMP_VALIDP',
+            'to_perform_on' => 'IMP_SAISI',
+            'display_name' => 'Valider un apurement au 1er niveau',
             'description' => 'Valider un apurement au 1er niveau',
             'saisisseur' => 'NA',
             'valideur' => 'NA',
@@ -139,9 +151,10 @@ class LaratrustSeeder extends Seeder
         ]);
 
         $perm = \App\Models\Permission::create([
-            'code' => 'IMP.VALIDS',
-            'to_perform_on' => 'IMP.VALIDP',
-            'name' => 'Valider un apurement au 2nd niveau',
+            'code' => 'IMP_VALIDS',
+            'name' => 'IMP_VALIDS',
+            'to_perform_on' => 'IMP_VALIDP',
+            'display_name' => 'Valider un apurement au 2nd niveau',
             'description' => 'Valider un apurement au 2nd niveau',
             'saisisseur' => 'NA',
             'valideur' => 'NA',
@@ -149,9 +162,10 @@ class LaratrustSeeder extends Seeder
         ]);
 
         $perm = \App\Models\Permission::create([
-            'code' => 'IMP.VALIDF',
-            'to_perform_on' => 'IMP.VALIDS',
-            'name' => 'Valider un apurement au niveau final',
+            'code' => 'IMP_VALIDF',
+            'name' => 'IMP_VALIDF',
+            'to_perform_on' => 'IMP_VALIDS',
+            'display_name' => 'Valider un apurement au niveau final',
             'description' => 'Valider un apurement au niveau final',
             'saisisseur' => 'NA',
             'valideur' => 'NA',
@@ -159,8 +173,9 @@ class LaratrustSeeder extends Seeder
         ]);
 
         $perm = \App\Models\Permission::create([
-            'code' => 'IMP.CLOT',
-            'name' => 'Clôturer un apurement',
+            'code' => 'IMP_CLOT',
+            'name' => 'IMP_CLOT',
+            'display_name' => 'Clôturer un apurement',
             'description' => 'Clôturer un apurement. Un apurment ne peut être clôturé que lorsqu\'elle n\'a pas encore été validé au niveau final.',
             'saisisseur' => 'NA',
             'valideur' => 'NA',
@@ -207,28 +222,28 @@ class LaratrustSeeder extends Seeder
             $role->permissions()->sync($permissions);
             
             if($role->name === 'user') {
-                $role->attachPermission('INIT.SAISI');
-                $role->attachPermission('INIT.CLOT');
-                $role->attachPermission('PEG.SAISI');
-                $role->attachPermission('PEG.CLOT');
-                $role->attachPermission('IMP.SAISI');
-                $role->attachPermission('IMP.CLOT');
-                $role->attachPermission('IMP.REG');
+                $role->attachPermission('INIT_SAISI');
+                $role->attachPermission('INIT_CLOT');
+                $role->attachPermission('PEG_SAISI');
+                $role->attachPermission('PEG_CLOT');
+                $role->attachPermission('IMP_SAISI');
+                $role->attachPermission('IMP_CLOT');
+                $role->attachPermission('IMP_REG');
             }
 
             if($role->name === 'administrator') {
-                $role->attachPermission('INIT.VALIDP');
-                $role->attachPermission('INIT.VALIDS');
-                $role->attachPermission('PEG.VALIDS');
-                $role->attachPermission('PEG.VALIDS');
-                $role->attachPermission('IMP.VALIDS');
-                $role->attachPermission('IMP.VALIDS');
+                $role->attachPermission('INIT_VALIDP');
+                $role->attachPermission('INIT_VALIDS');
+                $role->attachPermission('PEG_VALIDP');
+                $role->attachPermission('PEG_VALIDS');
+                $role->attachPermission('IMP_VALIDP');
+                $role->attachPermission('IMP_VALIDS');
             }
 
             if($role->name === 'superadministrator') {
-                // $role->attachPermission('INIT.VALIDF');
-                $role->attachPermission('PEG.VALIDF');
-                $role->attachPermission('IMP.VALIDF');
+                $role->attachPermission('INIT_VALIDF');
+                $role->attachPermission('PEG_VALIDF');
+                $role->attachPermission('IMP_VALIDF');
             }
 
             if(Config::get('laratrust_seeder.create_users')) {
