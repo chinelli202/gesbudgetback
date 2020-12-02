@@ -37,6 +37,7 @@ return [
         ],
         'statut_engagement' => [
             // 'VALIDF_NOEXC' => ['Validé au niveau final sans exécution (imputation ou apurement)', 'NA'],
+            'NEW' => ['Nouveau', 'NEW'],
             'SAISI' => ['Saisi', 'SAISI'],
             'VALIDP' => ['Validé au premier niveau', 'VALIDP'],
             'VALIDS' => ['Validé au second niveau', 'VALIDS'],

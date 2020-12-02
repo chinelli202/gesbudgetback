@@ -97,7 +97,7 @@ class EngagementController extends Controller
                 && !in_array($key, array('page','limit', 'lignes', 'etat'
                     , 'saisisseurs', 'valideurs_first', 'valideurs_second', 'valideurs_final', 'latest_statut'))) {
                 
-                array_push($query, [($key === 'ligne') ? $key.'_id': $key, '=', $value]);
+                array_push($query, [$key, '=', $value]);
             }
         }
         if (sizeof($query) === 0 && sizeof($statutQuery) === 0 && sizeof($etatQuery) === 0
@@ -114,81 +114,45 @@ class EngagementController extends Controller
                     return EngagementService::enrichEngagement($eng->id);
                 });
         } else {
-            $total = Engagement::where($query)
-                ->where(function($q) use (&$etatQuery) {
-                    if(sizeof($etatQuery) >0 ) {
-                        $q->whereIn('etat', $etatQuery);
-                    }
-                })
-                ->where(function($q) use (&$statutQuery) {
-                    if(sizeof($statutQuery) >0 ) {
-                        $q->whereIn('latest_statut', $statutQuery);
-                    }
-                })
-                ->where(function($q) use (&$lignes) {
-                    if(sizeof($lignes) >0 ) {
-                        $q->whereIn('ligne_id', $lignes);
-                    }
-                })
-                ->where(function($q) use (&$saisisseurs) {
-                    if(sizeof($saisisseurs) >0 ) {
-                        $q->whereIn('saisisseur', $saisisseurs);
-                    }
-                })
-                ->where(function($q) use (&$valideurs_first) {
-                    if(sizeof($valideurs_first) >0 ) {
-                        $q->whereIn('valideur_first', $valideurs_first);
-                    }
-                })
-                ->where(function($q) use (&$valideurs_second) {
-                    if(sizeof($valideurs_second) >0 ) {
-                        $q->whereIn('valideur_second', $valideurs_second);
-                    }
-                })
-                ->where(function($q) use (&$valideurs_final) {
-                    if(sizeof($valideurs_final) >0 ) {
-                        $q->whereIn('valideur_final', $valideurs_final);
-                    }
-                })
-                ->count();
-                
-            $engagements = Engagement::where($query)
-                ->where(function($q) use (&$etatQuery) {
-                    if(sizeof($etatQuery) >0 ) {
-                        $q->whereIn('etat', $etatQuery);
-                    }
-                })
-                ->where(function($q) use (&$statutQuery) {
-                    if(sizeof($statutQuery) >0 ) {
-                        $q->whereIn('latest_statut', $statutQuery);
-                    }
-                })
-                ->where(function($q) use (&$lignes) {
-                    if(sizeof($lignes) >0 ) {
-                        $q->whereIn('ligne_id', $lignes);
-                    }
-                })
-                ->where(function($q) use (&$saisisseurs) {
-                    if(sizeof($saisisseurs) >0 ) {
-                        $q->whereIn('saisisseur', $saisisseurs);
-                    }
-                })
-                ->where(function($q) use (&$valideurs_first) {
-                    if(sizeof($valideurs_first) >0 ) {
-                        $q->whereIn('valideur_first', $valideurs_first);
-                    }
-                })
-                ->where(function($q) use (&$valideurs_second) {
-                    if(sizeof($valideurs_second) >0 ) {
-                        $q->whereIn('valideur_second', $valideurs_second);
-                    }
-                })
-                ->where(function($q) use (&$valideurs_final) {
-                    if(sizeof($valideurs_final) >0 ) {
-                        $q->whereIn('valideur_final', $valideurs_final);
-                    }
-                })
-                ->orderBy('latest_edited_at', 'desc')
+            $preQuery = Engagement::where($query)
+                            ->where(function($q) use (&$etatQuery) {
+                                if(sizeof($etatQuery) >0 ) {
+                                    $q->whereIn('etat', $etatQuery);
+                                }
+                            })
+                            ->where(function($q) use (&$statutQuery) {
+                                if(sizeof($statutQuery) >0 ) {
+                                    $q->whereIn('latest_statut', $statutQuery);
+                                }
+                            })
+                            ->where(function($q) use (&$lignes) {
+                                if(sizeof($lignes) >0 ) {
+                                    $q->whereIn('ligne_id', $lignes);
+                                }
+                            })
+                            ->where(function($q) use (&$saisisseurs) {
+                                if(sizeof($saisisseurs) >0 ) {
+                                    $q->whereIn('saisisseur', $saisisseurs);
+                                }
+                            })
+                            ->where(function($q) use (&$valideurs_first) {
+                                if(sizeof($valideurs_first) >0 ) {
+                                    $q->whereIn('valideur_first', $valideurs_first);
+                                }
+                            })
+                            ->where(function($q) use (&$valideurs_second) {
+                                if(sizeof($valideurs_second) >0 ) {
+                                    $q->whereIn('valideur_second', $valideurs_second);
+                                }
+                            })
+                            ->where(function($q) use (&$valideurs_final) {
+                                if(sizeof($valideurs_final) >0 ) {
+                                    $q->whereIn('valideur_final', $valideurs_final);
+                                }
+                            });
+
+            $total = $preQuery->count();   
+            $engagements = $preQuery->orderBy('latest_edited_at', 'desc')
                 ->paginate($request->limit)
                 ->map(function ($eng) {
                     return EngagementService::enrichEngagement($eng->id);
@@ -487,7 +451,7 @@ class EngagementController extends Controller
             
             $engagement->update([
                 "statut" => $statutsEngagementKeys[$statutIndice],
-                "latest_statut" => $statutsEngagementKeys[$statutIndice],
+                "latest_statut" => Config::get('gesbudget.variables.statut_engagement.NEW')[1],
                 "latest_edited_at" => now(),
                 $operateursKeys[$statutIndice] => Auth::user()->matricule,
                 "etat" => $etatsEngagementKeys[

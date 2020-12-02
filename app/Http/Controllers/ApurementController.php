@@ -280,11 +280,15 @@ class ApurementController extends Controller
             $engagement->update([
                 "cumul_apurements" => $engagement->cumul_apurements + $apurement->montant_ttc,
                 "nb_apurements" => $engagement->nb_apurements + 1,
-                "etat" => Config::get('gesbudget.variables.etat_engagement.APUR')[1]
+                "etat" => Config::get('gesbudget.variables.etat_engagement.APUR')[1],
+                "latest_statut" => Config::get('gesbudget.variables.statut_engagement.NEW')[1],
+                "latest_edited_at" => now()
             ]);
         } else {
             $apurement->update([
                 "statut" => $statutsEngagementKeys[$statutIndice],
+                "latest_statut" => $statutsEngagementKeys[$statutIndice],
+                "latest_edited_at" => now(),
                 $operateursKeys[$statutIndice] => Auth::user()->matricule
             ]);
         }

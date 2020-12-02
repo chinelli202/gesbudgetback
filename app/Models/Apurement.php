@@ -52,7 +52,6 @@ class Apurement extends Model {
 
         if($eventName === 'updated'){
             // TODO : specify the right description depending on the action
-            $this->engagement->latest_edited_at = now();
             // Handle
             if (isset($activity->properties['attributes']['statut'])) {
                 /** The 'statut' has changed so we also change the 'latest_statut' and 'latest_edited_at'
@@ -60,8 +59,6 @@ class Apurement extends Model {
                  */
                 $newStatut = $activity->properties['attributes']['statut'];
                 $oldStatut = $activity->properties['old']['statut'];
-
-                $this->engagement->latest_statut = $newStatut;
 
                 /** The 'Statut' has changed 
                  * So we'll set the description to the corresponding statut's change action : VALIDP, VALIDS, VALIDF 
@@ -140,7 +137,6 @@ class Apurement extends Model {
             } else {
                 $activity->description = Config::get('gesbudget.variables.actions.IMP_UPDATE')[1];
             } 
-            $this->engagement->save();
         }
     }
 }
