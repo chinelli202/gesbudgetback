@@ -469,7 +469,7 @@ class EngagementController extends Controller
         return response()->json([
             "status" => $this->success_status
             , "success" => true
-            , "message" => "Engagement ". $engagement->code . " ". $statutsEngagement[$statut][0]. " avec succès"
+            , "message" => "Engagement ". $engagement->code . " ". $statutsEngagement[$statut][0]. " avec succès". $operateursKeys[$statutIndice]. $statutIndice
             , "data" => EngagementService::enrichEngagement($engagement->id)
         ]);
     }

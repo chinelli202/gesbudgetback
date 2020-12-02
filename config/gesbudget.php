@@ -49,6 +49,7 @@ return [
             'VALIDF' => ['Validé au niveau final', 'VALIDF']
         ],
         'operateur' => [
+            'NEW' => ['new', 'NEW'],
             'saisisseur' => ['Saisiseur', 'saisisseur'],
             'valideur_first' => ['Valideur au premier niveau', 'valideur_first'],
             'valideur_second' => ['Valideur au second niveau', 'valideur_second'],
