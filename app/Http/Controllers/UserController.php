@@ -69,6 +69,16 @@ class UserController extends Controller
         }
     }
 
+    // ---------------- [ Get list of all users ] -----------------
+    public function getUsers(Request $request) {
+        $users          =       User::all();
+        if(!is_null($users)) {
+            return response()->json(["status" => $this->sucess_status, "success" => true, "data" => $users]);
+        }
+        else {
+            return response()->json(["status" => "failed", "success" => false, "message" => "Whoops! no user found"]);
+        }
+    }
 
     // -------------- [ User Login ] ---------------
     public function userLogin(Request $request) {

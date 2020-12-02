@@ -20,149 +20,178 @@ class LaratrustSeeder extends Seeder
         $mapPermission = collect(config('laratrust_seeder.permissions_map'));
         $increment = 1;
 
+        /** Permissions à l'étape d'initialisation des préengagements */
         $perm = \App\Models\Permission::create([
-            'code' => 'saisir-pre-engagement',
-            'name' => 'saisir-pre-engagement',
-            'description' => implode(" ", explode("-", 'saisir-pre-engagement')),
+            'code' => 'ENG_INIT_SAISI',
+            'name' => 'ENG_INIT_SAISI',
+            'display_name' => 'Saisir un préengagement',
+            'description' => 'Saisir un préengagement',
             'saisisseur' => 'NA',
             'valideur' => 'NA',
             'source' => Config::get('laratrust.constants.user_creation_source.SEEDER')
         ]);
 
         $perm = \App\Models\Permission::create([
-            'code' => 'validerp-pre-engagement',
-            'name' => 'validerp-pre-engagement',
-            'description' => implode(" ", explode("-", 'validerp-pre-engagement')),
+            'code' => 'ENG_INIT_VALIDP',
+            'name' => 'ENG_INIT_VALIDP',
+            'to_perform_on' => 'INIT_SAISI',
+            'display_name' => 'Valider un préengagement au 1er niveau',
+            'description' => 'Valider un préengagement au 1er niveau',
             'saisisseur' => 'NA',
             'valideur' => 'NA',
             'source' => Config::get('laratrust.constants.user_creation_source.SEEDER')
         ]);
 
         $perm = \App\Models\Permission::create([
-            'code' => 'validers-pre-engagement',
-            'name' => 'validers-pre-engagement',
-            'description' => implode(" ", explode("-", 'validers-pre-engagement')),
+            'code' => 'ENG_INIT_VALIDS',
+            'name' => 'ENG_INIT_VALIDS',
+            'to_perform_on' => 'INIT_VALIDP',
+            'display_name' => 'Valider un préengagement au 2nd niveau',
+            'description' => 'Valider un préengagement au 2nd niveau',
             'saisisseur' => 'NA',
             'valideur' => 'NA',
             'source' => Config::get('laratrust.constants.user_creation_source.SEEDER')
         ]);
 
         $perm = \App\Models\Permission::create([
-            'code' => 'validerf-pre-engagement',
-            'name' => 'validerf-pre-engagement',
-            'description' => implode(" ", explode("-", 'validerf-pre-engagement')),
+            'code' => 'ENG_INIT_VALIDF',
+            'name' => 'ENG_INIT_VALIDF',
+            'to_perform_on' => 'INIT_VALIDS',
+            'display_name' => 'Valider un préengagement au niveau final',
+            'description' => 'Valider un préengagement au niveau final',
             'saisisseur' => 'NA',
             'valideur' => 'NA',
             'source' => Config::get('laratrust.constants.user_creation_source.SEEDER')
         ]);
 
         $perm = \App\Models\Permission::create([
-            'code' => 'cloturer-pre-engagement',
-            'name' => 'cloturer-pre-engagement',
-            'description' => implode(" ", explode("-", 'cloturer-pre-engagement')),
+            'code' => 'ENG_INIT_CLOT',
+            'name' => 'ENG_INIT_CLOT',
+            'display_name' => 'Clôturer un préengagement',
+            'description' => 'Clôturer un préengagement. Un préengagement ne peut être clôturé que lorsqu\'il n\'a pas encore été validé au niveau final.',
+            'saisisseur' => 'NA',
+            'valideur' => 'NA',
+            'source' => Config::get('laratrust.constants.user_creation_source.SEEDER')
+        ]);
+        
+        /** Permissions pour les engagements engagés */
+        $perm = \App\Models\Permission::create([
+            'code' => 'ENG_PEG_SAISI',
+            'name' => 'ENG_PEG_SAISI',
+            'display_name' => 'Saisir une imputation',
+            'description' => 'Saisir une imputation',
             'saisisseur' => 'NA',
             'valideur' => 'NA',
             'source' => Config::get('laratrust.constants.user_creation_source.SEEDER')
         ]);
 
         $perm = \App\Models\Permission::create([
-            'code' => 'validerp-cloture-preg',
-            'name' => 'validerp-cloture-preg',
-            'description' => implode(" ", explode("-", 'validerp-cloture-preg')),
+            'code' => 'ENG_PEG_VALIDP',
+            'name' => 'ENG_PEG_VALIDP',
+            'to_perform_on' => 'PEG_SAISI',
+            'display_name' => 'Valider une imputation au 1er niveau',
+            'description' => 'Valider une imputation au 1er niveau',
             'saisisseur' => 'NA',
             'valideur' => 'NA',
             'source' => Config::get('laratrust.constants.user_creation_source.SEEDER')
         ]);
 
         $perm = \App\Models\Permission::create([
-            'code' => 'validers-cloture-preg',
-            'name' => 'validers-cloture-preg',
-            'description' => implode(" ", explode("-", 'validers-cloture-preg')),
+            'code' => 'ENG_PEG_VALIDS',
+            'name' => 'ENG_PEG_VALIDS',
+            'to_perform_on' => 'PEG_VALIDP',
+            'display_name' => 'Valider une imputation au 2nd niveau',
+            'description' => 'Valider une imputation au 2nd niveau',
             'saisisseur' => 'NA',
             'valideur' => 'NA',
             'source' => Config::get('laratrust.constants.user_creation_source.SEEDER')
         ]);
 
         $perm = \App\Models\Permission::create([
-            'code' => 'validerf-cloture-preg',
-            'name' => 'validerf-cloture-preg',
-            'description' => implode(" ", explode("-", 'validerf-cloture-preg')),
+            'code' => 'ENG_PEG_VALIDF',
+            'name' => 'ENG_PEG_VALIDF',
+            'to_perform_on' => 'PEG_VALIDS',
+            'display_name' => 'Valider une imputation au niveau final',
+            'description' => 'Valider une imputation au niveau final',
             'saisisseur' => 'NA',
             'valideur' => 'NA',
             'source' => Config::get('laratrust.constants.user_creation_source.SEEDER')
         ]);
 
         $perm = \App\Models\Permission::create([
-            'code' => 'saisir-imputation',
-            'name' => 'saisir-imputation',
-            'description' => implode(" ", explode("-", 'saisir-imputation')),
+            'code' => 'ENG_PEG_CLOT',
+            'name' => 'ENG_PEG_CLOT',
+            'display_name' => 'Clôturer une imputation',
+            'description' => 'Clôturer une imputation. Une imputation ne peut être clôturé que lorsqu\'elle n\'a pas encore été validé au niveau final.',
+            'saisisseur' => 'NA',
+            'valideur' => 'NA',
+            'source' => Config::get('laratrust.constants.user_creation_source.SEEDER')
+        ]);
+
+        /** Permissions pour les engagements imputés */
+        $perm = \App\Models\Permission::create([
+            'code' => 'ENG_IMP_SAISI',
+            'name' => 'ENG_IMP_SAISI',
+            'display_name' => 'Saisir un apurement',
+            'description' => 'Saisir un apurement',
             'saisisseur' => 'NA',
             'valideur' => 'NA',
             'source' => Config::get('laratrust.constants.user_creation_source.SEEDER')
         ]);
 
         $perm = \App\Models\Permission::create([
-            'code' => 'validerp-imputation',
-            'name' => 'validerp-imputation',
-            'description' => implode(" ", explode("-", 'validerp-imputation')),
+            'code' => 'ENG_IMP_VALIDP',
+            'name' => 'ENG_IMP_VALIDP',
+            'to_perform_on' => 'IMP_SAISI',
+            'display_name' => 'Valider un apurement au 1er niveau',
+            'description' => 'Valider un apurement au 1er niveau',
             'saisisseur' => 'NA',
             'valideur' => 'NA',
             'source' => Config::get('laratrust.constants.user_creation_source.SEEDER')
         ]);
 
         $perm = \App\Models\Permission::create([
-            'code' => 'validers-imputation',
-            'name' => 'validers-imputation',
-            'description' => implode(" ", explode("-", 'validers-imputation')),
+            'code' => 'ENG_IMP_VALIDS',
+            'name' => 'ENG_IMP_VALIDS',
+            'to_perform_on' => 'IMP_VALIDP',
+            'display_name' => 'Valider un apurement au 2nd niveau',
+            'description' => 'Valider un apurement au 2nd niveau',
             'saisisseur' => 'NA',
             'valideur' => 'NA',
             'source' => Config::get('laratrust.constants.user_creation_source.SEEDER')
         ]);
 
         $perm = \App\Models\Permission::create([
-            'code' => 'validerf-imputation',
-            'name' => 'validerf-imputation',
-            'description' => implode(" ", explode("-", 'validerf-imputation')),
+            'code' => 'ENG_IMP_VALIDF',
+            'name' => 'ENG_IMP_VALIDF',
+            'to_perform_on' => 'IMP_VALIDS',
+            'display_name' => 'Valider un apurement au niveau final',
+            'description' => 'Valider un apurement au niveau final',
             'saisisseur' => 'NA',
             'valideur' => 'NA',
             'source' => Config::get('laratrust.constants.user_creation_source.SEEDER')
         ]);
 
         $perm = \App\Models\Permission::create([
-            'code' => 'saisir-apurement',
-            'name' => 'saisir-apurement',
-            'description' => implode(" ", explode("-", 'saisir-apurement')),
+            'code' => 'ENG_IMP_CLOT',
+            'name' => 'ENG_IMP_CLOT',
+            'display_name' => 'Clôturer un apurement',
+            'description' => 'Clôturer un apurement. Un apurment ne peut être clôturé que lorsqu\'elle n\'a pas encore été validé au niveau final.',
             'saisisseur' => 'NA',
             'valideur' => 'NA',
             'source' => Config::get('laratrust.constants.user_creation_source.SEEDER')
         ]);
-
+        
         $perm = \App\Models\Permission::create([
-            'code' => 'validerp-apurement',
-            'name' => 'validerp-apurement',
-            'description' => implode(" ", explode("-", 'validerp-apurement')),
+            'code' => 'ENG_IMP_REG',
+            'name' => 'ENG_IMP_REG',
+            'display_name' => 'Passer une écriture de régularisation',
+            'description' => 'Passer une écriture de régularisation',
             'saisisseur' => 'NA',
             'valideur' => 'NA',
             'source' => Config::get('laratrust.constants.user_creation_source.SEEDER')
         ]);
-
-        $perm = \App\Models\Permission::create([
-            'code' => 'validers-apurement',
-            'name' => 'validers-apurement',
-            'description' => implode(" ", explode("-", 'validers-apurement')),
-            'saisisseur' => 'NA',
-            'valideur' => 'NA',
-            'source' => Config::get('laratrust.constants.user_creation_source.SEEDER')
-        ]);
-
-        $perm = \App\Models\Permission::create([
-            'code' => 'validerf-apurement',
-            'name' => 'validerf-apurement',
-            'description' => implode(" ", explode("-", 'validerf-apurement')),
-            'saisisseur' => 'NA',
-            'valideur' => 'NA',
-            'source' => Config::get('laratrust.constants.user_creation_source.SEEDER')
-        ]);
+        
         
         foreach ($config as $key => $modules) {
 
@@ -203,28 +232,28 @@ class LaratrustSeeder extends Seeder
             $role->permissions()->sync($permissions);
             
             if($role->name === 'user') {
-                $role->attachPermission('saisir-pre-engagement');
-                $role->attachPermission('cloturer-pre-engagement');
-                $role->attachPermission('saisir-imputation');
-                $role->attachPermission('saisir-apurement');
+                $role->attachPermission('ENG_INIT_SAISI');
+                $role->attachPermission('ENG_INIT_CLOT');
+                $role->attachPermission('ENG_PEG_SAISI');
+                $role->attachPermission('ENG_PEG_CLOT');
+                $role->attachPermission('ENG_IMP_SAISI');
+                $role->attachPermission('ENG_IMP_CLOT');
+                $role->attachPermission('ENG_IMP_REG');
             }
 
             if($role->name === 'administrator') {
-                $role->attachPermission('validerp-pre-engagement');
-                $role->attachPermission('validers-pre-engagement');
-                $role->attachPermission('validerp-cloture-preg');
-                $role->attachPermission('validers-cloture-preg');
-                $role->attachPermission('validerp-imputation');
-                $role->attachPermission('validers-imputation');
-                $role->attachPermission('validerp-apurement');
-                $role->attachPermission('validers-apurement');
+                $role->attachPermission('ENG_INIT_VALIDP');
+                $role->attachPermission('ENG_INIT_VALIDS');
+                $role->attachPermission('ENG_PEG_VALIDP');
+                $role->attachPermission('ENG_PEG_VALIDS');
+                $role->attachPermission('ENG_IMP_VALIDP');
+                $role->attachPermission('ENG_IMP_VALIDS');
             }
 
             if($role->name === 'superadministrator') {
-                $role->attachPermission('validerf-pre-engagement');
-                $role->attachPermission('validerf-cloture-preg');
-                $role->attachPermission('validerf-imputation');
-                $role->attachPermission('validerf-apurement');
+                $role->attachPermission('ENG_INIT_VALIDF');
+                $role->attachPermission('ENG_PEG_VALIDF');
+                $role->attachPermission('ENG_IMP_VALIDF');
             }
 
             if(Config::get('laratrust_seeder.create_users')) {
@@ -232,8 +261,8 @@ class LaratrustSeeder extends Seeder
                 // Create default user for each role
                 $user = \App\Models\User::create([
                     'matricule' => '0000'. $increment,
-                    'name' => ucwords(str_replace('_', ' ', $key)),
-                    'email' => $key.'@app.com',
+                    'name' => ucwords(str_replace('_', ' ', $key)).'1',
+                    'email' => $key.'1@app.com',
                     'password' => bcrypt('12345'),
                     'saisisseur' => 'NA',
                     'statut_utilisateur' => Config::get('laratrust.constants.user_status.INITIATED'),
@@ -243,8 +272,27 @@ class LaratrustSeeder extends Seeder
                     'fonction' => 'cadre'
                 ]);
                 $user->attachRole($role);
+                $increment += 1;
             }
-            $increment += 1;
+
+            if(Config::get('laratrust_seeder.create_users')) {
+                $this->command->info("Creating '{$key}' user");
+                // Create default user for each role
+                $user = \App\Models\User::create([
+                    'matricule' => '0000'. $increment,
+                    'name' => ucwords(str_replace('_', ' ', $key)).'2',
+                    'email' => $key.'2@app.com',
+                    'password' => bcrypt('12345'),
+                    'saisisseur' => 'NA',
+                    'statut_utilisateur' => Config::get('laratrust.constants.user_status.INITIATED'),
+                    'valideur' => 'NA',
+                    'source'  => Config::get('laratrust.constants.user_creation_source.SEEDER'),
+                    'division' => 'DBC',
+                    'fonction' => 'cadre'
+                ]);
+                $user->attachRole($role);
+                $increment += 1;
+            }
         }
     }
 

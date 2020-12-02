@@ -27,8 +27,11 @@ Route::get("user-login", "UserController@getLogin")->name('getLogin');
 Route::group(['middleware' => 'auth:api'], function () {
     Route::get("user-detail", "UserController@userDetail");
     Route::get("user-logout", "UserController@userLogout")->name('userLogout');
-
+    Route::get("users/list", "UserController@getUsers")->name('getUsers');
     
+    
+    Route::get("ligne/solde/{id}", "LigneController@getSolde")->name('getLigneSolde');
+
     Route::get("getengagements", "EngagementController@getEngagements")->name('getEngagements');
     Route::get("engagement/{id}", "EngagementController@getEngagement")->name('getEngagement');
 
