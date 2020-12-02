@@ -37,14 +37,24 @@ class Engagement extends Model
      * @var array
      */
     protected $fillable = [
-        'code', 'libelle', 'montant_ht', 'montant_ttc', 'devise',  'nature','type', 'etat', 'statut', 'next_statut',
+        'code', 'code_comptabilite', 'libelle', 'montant_ht', 'montant_ttc', 'devise',  'nature','type', 'etat', 'statut'
+        , 'latest_statut', 'latest_edited_at', 'next_statut',
         'nb_imputations','cumul_imputations','nb_apurements','cumul_apurements','saisisseur','valideur_first'
-        ,'valideur_second','valideur_final','source', 'ligne_id', 'documents', 'nb_imputations_encours', 'cumul_imputations_encours'
+        ,'valideur_second','valideur_final','source', 'ligne_id', 'rubrique_id', 'chapitre_id'
+        , 'documents', 'nb_imputations_encours', 'cumul_imputations_encours'
         , 'nb_apurements_encours', 'cumul_apurements_encours'
     ];
 
     public function ligne(){
         return $this->belongsTo('App\Models\Ligne');
+    }
+
+    public function rubrique(){
+        return $this->belongsTo('App\Models\Rubrique');
+    }
+
+    public function chapitre(){
+        return $this->belongsTo('App\Models\Chapitre');
     }
 
     public function imputations(){
@@ -57,7 +67,7 @@ class Engagement extends Model
 
     public function tapActivity(Activity $activity, string $eventName)
     {
-        $commentSessionKey = 'CommentEngagement'.Auth::user()->id.$this->id;
+        $commentSessionKey = 'CommentEngagement'.(!Auth::user() ? '':Auth::user()->id).$this->id;
         $activity->comment = session()->pull($commentSessionKey, 'NA');
 
         if($eventName === 'updated'){

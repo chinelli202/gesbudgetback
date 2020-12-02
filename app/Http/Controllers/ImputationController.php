@@ -279,11 +279,15 @@ class ImputationController extends Controller
             $engagement->update([
                 "cumul_imputations" => $engagement->cumul_imputations + $imputation->montant_ttc,
                 "nb_imputations" => $engagement->nb_imputations + 1,
-                "etat" => Config::get('gesbudget.variables.etat_engagement.IMP')[1]
+                "etat" => Config::get('gesbudget.variables.etat_engagement.IMP')[1],
+                "latest_statut" => Config::get('gesbudget.variables.statut_engagement.NEW')[1],
+                "latest_edited_at" => now()
             ]);
         } else {
             $imputation->update([
                 "statut" => $statutsEngagementKeys[$statutIndice],
+                "latest_statut" => $statutsEngagementKeys[$statutIndice],
+                "latest_edited_at" => now(),
                 $operateursKeys[$statutIndice] => Auth::user()->matricule
             ]);
         }

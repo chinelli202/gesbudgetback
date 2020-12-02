@@ -46,19 +46,19 @@ class Imputation extends Model
 
     public function tapActivity(Activity $activity, string $eventName)
     {
-        $commentSessionKey = 'CommentImputation'.Auth::user()->id.$this->id;
-        $activity->comment = session()->pull($commentSessionKey, 'NA');
+        // $commentSessionKey = 'CommentImputation'.Auth::user()->id.$this->id;
+        // $activity->comment = session()->pull($commentSessionKey, 'NA');
 
         if($eventName === 'updated'){
             // TODO : specify the right description depending on the action
-
             // Handle
             if (isset($activity->properties['attributes']['statut'])) {
+                $newStatut = $activity->properties['attributes']['statut'];
+                $oldStatut = $activity->properties['old']['statut'];
+
                 /** The 'Statut' has changed 
                  * So we'll set the description to the corresponding statut's change action : VALIDP, VALIDS, VALIDF 
                 */
-                $newStatut = $activity->properties['attributes']['statut'];
-                $oldStatut = $activity->properties['old']['statut'];
 
                 if ($oldStatut === 'SAISI' && $newStatut === 'VALIDP') {
                     /** This is a Validation at the first level 

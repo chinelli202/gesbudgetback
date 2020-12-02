@@ -46,7 +46,9 @@ class EngagementController extends Controller
             'devise'            =>          'required|exists:variables,code',
             'nature'            =>          'required|exists:variables,code',
             'type'              =>          'required|exists:variables,code',
-            'ligne_id'          =>          'required|exists:lignes,id'
+            'ligne_id'          =>          'required|exists:lignes,id',
+            'rubrique_id'       =>          'required|exists:rubriques,id',
+            'chapitre_id'       =>          'required|exists:chapitres,id'
         ];
 
         $this->engagementUpdateValidator = [
@@ -68,21 +70,109 @@ class EngagementController extends Controller
             'valideur_second'   =>          'nullable|exists:users,matricule',
             'valideur_final'    =>          'nullable|exists:users,matricule',
             'source'            =>          'required',
-            'ligne_id'          =>          'required|exists:lignes,id'
+            'ligne_id'          =>          'required|exists:lignes,id',
+            'rubrique_id'       =>          'required|exists:rubriques,id',
+            'chapitre_id'       =>          'required|exists:chapitres,id'
 
         ];
     }
 
     public function getEngagements(Request $request){
-        $etat = $request->etat;
+        $requestquery = $request->all();
+        $requestqueryKeys = array_keys($requestquery);
+        $query = array();
+        $lignes = $request->lignes ? array_filter(array_map(function ($el) { return (int) $el;}, explode(',', $request->lignes))) : array();
 
-        $engagements = Engagement::where('etat', $etat)
-            ->orderBy('created_at', 'desc')
-            ->get()
-            ->map(function ($eng) {
-                return EngagementService::enrichEngagement($eng->id);
-            });
-        return response()->json(["status" => $this->success_status, "success" => true, "data" => $engagements]);
+        $saisisseurs = $request->saisisseurs ? array_filter(explode(',', $request->saisisseurs)) : array();
+        $valideurs_first = $request->valideurs_first ? array_filter(explode(',', $request->valideurs_first)) : array();
+        $valideurs_second = $request->valideurs_second ? array_filter(explode(',', $request->valideurs_second)) : array();
+        $valideurs_final = $request->valideurs_final ? array_filter(explode(',', $request->valideurs_final)) : array();
+        
+        $statutQuery = array_filter(explode(',', $request->latest_statut));
+        $etatQuery = array_filter(explode(',', $request->etat));
+
+        foreach ($requestqueryKeys as $key) {
+            $value = $requestquery[$key];
+            if(!empty($value) 
+                && !in_array($key, array('page','limit', 'lignes', 'etat'
+                    , 'saisisseurs', 'valideurs_first', 'valideurs_second', 'valideurs_final', 'latest_statut'))) {
+                
+                array_push($query, [$key, '=', $value]);
+            }
+        }
+        if (sizeof($query) === 0 && sizeof($statutQuery) === 0 && sizeof($etatQuery) === 0
+            && sizeof($lignes) === 0
+            && sizeof($saisisseurs) === 0
+            && sizeof($valideurs_first) === 0 && sizeof($valideurs_second) === 0 && sizeof($valideurs_final) === 0
+        ) {
+            $total = Engagement::whereNotIn('etat', [Config::get('gesbudget.variables.etat_engagement.CLOT')[1]])
+                ->count();
+            $engagements = Engagement::whereNotIn('etat', [Config::get('gesbudget.variables.etat_engagement.CLOT')[1]])
+                ->orderBy('latest_edited_at', 'desc')
+                ->paginate($request->limit)
+                ->map(function ($eng) {
+                    return EngagementService::enrichEngagement($eng->id);
+                });
+        } else {
+            $preQuery = Engagement::where($query)
+                            ->where(function($q) use (&$etatQuery) {
+                                if(sizeof($etatQuery) >0 ) {
+                                    $q->whereIn('etat', $etatQuery);
+                                }
+                            })
+                            ->where(function($q) use (&$statutQuery) {
+                                if(sizeof($statutQuery) >0 ) {
+                                    $q->whereIn('latest_statut', $statutQuery);
+                                }
+                            })
+                            ->where(function($q) use (&$lignes) {
+                                if(sizeof($lignes) >0 ) {
+                                    $q->whereIn('ligne_id', $lignes);
+                                }
+                            })
+                            ->where(function($q) use (&$saisisseurs) {
+                                if(sizeof($saisisseurs) >0 ) {
+                                    $q->whereIn('saisisseur', $saisisseurs);
+                                }
+                            })
+                            ->where(function($q) use (&$valideurs_first) {
+                                if(sizeof($valideurs_first) >0 ) {
+                                    $q->whereIn('valideur_first', $valideurs_first);
+                                }
+                            })
+                            ->where(function($q) use (&$valideurs_second) {
+                                if(sizeof($valideurs_second) >0 ) {
+                                    $q->whereIn('valideur_second', $valideurs_second);
+                                }
+                            })
+                            ->where(function($q) use (&$valideurs_final) {
+                                if(sizeof($valideurs_final) >0 ) {
+                                    $q->whereIn('valideur_final', $valideurs_final);
+                                }
+                            });
+
+            $total = $preQuery->count();   
+            $engagements = $preQuery->orderBy('latest_edited_at', 'desc')
+                ->paginate($request->limit)
+                ->map(function ($eng) {
+                    return EngagementService::enrichEngagement($eng->id);
+                });
+        }
+        
+        return response()->json([
+            "status" => $this->success_status,
+            "success" => true,
+            "data" => $engagements,
+            "total" => $total,
+            "query" => $query,
+            "lignes" => $lignes,
+            "saisisseurs" => $saisisseurs,
+            "valideurs_first" => $valideurs_first,
+            "valideurs_second" => $valideurs_second,
+            "valideurs_final" => $valideurs_final,
+            "etatQuery" => sizeof($etatQuery),
+            "statutQuery" => sizeof($statutQuery),
+        ]);
     }
 
     public function getEngagement(Request $request){
@@ -103,6 +193,7 @@ class EngagementController extends Controller
              * '113' is the id of the newly created engagement
              */
             "code" => $request->type .substr(now()->format('ymd-His-u'),0,17),
+            "code_comptabilite" => $request->type .substr(now()->format('ymd-His-u'),0,17),
             "libelle" => $request->libelle,
             "montant_ttc" => $request->montant_ttc,
             "montant_ht" => $request->montant_ht,
@@ -112,6 +203,8 @@ class EngagementController extends Controller
             
             'etat' => Config::get('gesbudget.variables.etat_engagement.INIT')[1],
             'statut' => Config::get('gesbudget.variables.statut_engagement.SAISI')[1],
+            'latest_statut' => Config::get('gesbudget.variables.statut_engagement.SAISI')[1],
+            'latest_edited_at' => now(),
             
             'nb_imputations' => 0,
             'cumul_imputations' => 0,
@@ -122,7 +215,9 @@ class EngagementController extends Controller
             'valideur_second' => null,
             'valideur_final' => null,
             'source' => Config::get('gesbudget.variables.source.API')[0],
-            'ligne_id' => $request->ligne_id
+            'ligne_id' => $request->ligne_id,
+            'rubrique_id' => $request->rubrique_id,
+            'chapitre_id' => $request->chapitre_id
         ]);
             
         return response()->json([
@@ -149,7 +244,10 @@ class EngagementController extends Controller
             "devise" => $request->devise,
             "type" => $request->type,
             "nature" => $request->nature,
-            "ligne_id" => $request->ligne_id
+            "ligne_id" => $request->ligne_id,
+            'rubrique_id' => $request->rubrique_id,
+            'chapitre_id' => $request->chapitre_id,
+            "latest_edited_at" => now()
         ]);
         $engagement = EngagementService::enrichEngagement($engagement->id);
         return response()->json([
@@ -170,6 +268,7 @@ class EngagementController extends Controller
         
         $engagement->update([
             "etat" => Config::get('gesbudget.variables.etat_engagement.CLOT')[1],
+            "latest_edited_at" => now()
         ]);
         $engagement = EngagementService::enrichEngagement($engagement->id);
         return response()->json([
@@ -194,6 +293,7 @@ class EngagementController extends Controller
         
         $engagement->update([
             "etat" => Config::get('gesbudget.variables.etat_engagement.INIT')[1],
+            "latest_edited_at" => now()
         ]);
         $engagement = EngagementService::enrichEngagement($engagement->id);
         return response()->json([
@@ -231,6 +331,8 @@ class EngagementController extends Controller
         $engagement->update([
             "next_statut" => Config::get('gesbudget.variables.statut_engagement.SAISI')[1],
             "statut" => Config::get('gesbudget.variables.statut_engagement.SAISI')[1],
+            "latest_statut" => Config::get('gesbudget.variables.statut_engagement.SAISI')[1],
+            "latest_edited_at" => now(),
             "valideur_first" => null,
             "valideur_second" => null,
             "valideur_final" => null
@@ -260,7 +362,8 @@ class EngagementController extends Controller
             "devise" => $request->devise,
             "nature" => $request->nature,
             "type" => $request->type,
-            "next_statut" => null
+            "next_statut" => null,
+            "latest_edited_at" => now()
         ]);
         $engagement = EngagementService::enrichEngagement($engagement->id);
         return response()->json([
@@ -348,6 +451,8 @@ class EngagementController extends Controller
             
             $engagement->update([
                 "statut" => $statutsEngagementKeys[$statutIndice],
+                "latest_statut" => Config::get('gesbudget.variables.statut_engagement.NEW')[1],
+                "latest_edited_at" => now(),
                 $operateursKeys[$statutIndice] => Auth::user()->matricule,
                 "etat" => $etatsEngagementKeys[
                     $engagement->etat === Config::get('gesbudget.variables.etat_engagement.APUR')[1] ? $etatIndice: $etatIndice + 1]
@@ -355,6 +460,8 @@ class EngagementController extends Controller
         } else {
             $engagement->update([
                 "statut" => $statutsEngagementKeys[$statutIndice],
+                "latest_statut" => $statutsEngagementKeys[$statutIndice],
+                "latest_edited_at" => now(),
                 $operateursKeys[$statutIndice] => Auth::user()->matricule
             ]);
         }
@@ -427,6 +534,8 @@ class EngagementController extends Controller
             
             $engagement->update([
                 "statut" => $statutsEngagementKeys[$statutIndice - 1],
+                "latest_statut" => $statutsEngagementKeys[$statutIndice - 1],
+                "latest_edited_at" => now(),
                 $operateursKeys[$statutIndice] => null,
                 "etat" => $etatsEngagementKeys[
                     $engagement->etat === Config::get('gesbudget.variables.etat_engagement.APUR')[1] ? $etatIndice : $etatIndice - 1]
@@ -434,6 +543,8 @@ class EngagementController extends Controller
         } else {
             $engagement->update([
                 "statut" => $statutsEngagementKeys[$statutIndice - 1],
+                "latest_statut" => $statutsEngagementKeys[$statutIndice - 1],
+                "latest_edited_at" => now(),
                 $operateursKeys[$statutIndice] => null
             ]);
         }
