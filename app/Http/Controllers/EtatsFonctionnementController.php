@@ -108,8 +108,20 @@ class EtatsFonctionnementController extends Controller
         else return "missing or incorrect parameters";
     }
 
-    public function getMonthRecapLigne($ligneid){
-
+    public function getMonthsRecapLigne(RecapService $recapService, $ligneid, Request $request){
+        $months = [];
+        $params = $this->validateParams($request, $recapService);
+        if(!is_null($params)){
+            for($i = $params->startmonth; $i <= $params->endmonth; $i++){
+                $params->mois = $i;
+                $monthrecap = $recapService->getRecapLigne($ligneid, 'mois', $params);
+                array_push($months, $monthrecap);
+            }
+            $recap = new stdClass();
+            $recap->months = $months;
+            return response()->json(["status" => $this->success_status, "success" => true, "data" => $recap]);
+        }
+        else return "missiong or incorrect parameters";
     }
 
     public function getRecapSection(RecapService $recapService, $section, $domaine, Request $request){

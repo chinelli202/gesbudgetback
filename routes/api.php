@@ -111,3 +111,13 @@ Route::get('/export/rubrique/{rubiqueid}',"ExcellExportController@exportRubrique
 Route::get('/export/section/{section}/{domaine}',"ExcellExportController@exportSectionSimple");
 Route::get('/export/section/full/{section}/{domaine}',"ExcellExportController@exportSectionFull");
 Route::get('/export/domaine/{domainename}',"ExcellExportController@exportDomaine");
+
+//routes elaboration
+//upload maquette
+Route::post('/elaboration/draft/maquette/store','MaquetteUploadController@store');
+//post new budget data
+Route::post('/elaboration/draft/create','DraftBudgetController@create');
+//get maquette loading progress
+Route::post('/elaboration/draft/maquette/loadprogress','DraftBudgetController@loadProgress');
+//load maquette
+Route::post('/elaboration/draft/maquette/load','DraftBudgetController@loadMaquette');
