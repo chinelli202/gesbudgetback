@@ -123,11 +123,13 @@ class ExcellParser {
             $this->row++;
             $this->processrubrique($data, $data->header);
             $this->sheet->removeRow($this->row-1,3);
+            $this->sheet->getStyle("A".$this->row.":I".$this->row)->getBorders()->getBottom()->setBorderStyle(Border::BORDER_THICK);
         } 
         else if($params->type == 'collection'){
             $this->deletegap = 'collection';
             $this->processcollection($data, $data->header);
             $this->sheet->removeRow($this->row-1,3);
+            $this->sheet->getStyle("A".$this->row.":I".$this->row)->getBorders()->getBottom()->setBorderStyle(Border::BORDER_THICK);
         }
         else if($params->type == 'full'){
             $this->processcollection($data, $data->header);
