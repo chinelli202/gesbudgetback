@@ -22,18 +22,18 @@ class ExcellExportController extends Controller
             //$params->filename = "rapport_".$params->critere."_".$params->jour.".xlsx";
             
             if($params->critere == 'jour'||$params->critere == 'rapport_mensuel'){
-                $params->filename = "rapport_".$params->critere."_".$params->jour.".xlsx";
+                $params->filename = "rapport_".$recap->libelle."_".$params->critere."_".$params->jour.".xlsx";
                 $parser->toExcell($recap, $params);  
             }
 
             if($params->critere == 'mois'){
-                $params->filename = "rapport_".$params->critere."_".$params->mois.".xlsx";
+                $params->filename = "rapport_".$recap->libelle."_".$params->critere."_".$params->mois.".xlsx";
                 $monthparser = new MonthExcellParser();
                 $monthparser->toExcell($recap, $params);  
             }
 
             if($params->critere == 'intervalle'){
-                $params->filename = "rapport_".$params->critere."_".$params->startmonth."_".$params->endmonth.".xlsx";
+                $params->filename = "rapport_".$recap->libelle."_".$params->critere."_".$params->startmonth."_".$params->endmonth.".xlsx";
                 $intervalleparser = new MonthExcellParser();
                 $intervalleparser->toExcell($recap, $params);
             }
@@ -56,18 +56,18 @@ class ExcellExportController extends Controller
             //$params->filename = "rapport_".$params->critere."_".$params->jour.".xlsx";
             
             if($params->critere == 'jour'||$params->critere == 'rapport_mensuel'){
-                $params->filename = "rapport_".$params->critere."_".$params->jour.".xlsx";
+                $params->filename = "rapport_".$recap->libelle."_".$params->critere."_".$params->jour.".xlsx";
                 $parser->toExcell($recap, $params);  
             }
 
             if($params->critere == 'mois'){
-                $params->filename = "rapport_".$params->critere."_".$params->mois.".xlsx";
+                $params->filename = "rapport_".$recap->libelle."_".$params->critere."_".$params->mois.".xlsx";
                 $monthparser = new MonthExcellParser();
                 $monthparser->toExcell($recap, $params);  
             }
 
             if($params->critere == 'intervalle'){
-                $params->filename = "rapport_".$params->critere."_".$params->startmonth."_".$params->endmonth.".xlsx";
+                $params->filename = "rapport_".$recap->libelle."_".$params->critere."_".$params->startmonth."_".$params->endmonth.".xlsx";
                 $intervalleparser = new MonthExcellParser();
                 $intervalleparser->toExcell($recap, $params);
             }
@@ -109,18 +109,18 @@ class ExcellExportController extends Controller
             //$params->filename = "rapport_".$params->critere."_".$params->jour.".xlsx";
             
             if($params->critere == 'jour'||$params->critere == 'rapport_mensuel'){
-                $params->filename = "rapport_".$params->critere."_".$params->jour.".xlsx";
+                $params->filename = "rapport_".$recap->libelle."_".$params->critere."_".$params->jour.".xlsx";
                 $parser->toExcell($recap, $params);  
             }
 
             if($params->critere == 'mois'){
-                $params->filename = "rapport_".$params->critere."_".$params->mois.".xlsx";
+                $params->filename = "rapport_".$recap->libelle."_".$params->critere."_".$params->mois.".xlsx";
                 $monthparser = new MonthExcellParser();
                 $monthparser->toExcell($recap, $params);  
             }
 
             if($params->critere == 'intervalle'){
-                $params->filename = "rapport_".$params->critere."_".$params->startmonth."_".$params->endmonth.".xlsx";
+                $params->filename = "rapport_".$recap->libelle."_".$params->critere."_".$params->startmonth."_".$params->endmonth.".xlsx";
                 $intervalleparser = new MonthExcellParser();
                 $intervalleparser->toExcell($recap, $params);
             }

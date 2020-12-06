@@ -28,7 +28,8 @@ class RecapService {
         $rligne = Ligne::find($ligne_id);
         
         $recap = new stdClass();
-        $recap->libelle = $rligne->label;
+        $recap->type = 'ligne';
+        $recap->libelle = $rligne->label." / ".$rligne->rubrique->chapitre->label;
         $recap->id = $rligne->id;
         $recap->prevision = 0;
         $recap->realisations = 0;
@@ -171,7 +172,8 @@ class RecapService {
                 $recap->tauxExecution = floor(100 * ($recap->execution/$recap->prevision));
             }
         }
-
+        $periode = $this->computePeriodeLabels($critere, $params);
+        $recap->header = $this->setHeader($recap->libelle, 'ligne', $periode);
         return $recap;
     }
 
@@ -180,7 +182,6 @@ class RecapService {
         $rrubrique = Rubrique::find($rubrique_id);
         $rrubrique->chapitrelabel = $rrubrique->chapitre->label;
         $collection = [];
-        $sumrow = new stdClass();
         $recap = new stdClass();
         $recap->id = $rrubrique->id;
         $recap->type = 'rubrique';
