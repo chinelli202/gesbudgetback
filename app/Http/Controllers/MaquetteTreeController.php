@@ -42,14 +42,17 @@ class MaquetteTreeController extends Controller
     }
     public function getFonctionnementWithSectionsTree (RecapService $service){
         $fonctionnement = new stdClass();
-        $recettes = $service->getTree('Fonctionnement','Recettes',null);
+        //$recettes = $service->getTree('Fonctionnement','Recettes',null);
+        $fonctionnement->recettes = $service->getTree('Fonctionnement','Recettes',null);
         
         $ss_fonctionnement = $service->getTree('Fonctionnement','Fonctionnement', 'Fonctionnement');
         $ss_investissement = $service->getTree('Fonctionnement','Investissement', 'Investissement');
 
-        $depenses = [$ss_fonctionnement, $ss_investissement];
-        $fonctionnement->sections  = [$depenses, $recettes];
-
+        $depenses = new stdClass;
+        $depenses->section = 'Dépenses';
+        $depenses->sections = [$ss_fonctionnement, $ss_investissement];
+        $fonctionnement->depenses = $depenses;
+        
         return response()->json(["status" => $this->success_status, "success" => true, "data" => $fonctionnement]);
     }
     public function getMandatTree(RecapService $service){
