@@ -59,6 +59,9 @@ return [
             'TVA' => ['Taxe sur la valeur ajoutée au Cameroun', '19.25']
         ],
         'actions' => [
+            'LOGIN' => ['Connexion à l\'application', 'LOGIN'],
+            'LOGOUT' => ['Connexion à l\'application', 'LOGOUT'],
+
             'VALIDP' => ['Validation premier niveau', 'VALIDP'],
             'VALIDS' => ['Validation second niveau', 'VALIDS'],
             'VALIDF' => ['Validation niveau final', 'VALIDF'],
