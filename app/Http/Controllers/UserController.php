@@ -84,7 +84,7 @@ class UserController extends Controller
     // -------------- [ User Login ] ---------------
     public function userLogin(Request $request) {
 
-        if(Auth::attempt(['email' => $request->email, 'password' => $request->password])){
+        if(Auth::attempt(['matricule' => $request->matricule, 'password' => $request->password, 'statut_utilisateur' => 'Init'])){
             activity()
                 ->causedBy(Auth::user())
                 ->tap(function(Activity $activity) use (&$request) {
@@ -100,7 +100,7 @@ class UserController extends Controller
             return response()->json(["status" => $this->sucess_status, "success" => true, "login" => true, "token" => $token, "data" => $user]);
         }
         else {
-            return response()->json(["status" => "failed", "success" => false, "message" => "Whoops! invalid email or password"]);
+            return response()->json(["status" => "failed", "success" => false, "message" => "Whoops! invalid matricule or password"]);
         }
     }
 
