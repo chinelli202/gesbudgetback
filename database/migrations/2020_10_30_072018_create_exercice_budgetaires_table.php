@@ -16,10 +16,11 @@ class CreateExerciceBudgetairesTable extends Migration
         Schema::create('exercices_budgetaires', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->year('annee_vote');
-            $table->date('date_vote');
-            $table->date('date_debut');
-            $table->date('date_cloture');
+            $table->string('label');
+            $table->year('annee_vote')->unique();
+            $table->date('date_vote')->unique();
+            $table->date('date_debut')->unique();
+            $table->date('date_cloture')->unique();
             $table->string('description')->nullable();
         });
     }

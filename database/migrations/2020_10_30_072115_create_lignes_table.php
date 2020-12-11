@@ -22,7 +22,7 @@ class CreateLignesTable extends Migration
             $table->enum('domaine', ['Fonctionnement','Mandat']);
             $table->enum('section', ['Dépenses','Recettes']);
             $table->string('sous_section')->nullable();
-            $table->enum('statut', ['draft', 'soumis','validé','rejetté','corrigé','supprimé']);
+            $table->enum('statut', ['draft', 'soumis','validé','rejetté','corrigé','supprimé', 'actif', 'archivé']);
             $table->unsignedBigInteger('rubrique_id');
             $table->foreign('rubrique_id')->references('id')->on('rubriques')->onDelete('cascade');
             $table->unsignedBigInteger('exercice_budgetaire_id');

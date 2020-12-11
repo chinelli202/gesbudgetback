@@ -30,7 +30,6 @@ class DraftBudgetService{
 
         //make sure the maquette file exists at the excpected location. otherwise return false
 
-
         //$file = Maquette::where('name',$name)->orderBy('id', 'desc')->first();
         //$filename = $file->name;
         //$filename = $file->name;
