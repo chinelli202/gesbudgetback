@@ -41,7 +41,6 @@ class EngagementController extends Controller
 
         $this->engagementCreateValidator = [
             'libelle'           =>          'required',
-            'montant_ht'        =>          'required',
             'montant_ttc'       =>          'required',
             'devise'            =>          'required|exists:variables,code',
             'nature'            =>          'required|exists:variables,code',
@@ -54,7 +53,6 @@ class EngagementController extends Controller
         $this->engagementUpdateValidator = [
             'code'              =>          'required|alpha_dash',
             'libelle'           =>          'required',
-            'montant_ht'        =>          'required|integer',
             'montant_ttc'       =>          'required|integer',
             'devise'            =>          'required|exists:variables,code',
             'nature'            =>          'required|exists:variables,code',
@@ -196,7 +194,7 @@ class EngagementController extends Controller
             "code_comptabilite" => $request->type .substr(now()->format('ymd-His-u'),0,17),
             "libelle" => $request->libelle,
             "montant_ttc" => $request->montant_ttc,
-            "montant_ht" => $request->montant_ht,
+            "montant_ht" => 0,
             "devise" => $request->devise,
             "type" => $request->type,
             "nature" => $request->nature,
@@ -240,7 +238,7 @@ class EngagementController extends Controller
         $engagement->update([
             "libelle" => $request->libelle,
             "montant_ttc" => $request->montant_ttc,
-            "montant_ht" => $request->montant_ht,
+            "montant_ht" => 0,
             "devise" => $request->devise,
             "type" => $request->type,
             "nature" => $request->nature,
@@ -358,7 +356,7 @@ class EngagementController extends Controller
         $engagement->update([
             "libelle" => $request->libelle,
             "montant_ttc" => $request->montant_ttc,
-            "montant_ht" => $request->montant_ht,
+            "montant_ht" => 0,
             "devise" => $request->devise,
             "nature" => $request->nature,
             "type" => $request->type,
