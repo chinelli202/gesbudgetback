@@ -9,6 +9,7 @@ class ExerciceBudgetaire extends Model
     protected $attributes =[
         'annee_vote' => "1900",
         'date_vote' => "2020-10-26",
+        'label' => "Exercice budgétaire",
         'date_debut' => "2021-01-01",
         'date_cloture' => "2021-12-31"
     ];
