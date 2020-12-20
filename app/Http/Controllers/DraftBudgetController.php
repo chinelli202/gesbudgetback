@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Maquette;
 use Illuminate\Http\Request;
 use App\Services\ChapitreService;
 use App\Services\DraftBudgetService;
@@ -56,5 +57,36 @@ class DraftBudgetController extends Controller
         else {
             return $service->getLoadProgress($maquette);
         }
-    } 
+    }
+    
+    public function store(Request $request){
+
+        // $validatedData = $request->validate([
+        //     'file' => 'required|csv,txt,xlx,xls,pdf|max:2048',
+    
+        // ]);
+
+        $file = $request->file('file');
+
+        $name = $file->getClientOriginalName();
+ 
+        
+        
+        $fileName = 'uf-'.time().'-'.$name;//$file->getClientOriginalExtension().'-'.time().'.'.$file->getClientOriginalExtension();
+        
+        // $path = $file->store('public/files');
+
+        //save the file
+        $path = $file->storeAs('public/files',$fileName);
+
+        
+        $maquette = new Maquette();
+        $maquette->name = $fileName;
+        $maquette->path = $path;
+        $maquette->save();
+        Log::info('Successfully uploaded file'.$fileName);
+
+        //for now, this maquette returns the maquette's filename
+       return $file->name;
+    }
 }
