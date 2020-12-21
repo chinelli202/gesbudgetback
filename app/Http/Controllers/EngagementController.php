@@ -181,6 +181,7 @@ class EngagementController extends Controller
     
     public function create(Request $request){
         $validator = Validator::make($request->all(), $this->engagementCreateValidator);
+        $lasteng = Engagement::latest()->first();
         
         if($validator->fails()) {
             return response()->json(["validation_errors" => $validator->errors()]);
@@ -190,7 +191,7 @@ class EngagementController extends Controller
              * where '020' is the last 3 digit of the year
              * '113' is the id of the newly created engagement
              */
-            "code" => $request->type .substr(now()->format('ymd-His-u'),0,17),
+            "code" => $request->type .now()->format('ym') .strval($lasteng ? $lasteng->id +1 : 1),
             "code_comptabilite" => $request->type .substr(now()->format('ymd-His-u'),0,17),
             "libelle" => $request->libelle,
             "montant_ttc" => $request->montant_ttc,
