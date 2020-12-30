@@ -271,7 +271,7 @@ class EngagementController extends Controller
         if ($engagement->etat === Config::get('gesbudget.variables.etat_engagement.CLOT')[1]) {
             return response()->json(["error" => true, "message" => "Cet engagement ". $engagement->code ." a déjà été clôturé"]);
         }
-        session()->put('CommentEngagement'.Auth::user()->id.$engagementId, $request->comment);
+        session()->put('CommentEngagement'.Auth::user()->id.$engagementId, $request->reason. "|" .$request->comment);
         
         $engagement->update([
             "etat" => Config::get('gesbudget.variables.etat_engagement.CLOT')[1],
