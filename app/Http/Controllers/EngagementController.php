@@ -88,17 +88,19 @@ class EngagementController extends Controller
         
         $statutQuery = array_filter(explode(',', $request->latest_statut));
         $etatQuery = array_filter(explode(',', $request->etat));
+        $codeQuery = $request->code;
 
         foreach ($requestqueryKeys as $key) {
             $value = $requestquery[$key];
             if(!empty($value) 
-                && !in_array($key, array('page','limit', 'lignes', 'etat'
+                && !in_array($key, array('page','limit', 'lignes', 'etat', 'code'
                     , 'saisisseurs', 'valideurs_first', 'valideurs_second', 'valideurs_final', 'latest_statut'))) {
                 
                 array_push($query, [$key, '=', $value]);
             }
         }
         if (sizeof($query) === 0 && sizeof($statutQuery) === 0 && sizeof($etatQuery) === 0
+            && $codeQuery === ''
             && sizeof($lignes) === 0
             && sizeof($saisisseurs) === 0
             && sizeof($valideurs_first) === 0 && sizeof($valideurs_second) === 0 && sizeof($valideurs_final) === 0
@@ -113,6 +115,11 @@ class EngagementController extends Controller
                 });
         } else {
             $preQuery = Engagement::where($query)
+                            ->where(function($q) use (&$codeQuery) {
+                                if($codeQuery !== '' ) {
+                                    $q->where('code', 'LIKE', "%".$codeQuery."%");
+                                }
+                            })
                             ->where(function($q) use (&$etatQuery) {
                                 if(sizeof($etatQuery) >0 ) {
                                     $q->whereIn('etat', $etatQuery);
@@ -170,6 +177,7 @@ class EngagementController extends Controller
             "valideurs_final" => $valideurs_final,
             "etatQuery" => sizeof($etatQuery),
             "statutQuery" => sizeof($statutQuery),
+            "resp" => $codeQuery."%"
         ]);
     }
 
