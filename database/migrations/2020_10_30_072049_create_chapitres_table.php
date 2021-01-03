@@ -18,7 +18,7 @@ class CreateChapitresTable extends Migration
             $table->timestamps();
             $table->string('label');
             $table->string('description');
-            $table->string('numero');
+            $table->string('numero')->nullable();
             $table->enum('statut', ['draft', 'soumis','validé','rejetté','corrigé','supprimé', 'actif', 'archivé']);
             $table->enum('domaine', ['Fonctionnement','Mandat']);
             $table->enum('section', ['Dépenses','Recettes']);

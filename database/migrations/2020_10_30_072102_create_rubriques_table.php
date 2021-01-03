@@ -16,7 +16,7 @@ class CreateRubriquesTable extends Migration
         Schema::create('rubriques', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->string('numero');
+            $table->string('numero')->nullable();
             $table->string('label');
             $table->string('description');
             $table->enum('statut', ['draft', 'soumis','validé','rejetté','corrigé','supprimé', 'actif', 'archivé']);

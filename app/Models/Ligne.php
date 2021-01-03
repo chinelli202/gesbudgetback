@@ -21,6 +21,14 @@ class Ligne extends Model
         return $this->hasMany('App\Models\Engagement');
     }
 
+    public function parent(){
+        return $this->belongsTo('App\Models\Ligne');
+    }
+
+    public function sousLignes(){
+        return $this->hasMany('App\Models\Ligne');
+    }
+
     public function updateStatut(){
         if($this->statut =='draft')
             $this->statut = 'soumis';

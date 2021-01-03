@@ -43,27 +43,68 @@ class ElaborationService{
         else{
             echo "file found!!";
             //delete existing drafts at this point
-            $titres = Titre::all();
-            if(count($titres) > 0){
-                //update loader
-                $dbmaquette->step= "Suppression de la maquette existante";
-                $dbmaquette->status = "initiated";
-                $dbmaquette->save();
-                $titre_delete_rate = 1 / count($titres);
-                foreach($titres as $titre){
-                    $chapitre_delete_rate = $titre_delete_rate/count($titres->chapitres);
-                    foreach($titre->chapitres as $chapitre){
-                        $chapitre->delete();
-                        $dbmaquette->loadprogress += ($chapitre_delete_rate * 100);
-                        $dbmaquette->status = "ongoing";
-                        $dbmaquette->save();
-                    }
-                    $titre->delete();
-                }
-            }
+            // $titres = Titre::all();
+            // if(count($titres) > 0){
+            //     //update loader
+            //     $dbmaquette->step= "Suppression de la maquette existante";
+            //     $dbmaquette->status = "initiated";
+            //     $dbmaquette->save();
+            //     $titre_delete_rate = 1 / count($titres);
+            //     foreach($titres as $titre){
+            //         $chapitre_delete_rate = $titre_delete_rate/count($titres->chapitres);
+            //         foreach($titre->chapitres as $chapitre){
+            //             $chapitre->delete();
+            //             $dbmaquette->loadprogress += ($chapitre_delete_rate * 100);
+            //             $dbmaquette->status = "ongoing";
+            //             $dbmaquette->save();
+            //         }
+            //         $titre->delete();
+            //     }
+            // }
 
             $this->process_maquette_file($name);
             return 'finished';
+        }
+    }
+
+    public function load_external_maquette($name, $year){
+        $exists = Storage::exists('public/files/'.$name);
+        if(!$exists){
+            echo "file does not exist";
+            //return false;
+        }
+        else{
+            echo "file found!!";
+            $exercice = $this->getExercice($year);
+            $this->process_external_maquette($name, $exercice);
+            return 'finished';
+        }
+    }
+
+    public function deleteMaquetteArchive($year){
+
+    }
+
+    public function getExercice($year){
+        $exercice = ExerciceBudgetaire::where("annee_vote",$year-1)->get();
+        if(empty($exercice)){
+            //if there is no excercice set, create a new exercice with year being the year 1900, then save it
+            echo "no exercice found. creating a new one";
+            Log::info('no exercice found. creating a new one');
+            $budget = new ExerciceBudgetaire;
+            $vote_day = mktime(11, 14, 54, 8, 30, $year);
+            $start_day = mktime(11, 14, 54, 0, 1, $year);
+            $end_day = mktime(11, 14, 54, 8, 12, 2014);
+            $budget->annee_vote = $year-1;
+            $budget->date_vote = date("Y-m-d",$vote_day);
+            $budget->date_debut = date('Y-m-d', $start_day);
+            $budget->date_cloture = date('Y-m-d', $end_day);
+            Log::info('saving : '.$budget->annee_vote.', '.$budget->date_vote.', '.$budget->date_debut.', '.$budget->date_cloture);
+            $budget->save();
+            return $budget;
+        }
+        else{
+            return $exercice;       
         }
     }
 
@@ -241,6 +282,109 @@ class ElaborationService{
                 Log::info("file processing now at ".$file->loadprogress."%");
             }
             //update progress for this titre
+        }
+    }
+
+
+    // basically here, we don't add new titre, chapitres or rubriques.
+    // we just match those in the maquette with those in the database. 
+    // for now, if there is no match, then we just continue.
+    private function process_external_maquette($maquette_name){
+        Log::info('processing maquette file');
+
+        //$service = new DraftBudgetService;
+        $budget = $this->getRunningExercice();
+        
+        //$file = Maquette::where('name',$name)->first();
+        //$file_ref = Storage::get('public\files\\'.$name);
+        
+        //echo $file_ref;
+        $file = Storage::path('public\files\\'.$maquette_name);
+        $titres = include $file;
+        echo ('path found : '.$file);
+        echo "\n";
+        echo count($titres);
+        echo "\n";
+        // if(!isset($titres)||!isset($file)){
+        //     return "couldn't find file";
+        // }
+        //$titres = include 'maquette.php';
+        
+        
+        for($k = 0; $k < count($titres); $k++){
+            //loop testing
+            $titre = $titres[$k];
+
+            //matching titre
+            $titredb = Titre::where("label", $titre["label"]);
+            if(empty($titredb)){
+                Log::info('no titre match for : '.$titre["label"]);
+                echo 'no titre match for : '.$titre["label"];
+            }
+            else{
+                Log::info('into titre : '.$titre["label"]);
+                echo 'into titre : '.$titre["label"];
+                echo "\n";
+                $chapitres = $titre['chapitres'];
+                for ($i = 0; $i < count($chapitres); $i++){
+                    $chapitre = $chapitres[$i];
+                    //matching chapitre
+                    $chapitredb = Chapitre::where("label", $chapitre["label"])->first();
+                    if(empty($chapitredb)){
+                        Log::info('no chapitre match for : '.$chapitre["label"]);
+                        echo 'no chapitre match for : '.$chapitre["label"];
+                    }
+                    else{
+                        Log::info($chapitre["label"]." matched by ".$chapitredb->label);
+                        Log::info('into chapitre : '.$chapitre["label"]);
+                        echo "\n";
+                        $rubriques = $chapitre['rubriques'];
+                        for($j = 0; $j < count($rubriques); $j++){
+                            $rubrique = $rubriques[$j];
+                            // matching rubrique
+                            $rubriquedb = Rubrique::where("label", $rubrique["label"])->where('chapitre_id', $chapitredb->id)->first();
+                            if(empty($rubriquedb)){
+                                Log::info('no rubrique match for : '.$rubrique["label"]);
+                                echo 'no rubrique match for : '.$rubrique["label"];
+                            }
+                            else{
+                                Log::info('into rubrique : '.$rubrique["label"]);
+                                echo 'into rubrique : '.$rubrique["label"];
+                                echo "\n";
+                                $lignes = $rubrique['lignes'];
+                                for($m = 0; $m < count($lignes); $m++){
+                                    $ligne = $lignes[$m];
+                                    // matching ligne. do I though?
+                                    $ligneEntry = new Ligne;
+                                    //truncating label length to 100 characters if found longer
+                                    if(strlen($ligne['label']) >= 100){
+                                        $ligne['label'] = substr($ligne['label'],0,100);
+                                    }
+                                    $ligneEntry->label = $ligne['label'];
+                                    $ligneEntry->description = $ligne['description'];
+                                    $ligneEntry->montant = str_replace(" ","", $ligne['montant']);
+                                    $ligneEntry->domaine = $ligne['domaine'];
+                                    $ligneEntry->section = $ligne['section'];
+                                    $ligneEntry->statut = "archive";
+                                    if(isset($ligne['sous_section'])){
+                                        $ligneEntry->sous_section = $ligne['sous_section'];
+                                    }
+                                    $ligneEntry->exercice_budgetaire_id = $budget->id;
+                                    $ligneEntry->rubrique_id = $rubriquedb->id;
+                                    //$rubriquedb->lignes()->save($ligneEntry);
+                                    $ligneEntry->save();
+                                    echo "saved ligne : ".$ligneEntry->label;
+                                    //Log::channel('syslog')->info('saved ligne : '.$ligneEntry->label);
+                                    //Log::info('saved ligne : '.$ligneEntry->label);
+            
+                                    Log::stack(['single', 'syslog'])->info('saved ligne'.$ligneEntry->label);
+                                    echo "\n";
+                                }
+                            }
+                        }   
+                    }
+                }
+            }
         }
     }
 }

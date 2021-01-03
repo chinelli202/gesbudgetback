@@ -124,11 +124,9 @@ class DraftBudgetService{
         $ligne = Ligne::where('id_exercice_budgetaire',$budget->id);
         if(isset($ligne)){
             $budget = new ExerciceBudgetaire();
-        }
-        
+        }        
         
         //if it has no lines attached to it, then it was freshly created. leave it as such.
-
 
         //set budget params
         if(isset($request->annee_vote)){
@@ -215,7 +213,7 @@ class DraftBudgetService{
             echo "\n";
             //persist titre
             $titreEntry = new Titre();
-            $titreEntry->numero = $titre['numero'];
+            //$titreEntry->numero = $titre['numero'];
             $titreEntry->label = $titre['label'];
             $titreEntry->description = $titre['description'];
             $titreEntry->domaine = $titre['domaine'];
@@ -230,7 +228,7 @@ class DraftBudgetService{
                 $chapitre = $chapitres[$i];
 
                 $chapitreEntry = new Chapitre;
-                $chapitreEntry->numero = $chapitre['numero'];
+                //$chapitreEntry->numero = $chapitre['numero'];
                 $chapitreEntry->label = $chapitre['label'];
                 $chapitreEntry->description = $chapitre['description'];
                 $chapitreEntry->domaine = $chapitre['domaine'];
@@ -246,7 +244,7 @@ class DraftBudgetService{
                 for($j = 0; $j < count($rubriques); $j++){
                     $rubrique = $rubriques[$j];
                     $rubriqueEntry = new Rubrique;
-                    $rubriqueEntry->numero = $rubrique['numero'];
+                    //$rubriqueEntry->numero = $rubrique['numero'];
                     $rubriqueEntry->label = $rubrique['label'];
                     $rubriqueEntry->description = $rubrique['description'];
                     $rubriqueEntry->domaine = $rubrique['domaine'];
@@ -278,10 +276,10 @@ class DraftBudgetService{
 
                         $rubriqueEntry -> lignes() -> save($ligneEntry);
                         echo "saved ligne : ".$ligneEntry->label;
-                        //Log::channel('syslog')->info('saved ligne : '.$ligneEntry->label);
-                        //Log::info('saved ligne : '.$ligneEntry->label);
+                        Log::channel('syslog')->info('saved ligne : '.$ligneEntry->label);
+                        Log::info('saved ligne : '.$ligneEntry->label);
 
-                        //create 3 new engagements for each month and each ligne
+                        // //create 3 new engagements for each month and each ligne
                         // $coefs = [1/48,1/24,1/72,1/48];
                         // if($ligneEntry->montant!=0)
                         // {
@@ -351,8 +349,8 @@ class DraftBudgetService{
                         //      }
                         // }
 
-                        Log::stack(['single', 'syslog'])->info('saved ligne'.$ligneEntry->label);
-                        echo "\n";
+                        // Log::stack(['single', 'syslog'])->info('saved ligne'.$ligneEntry->label);
+                        // echo "\n";
                     }
                 }   
                 //update progress on chapitres

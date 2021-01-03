@@ -199,6 +199,8 @@ class RecapService {
         }
 
         foreach($rrubrique->lignes as $ligne){
+            if($ligne->statut!="actif")
+                continue;
             $recapligne = $this->getRecapLigne($ligne->id, $critere, $params);
             $recap->prevision += $recapligne->prevision;
             $recap->realisations += $recapligne->realisations;
@@ -520,6 +522,9 @@ class RecapService {
                 $lignesnewrub = $rub->lignes;//Ligne::where('rubrique_id',$rub->id);
                 $lignes = [];
                 foreach($lignesnewrub as $li){
+                    if($li->statut != "actif"){
+                        continue;
+                    }
                     $newli = new stdClass();
                     $newli->label = $li->label;
                     $newli->id =  $li->id;
