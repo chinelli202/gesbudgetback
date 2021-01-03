@@ -4,17 +4,17 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Chapitre extends Model
+class DraftChapitre extends Model
 {
     protected $attributes = [
-        'statut' => "actif"
+        'statut' => "draft"
     ];
 
     public function rubriques(){
-        return $this->hasMany('App\Models\Rubrique');
+        return $this->hasMany('App\Models\DraftRubrique');
     }
 
     public function titre(){
-        return $this->belongsTo('App\Models\Titre');
+        return $this->belongsTo('App\Models\DraftTitre');
     }
 }

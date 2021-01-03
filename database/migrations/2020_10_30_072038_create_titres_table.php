@@ -18,7 +18,7 @@ class CreateTitresTable extends Migration
             $table->timestamps();
             $table->string('label');
             $table->string('description');
-            $table->enum('statut', ['draft','soumis','validé']);
+            $table->enum('statut', ['draft', 'soumis','validé','rejetté','corrigé','supprimé', 'actif', 'archivé']);
             $table->enum('domaine', ['Fonctionnement','Mandat']);
             $table->enum('section', ['Dépenses','Recettes']);
             $table->string('numero');

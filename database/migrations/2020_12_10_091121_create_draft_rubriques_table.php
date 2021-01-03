@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateMaquettesTable extends Migration
+class CreateDraftRubriquesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,8 @@ class CreateMaquettesTable extends Migration
      */
     public function up()
     {
-        Schema::create('maquettes', function (Blueprint $table) {
+        Schema::create('draft_rubriques', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('path');
-            $table->string('step');
-            $table->enum('status',['initiated','ongoing','finished']);
-            $table->integer('loadprogress');
             $table->timestamps();
         });
     }
@@ -31,6 +26,6 @@ class CreateMaquettesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('maquettes');
+        Schema::dropIfExists('draft_rubriques');
     }
 }

@@ -4,21 +4,17 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Ligne extends Model
+class DraftLigne extends Model
 {
     protected $attributes = [
-        'statut' => "actif"
+        'statut' => "draft"
     ];
     public function rubrique(){
-        return $this->belongsTo('App\Models\Rubrique');
+        return $this->belongsTo('App\Models\DraftRubrique');
     }
 
     public function exerciceBudgetaire(){
         return $this->belongsTo('App\Models\ExerciceBudgetaire');
-    }
-
-    public function engagements(){
-        return $this->hasMany('App\Models\Engagement');
     }
 
     public function updateStatut(){
