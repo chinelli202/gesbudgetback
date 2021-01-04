@@ -16,7 +16,6 @@ class ApurementService {
       'engagement_id'     =>          'required|exists:engagements,code',
       'reference_paiement'=>          'required',
       'libelle'           =>          'required',
-      'montant_ht'        =>          'required',
       'montant_ttc'       =>          'required',
       'devise'            =>          'required|exists:variables,code',
       'observations'      =>          'required'

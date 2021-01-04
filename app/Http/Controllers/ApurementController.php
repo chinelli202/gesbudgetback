@@ -37,7 +37,7 @@ class ApurementController extends Controller
             "engagement_id" => $request->engagement_id,
             "reference_paiement" => $request->reference_paiement,
             "montant_ttc" => $request->montant_ttc,
-            "montant_ht" => $request->montant_ht,
+            "montant_ht" => 0,
             "devise" => $request->devise,
             "observations" => $request->observations,
             "libelle" => $request->libelle,
@@ -73,7 +73,7 @@ class ApurementController extends Controller
             "observations" => $request->observations,
             "reference" => $request->reference,
             "montant_ttc" => $request->montant_ttc,
-            "montant_ht" => $request->montant_ht,
+            "montant_ht" => 0,
             "devise" => $request->devise
         ]);
         
@@ -184,7 +184,7 @@ class ApurementController extends Controller
             "observations" => $request->observations,
             "reference" => $request->reference,
             "montant_ttc" => $request->montant_ttc,
-            "montant_ht" => $request->montant_ht,
+            "montant_ht" => 0,
             "devise" => $request->devise,
             "next_statut" => null
         ]);
@@ -281,11 +281,15 @@ class ApurementController extends Controller
             $engagement->update([
                 "cumul_apurements" => $engagement->cumul_apurements + $apurement->montant_ttc,
                 "nb_apurements" => $engagement->nb_apurements + 1,
-                "etat" => Config::get('gesbudget.variables.etat_engagement.APUR')[1]
+                "etat" => Config::get('gesbudget.variables.etat_engagement.APUR')[1],
+                "latest_statut" => Config::get('gesbudget.variables.statut_engagement.NEW')[1],
+                "latest_edited_at" => now()
             ]);
         } else {
             $apurement->update([
                 "statut" => $statutsEngagementKeys[$statutIndice],
+                "latest_statut" => $statutsEngagementKeys[$statutIndice],
+                "latest_edited_at" => now(),
                 $operateursKeys[$statutIndice] => Auth::user()->matricule
             ]);
         }
