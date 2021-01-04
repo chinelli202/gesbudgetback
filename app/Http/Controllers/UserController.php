@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Validator;
 use Spatie\Activitylog\Traits\CausesActivity;
+use Spatie\Activitylog\Contracts\Activity;
 
 class UserController extends Controller
 {
@@ -83,7 +84,14 @@ class UserController extends Controller
     // -------------- [ User Login ] ---------------
     public function userLogin(Request $request) {
 
-        if(Auth::attempt(['email' => $request->email, 'password' => $request->password])){
+        if(Auth::attempt(['matricule' => $request->matricule, 'password' => $request->password, 'statut_utilisateur' => 'Init'])){
+            activity()
+                ->causedBy(Auth::user())
+                ->tap(function(Activity $activity) use (&$request) {
+                    $activity->comment = $request->header('User-Agent');
+                })
+                ->log(Config::get('gesbudget.variables.actions.LOGIN')[1]);
+
             $user       =       Auth::user();
             $token      =       $user->createToken('token')->accessToken;
             $user['token'] = $token;
@@ -92,7 +100,7 @@ class UserController extends Controller
             return response()->json(["status" => $this->sucess_status, "success" => true, "login" => true, "token" => $token, "data" => $user]);
         }
         else {
-            return response()->json(["status" => "failed", "success" => false, "message" => "Whoops! invalid email or password"]);
+            return response()->json(["status" => "failed", "success" => false, "message" => "Whoops! invalid matricule or password"]);
         }
     }
 
@@ -104,6 +112,13 @@ class UserController extends Controller
     // -------------- [ User Logout ] ---------------
     public function userLogout(Request $request) {
         $request->user()->token()->revoke();
+        activity()
+            ->causedBy(Auth::user())
+            ->tap(function(Activity $activity) use (&$request) {
+                $activity->comment = $request->header('User-Agent');
+            })
+            ->log(Config::get('gesbudget.variables.actions.LOGOUT')[1]);
+
         return response()->json([
             "status" => $this->sucess_status,
             'message' => 'Deconnexion réussie'

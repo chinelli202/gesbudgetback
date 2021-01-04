@@ -41,7 +41,6 @@ class EngagementController extends Controller
 
         $this->engagementCreateValidator = [
             'libelle'           =>          'required',
-            'montant_ht'        =>          'required',
             'montant_ttc'       =>          'required',
             'devise'            =>          'required|exists:variables,code',
             'nature'            =>          'required|exists:variables,code',
@@ -54,7 +53,6 @@ class EngagementController extends Controller
         $this->engagementUpdateValidator = [
             'code'              =>          'required|alpha_dash',
             'libelle'           =>          'required',
-            'montant_ht'        =>          'required|integer',
             'montant_ttc'       =>          'required|integer',
             'devise'            =>          'required|exists:variables,code',
             'nature'            =>          'required|exists:variables,code',
@@ -90,17 +88,19 @@ class EngagementController extends Controller
         
         $statutQuery = array_filter(explode(',', $request->latest_statut));
         $etatQuery = array_filter(explode(',', $request->etat));
+        $codeQuery = $request->code;
 
         foreach ($requestqueryKeys as $key) {
             $value = $requestquery[$key];
             if(!empty($value) 
-                && !in_array($key, array('page','limit', 'lignes', 'etat'
+                && !in_array($key, array('page','limit', 'lignes', 'etat', 'code'
                     , 'saisisseurs', 'valideurs_first', 'valideurs_second', 'valideurs_final', 'latest_statut'))) {
                 
                 array_push($query, [$key, '=', $value]);
             }
         }
         if (sizeof($query) === 0 && sizeof($statutQuery) === 0 && sizeof($etatQuery) === 0
+            && $codeQuery === ''
             && sizeof($lignes) === 0
             && sizeof($saisisseurs) === 0
             && sizeof($valideurs_first) === 0 && sizeof($valideurs_second) === 0 && sizeof($valideurs_final) === 0
@@ -115,6 +115,11 @@ class EngagementController extends Controller
                 });
         } else {
             $preQuery = Engagement::where($query)
+                            ->where(function($q) use (&$codeQuery) {
+                                if($codeQuery !== '' ) {
+                                    $q->where('code', 'LIKE', "%".$codeQuery."%");
+                                }
+                            })
                             ->where(function($q) use (&$etatQuery) {
                                 if(sizeof($etatQuery) >0 ) {
                                     $q->whereIn('etat', $etatQuery);
@@ -172,6 +177,7 @@ class EngagementController extends Controller
             "valideurs_final" => $valideurs_final,
             "etatQuery" => sizeof($etatQuery),
             "statutQuery" => sizeof($statutQuery),
+            "resp" => $codeQuery."%"
         ]);
     }
 
@@ -183,6 +189,7 @@ class EngagementController extends Controller
     
     public function create(Request $request){
         $validator = Validator::make($request->all(), $this->engagementCreateValidator);
+        $lasteng = Engagement::latest()->first();
         
         if($validator->fails()) {
             return response()->json(["validation_errors" => $validator->errors()]);
@@ -192,11 +199,11 @@ class EngagementController extends Controller
              * where '020' is the last 3 digit of the year
              * '113' is the id of the newly created engagement
              */
-            "code" => $request->type .substr(now()->format('ymd-His-u'),0,17),
+            "code" => $request->type .now()->format('ym') .strval($lasteng ? $lasteng->id +1 : 1),
             "code_comptabilite" => $request->type .substr(now()->format('ymd-His-u'),0,17),
             "libelle" => $request->libelle,
             "montant_ttc" => $request->montant_ttc,
-            "montant_ht" => $request->montant_ht,
+            "montant_ht" => 0,
             "devise" => $request->devise,
             "type" => $request->type,
             "nature" => $request->nature,
@@ -240,7 +247,7 @@ class EngagementController extends Controller
         $engagement->update([
             "libelle" => $request->libelle,
             "montant_ttc" => $request->montant_ttc,
-            "montant_ht" => $request->montant_ht,
+            "montant_ht" => 0,
             "devise" => $request->devise,
             "type" => $request->type,
             "nature" => $request->nature,
@@ -264,7 +271,7 @@ class EngagementController extends Controller
         if ($engagement->etat === Config::get('gesbudget.variables.etat_engagement.CLOT')[1]) {
             return response()->json(["error" => true, "message" => "Cet engagement ". $engagement->code ." a déjà été clôturé"]);
         }
-        session()->put('CommentEngagement'.Auth::user()->id.$engagementId, $request->comment);
+        session()->put('CommentEngagement'.Auth::user()->id.$engagementId, $request->reason. "|" .$request->comment);
         
         $engagement->update([
             "etat" => Config::get('gesbudget.variables.etat_engagement.CLOT')[1],
@@ -358,7 +365,7 @@ class EngagementController extends Controller
         $engagement->update([
             "libelle" => $request->libelle,
             "montant_ttc" => $request->montant_ttc,
-            "montant_ht" => $request->montant_ht,
+            "montant_ht" => 0,
             "devise" => $request->devise,
             "nature" => $request->nature,
             "type" => $request->type,
@@ -469,7 +476,7 @@ class EngagementController extends Controller
         return response()->json([
             "status" => $this->success_status
             , "success" => true
-            , "message" => "Engagement ". $engagement->code . " ". $statutsEngagement[$statut][0]. " avec succès"
+            , "message" => "Engagement ". $engagement->code . " ". $statutsEngagement[$statut][0]. " avec succès". $operateursKeys[$statutIndice]. $statutIndice
             , "data" => EngagementService::enrichEngagement($engagement->id)
         ]);
     }

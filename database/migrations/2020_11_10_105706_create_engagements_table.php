@@ -35,6 +35,11 @@ class CreateEngagementsTable extends Migration
             $table->string('libelle');
             $table->bigInteger('montant_ht')->nullable();
             $table->bigInteger('montant_ttc');
+
+            
+            $table->string('regime_tva')->nullable();
+            $table->string('regime_impot')->nullable();
+
             $table->string('devise');
 
             $table->string('nature');

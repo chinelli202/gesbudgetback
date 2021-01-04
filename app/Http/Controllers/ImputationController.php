@@ -36,7 +36,7 @@ class ImputationController extends Controller
             "engagement_id" => $request->engagement_id,
             "reference" => $request->reference,
             "montant_ttc" => $request->montant_ttc,
-            "montant_ht" => $request->montant_ht,
+            "montant_ht" => 0,
             "devise" => $request->devise,
             "observations" => $request->observations,
             
@@ -71,7 +71,7 @@ class ImputationController extends Controller
             "observations" => $request->observations,
             "reference" => $request->reference,
             "montant_ttc" => $request->montant_ttc,
-            "montant_ht" => $request->montant_ht,
+            "montant_ht" => 0,
             "devise" => $request->devise
         ]);
         
@@ -182,7 +182,7 @@ class ImputationController extends Controller
             "observations" => $request->observations,
             "reference" => $request->reference,
             "montant_ttc" => $request->montant_ttc,
-            "montant_ht" => $request->montant_ht,
+            "montant_ht" => 0,
             "devise" => $request->devise,
             "next_statut" => null
         ]);
