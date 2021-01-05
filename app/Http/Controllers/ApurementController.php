@@ -36,6 +36,7 @@ class ApurementController extends Controller
         $apurement = Apurement::create([
             "engagement_id" => $request->engagement_id,
             "reference_paiement" => $request->reference_paiement,
+            "reference_paiement" => $request->type_paiement,
             "montant_ttc" => $request->montant_ttc,
             "montant_ht" => 0,
             "devise" => $request->devise,
@@ -71,7 +72,8 @@ class ApurementController extends Controller
         $apurement = Apurement::findOrFail($apurementId);
         $apurement->update([
             "observations" => $request->observations,
-            "reference" => $request->reference,
+            "reference_paiement" => $request->reference_paiement,
+            "type_paiement" => $request->type_paiement,
             "montant_ttc" => $request->montant_ttc,
             "montant_ht" => 0,
             "devise" => $request->devise
@@ -182,7 +184,8 @@ class ApurementController extends Controller
         $apurement = Apurement::findOrFail($apurementId);
         $apurement->update([
             "observations" => $request->observations,
-            "reference" => $request->reference,
+            "reference_paiement" => $request->reference_paiement,
+            "type_paiement" => $request->type_paiement,
             "montant_ttc" => $request->montant_ttc,
             "montant_ht" => 0,
             "devise" => $request->devise,

@@ -19,6 +19,7 @@ class CreateApurementsTable extends Migration
             $table->string('engagement_id');  //creates confusion. rename to code_engagement. 
             $table->string('libelle');
             $table->string('reference_paiement');
+            $table->string('type_paiement');
             $table->bigInteger('montant_ht')->nullable();
             $table->bigInteger('montant_ttc');
             $table->string('devise');

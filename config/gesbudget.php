@@ -58,6 +58,11 @@ return [
         'constante' => [
             'TVA' => ['Taxe sur la valeur ajoutée au Cameroun', '19.25']
         ],
+        'type_paiement' => [
+            'BANQ_VIR'  => ['Banque - Virement', 'BANQ_VIR'],
+            'BANQ_CHQ'  => ['Banque - Chèque', 'BANQ_CHQ'],
+            'CAISS'     => ['Caisse', 'CAISS']
+        ],
         'actions' => [
             'LOGIN' => ['Connexion à l\'application', 'LOGIN'],
             'LOGOUT' => ['Connexion à l\'application', 'LOGOUT'],
