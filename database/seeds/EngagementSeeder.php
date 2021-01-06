@@ -19,6 +19,7 @@ class EngagementSeeder extends Seeder
         $naturesEngagement = Config::get('gesbudget.variables.nature_engagement');
         $etatsEngagement = Config::get('gesbudget.variables.etat_engagement');
         $typesEngagement = Config::get('gesbudget.variables.type_engagement');
+        $typesPaiement = Config::get('gesbudget.variables.type_paiement');
         $statutsEngagement = Config::get('gesbudget.variables.statut_engagement');
 
         for ($i=0; $i < 3; $i++) {
@@ -77,13 +78,14 @@ class EngagementSeeder extends Seeder
                 foreach ($statutsEngagement as $statutapur => $statutapurdesc) {
                     $devise = array_keys($devises)[rand(0,2)];
                     $montant = rand(100000, 10000000);
+                    $typePaiement = $typesPaiement[mt_rand(0,2)][1];
 
                     if($statutapur === 'VALIDF') {
                         $etatEng = 'APUR';
                     }
                     $engagement = $this->createEngagement($typeEng,$montant, $devise, $natureEng, $etatEng, $statutEng);
                     $imputation = $this->createImputation($engagement, $statutimp);
-                    $apurement = $this->createApurement($engagement, $statutapur);
+                    $apurement = $this->createApurement($engagement, $statutapur, $typePaiement);
 
                     if(!is_null($imputation)){
                         $this->command->info('Created Imputation '. $imputation->id . ' for engagement ' . $engagement->code);
@@ -212,7 +214,7 @@ class EngagementSeeder extends Seeder
      *
      * @return    \App\Models\Apurement
      */
-    public function createApurement($engagement, $statut){
+    public function createApurement($engagement, $statut, $typePaiement){
         if(is_null($statut)){
             return null;
         }
@@ -240,6 +242,7 @@ class EngagementSeeder extends Seeder
             'engagement_id' => $engagement->code,
             'libelle' => 'Apurement ' . $engagement->libelle,
             'reference_paiement' => bin2hex(random_bytes(4)),
+            "type_paiement" => $typePaiement,
             'montant_ht' => $engagement->montant_ht,
             'montant_ttc' => $engagement->montant_ttc,
             'devise' => $engagement->devise,
