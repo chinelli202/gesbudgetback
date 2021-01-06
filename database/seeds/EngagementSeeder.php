@@ -78,7 +78,8 @@ class EngagementSeeder extends Seeder
                 foreach ($statutsEngagement as $statutapur => $statutapurdesc) {
                     $devise = array_keys($devises)[rand(0,2)];
                     $montant = rand(100000, 10000000);
-                    $typePaiement = $typesPaiement[mt_rand(0,2)][1];
+                    $typePaiementKey = array_keys($typesPaiement)[rand(0,2)];
+                    $typePaiement = $typesPaiement[$typePaiementKey][1];
 
                     if($statutapur === 'VALIDF') {
                         $etatEng = 'APUR';
