@@ -125,7 +125,7 @@ class EngagementSeeder extends Seeder
      */
     public function createEngagement($typeEng, $montant, $devise, $natureEng, $etatEng, $statutEng ){
         $ligne = \App\Models\Ligne::all()->first();
-        $ligne_id = $ligne->id + rand(0, 475);
+        $ligne_id = $ligne->id + rand(0, 300);
         $rubrique = \App\Models\Rubrique::where('id', $ligne->rubrique_id)->first();
 
         $engagement = \App\Models\Engagement::firstOrCreate([
