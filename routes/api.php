@@ -117,10 +117,10 @@ Route::get('/export/domaine/{domainename}',"ExcellExportController@exportDomaine
 
 //routes elaboration
 //upload maquette
-Route::post('/elaboration/draft/maquette/store','MaquetteUploadController@store');
+Route::post('/elaboration/draft/maquette/upload','DraftBudgetController@upload');
 //post new budget data
 Route::post('/elaboration/draft/create','DraftBudgetController@create');
 //get maquette loading progress
-Route::post('/elaboration/draft/maquette/loadprogress','DraftBudgetController@loadProgress');
+Route::post('/elaboration/draft/maquette/loadprogress','DraftBudgetController@getLoadProgress');
 //load maquette
-Route::post('/elaboration/draft/maquette/load','DraftBudgetController@loadMaquette');
+Route::post('/elaboration/draft/maquette/process','DraftBudgetController@initMaquetteprocessing');

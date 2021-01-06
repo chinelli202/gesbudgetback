@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Ligne extends Model
 {
     protected $attributes = [
-        'statut' => "draft"
+        'statut' => "actif"
     ];
     public function rubrique(){
         return $this->belongsTo('App\Models\Rubrique');
@@ -19,6 +19,14 @@ class Ligne extends Model
 
     public function engagements(){
         return $this->hasMany('App\Models\Engagement');
+    }
+
+    public function parent(){
+        return $this->belongsTo('App\Models\Ligne');
+    }
+
+    public function sousLignes(){
+        return $this->hasMany('App\Models\Ligne');
     }
 
     public function updateStatut(){

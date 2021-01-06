@@ -15,7 +15,7 @@ class DatabaseSeeder extends Seeder
         // $this->call(UserSeeder::class);
         $service = new App\Services\DraftBudgetService();
         $this->call(LaratrustSeeder::class);
-        $service->loadMaquette('maquette001.php');
+        $service->loadMaquette('maquette2021.php');
         
         $this->call(EngagementSeeder::class);
         $this->call(VariablesSeeder::class);

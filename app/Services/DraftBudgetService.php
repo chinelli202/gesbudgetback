@@ -30,7 +30,6 @@ class DraftBudgetService{
 
         //make sure the maquette file exists at the excpected location. otherwise return false
 
-
         //$file = Maquette::where('name',$name)->orderBy('id', 'desc')->first();
         //$filename = $file->name;
         //$filename = $file->name;
@@ -125,11 +124,9 @@ class DraftBudgetService{
         $ligne = Ligne::where('id_exercice_budgetaire',$budget->id);
         if(isset($ligne)){
             $budget = new ExerciceBudgetaire();
-        }
-        
+        }        
         
         //if it has no lines attached to it, then it was freshly created. leave it as such.
-
 
         //set budget params
         if(isset($request->annee_vote)){
@@ -216,7 +213,7 @@ class DraftBudgetService{
             echo "\n";
             //persist titre
             $titreEntry = new Titre();
-            $titreEntry->numero = $titre['numero'];
+            //$titreEntry->numero = $titre['numero'];
             $titreEntry->label = $titre['label'];
             $titreEntry->description = $titre['description'];
             $titreEntry->domaine = $titre['domaine'];
@@ -231,7 +228,7 @@ class DraftBudgetService{
                 $chapitre = $chapitres[$i];
 
                 $chapitreEntry = new Chapitre;
-                $chapitreEntry->numero = $chapitre['numero'];
+                //$chapitreEntry->numero = $chapitre['numero'];
                 $chapitreEntry->label = $chapitre['label'];
                 $chapitreEntry->description = $chapitre['description'];
                 $chapitreEntry->domaine = $chapitre['domaine'];
@@ -247,7 +244,7 @@ class DraftBudgetService{
                 for($j = 0; $j < count($rubriques); $j++){
                     $rubrique = $rubriques[$j];
                     $rubriqueEntry = new Rubrique;
-                    $rubriqueEntry->numero = $rubrique['numero'];
+                    //$rubriqueEntry->numero = $rubrique['numero'];
                     $rubriqueEntry->label = $rubrique['label'];
                     $rubriqueEntry->description = $rubrique['description'];
                     $rubriqueEntry->domaine = $rubrique['domaine'];
@@ -279,81 +276,81 @@ class DraftBudgetService{
 
                         $rubriqueEntry -> lignes() -> save($ligneEntry);
                         echo "saved ligne : ".$ligneEntry->label;
-                        //Log::channel('syslog')->info('saved ligne : '.$ligneEntry->label);
-                        //Log::info('saved ligne : '.$ligneEntry->label);
+                        Log::channel('syslog')->info('saved ligne : '.$ligneEntry->label);
+                        Log::info('saved ligne : '.$ligneEntry->label);
 
-                        //create 3 new engagements for each month and each ligne
-                        $coefs = [1/48,1/24,1/72,1/48];
-                        if($ligneEntry->montant!=0)
-                        {
-                            for($p = 0; $p < 12; $p++){
-                                $datemaker=mktime(11, 14, 30, $p, 12, 2020);
-                                $date = date("Y-m-d h:i:sa", $datemaker);
-                                for($q = 0; $q < 3; $q++){ //i here being the month. engagements must be added at specific month i, day 11, year 2020 time 14 22.
-                                                            //they should be retrived the same way.
+                        // //create 3 new engagements for each month and each ligne
+                        // $coefs = [1/48,1/24,1/72,1/48];
+                        // if($ligneEntry->montant!=0)
+                        // {
+                        //     for($p = 0; $p < 12; $p++){
+                        //         $datemaker=mktime(11, 14, 30, $p, 12, 2020);
+                        //         $date = date("Y-m-d h:i:sa", $datemaker);
+                        //         for($q = 0; $q < 3; $q++){ //i here being the month. engagements must be added at specific month i, day 11, year 2020 time 14 22.
+                        //                                     //they should be retrived the same way.
 
-                                    //let's build these dates.
-                                    echo "Created date is " .$date;
-                                    echo "\n";
-                                    $engagement = new Engagement();
-                                    $engagement->code = "code-".substr(now()->format('ymd-His-u'),0,16);
-                                    $engagement->libelle = "mock engagement "." - ".$chapitreEntry->label." - ".$ligneEntry->label."-".$q;
-                                    $engagement->nature = 'pre engagement';
-                                    $engagement->type = "BDC";
-                                    $engagement->etat = "imputé";
-                                    $engagement->statut = "validé";
-                                    $engagement->devise = "XAF";
-                                    $montant = ($ligneEntry->montant);
-                                    $coeficient = $coefs[(rand(1,4)-1)];
-                                    echo "montant : ".$montant.", coeficient : ".$coeficient.", total : ".($montant * $coeficient);
-                                    echo "\n";
-                                    $engagement->montant_ttc = floor($montant * $coeficient);
-                                    $engagement->created_at = $date;
-                                    $engagement->source = "idkkaodkf554d44";
-                                    $engagement->saisisseur = "00003";
-                                    $engagement->valideur_first = "00002";
-                                    $engagement->valideur_second = "00001";
-                                    $engagement->valideur_final = "00001";
+                        //             //let's build these dates.
+                        //             echo "Created date is " .$date;
+                        //             echo "\n";
+                        //             $engagement = new Engagement();
+                        //             $engagement->code = "code-".substr(now()->format('ymd-His-u'),0,16);
+                        //             $engagement->libelle = "mock engagement "." - ".$chapitreEntry->label." - ".$ligneEntry->label."-".$q;
+                        //             $engagement->nature = 'pre engagement';
+                        //             $engagement->type = "BDC";
+                        //             $engagement->etat = "imputé";
+                        //             $engagement->statut = "validé";
+                        //             $engagement->devise = "XAF";
+                        //             $montant = ($ligneEntry->montant);
+                        //             $coeficient = $coefs[(rand(1,4)-1)];
+                        //             echo "montant : ".$montant.", coeficient : ".$coeficient.", total : ".($montant * $coeficient);
+                        //             echo "\n";
+                        //             $engagement->montant_ttc = floor($montant * $coeficient);
+                        //             $engagement->created_at = $date;
+                        //             $engagement->source = "idkkaodkf554d44";
+                        //             $engagement->saisisseur = "00003";
+                        //             $engagement->valideur_first = "00002";
+                        //             $engagement->valideur_second = "00001";
+                        //             $engagement->valideur_final = "00001";
 
-                                    $ligneEntry->engagements()->save($engagement);
-                                    echo "saved new engagement with "."code = ".$engagement->code.", libelle = ".$engagement->libelle.", nature = ".$engagement->nature
-                                                    .", montant_ttc = ".$engagement->montant_ttc.", valideur_first = ".$engagement->valideur_first
-                                                    .", id = ".$engagement->id;
-                                    echo "\n";
-                                }
-                                //create realisations for two of the previous engagements
-                                if($p > 0){
-                                    //collect engagements
-                                    for($r = 0; $r < 2; $r++){
-                                        //getting engagements from previous month
-                                        //$last_month_date = 
-                                        $relations = $ligneEntry->engagements()->whereMonth('created_at',$p)->get();  
-                                        echo "found ".count($relations)." engagements during month ".$p;
-                                        echo "\n";
-                                        //$relations = $ligneEntry->engagements()->get();
-                                        $eng = $relations[$r];
-                                        $realisation = new Apurement();
-                                        $realisation->libelle = "realisation";
-                                        $realisation->reference_paiement = "6qs546g5q4sdg";
-                                        $realisation->montant_ttc = $eng->montant_ttc;
-                                        $realisation->devise = "XAF";
-                                        $realisation->observations = "observation";
-                                        $realisation->statut = "validé";
-                                        $realisation->source = "58e55qs5d55d";
-                                        $realisation->created_at = $date;
-                                        $realisation->saisisseur = "00002";
-                                        $realisation->valideur_first = "00002";
-                                        $realisation->valideur_second = "00002";
-                                        $realisation->valideur_final = "00002";
+                        //             $ligneEntry->engagements()->save($engagement);
+                        //             echo "saved new engagement with "."code = ".$engagement->code.", libelle = ".$engagement->libelle.", nature = ".$engagement->nature
+                        //                             .", montant_ttc = ".$engagement->montant_ttc.", valideur_first = ".$engagement->valideur_first
+                        //                             .", id = ".$engagement->id;
+                        //             echo "\n";
+                        //         }
+                        //         //create realisations for two of the previous engagements
+                        //         if($p > 0){
+                        //             //collect engagements
+                        //             for($r = 0; $r < 2; $r++){
+                        //                 //getting engagements from previous month
+                        //                 //$last_month_date = 
+                        //                 $relations = $ligneEntry->engagements()->whereMonth('created_at',$p)->get();  
+                        //                 echo "found ".count($relations)." engagements during month ".$p;
+                        //                 echo "\n";
+                        //                 //$relations = $ligneEntry->engagements()->get();
+                        //                 $eng = $relations[$r];
+                        //                 $realisation = new Apurement();
+                        //                 $realisation->libelle = "realisation";
+                        //                 $realisation->reference_paiement = "6qs546g5q4sdg";
+                        //                 $realisation->montant_ttc = $eng->montant_ttc;
+                        //                 $realisation->devise = "XAF";
+                        //                 $realisation->observations = "observation";
+                        //                 $realisation->statut = "validé";
+                        //                 $realisation->source = "58e55qs5d55d";
+                        //                 $realisation->created_at = $date;
+                        //                 $realisation->saisisseur = "00002";
+                        //                 $realisation->valideur_first = "00002";
+                        //                 $realisation->valideur_second = "00002";
+                        //                 $realisation->valideur_final = "00002";
 
-                                        $eng->apurements()->save($realisation);
-                                    }
-                                }
-                             }
-                         }
+                        //                 $eng->apurements()->save($realisation);
+                        //             }
+                        //         }
+                        //      }
+                        // }
 
-                        Log::stack(['single', 'syslog'])->info('saved ligne'.$ligneEntry->label);
-                        echo "\n";
+                        // Log::stack(['single', 'syslog'])->info('saved ligne'.$ligneEntry->label);
+                        // echo "\n";
                     }
                 }   
                 //update progress on chapitres

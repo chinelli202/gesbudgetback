@@ -4,18 +4,18 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Rubrique extends Model
+class DraftRubrique extends Model
 {
     protected $attributes = [
-        'statut' => "actif"
+        'statut' => "draft"
     ];
 
     public function lignes(){
-        return $this->hasMany('App\Models\Ligne');
+        return $this->hasMany('App\Models\DraftLigne');
     }
 
     public function chapitre(){
-        return $this->belongsTo('App\Models\Chapitre');
+        return $this->belongsTo('App\Models\DraftChapitre');
     }
 
     public function updateStatut(){
