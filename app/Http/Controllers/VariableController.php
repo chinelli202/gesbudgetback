@@ -11,6 +11,7 @@ class VariableController extends Controller
     private $sucess_status = 200;
 
     public function getVariables(Request $request){
+        Log::info('avant avant denvoyer la reponse VariableController '. json_encode($variables));
         $cle = $request->cle;
         $code = $request->code;
         $filter = [];
