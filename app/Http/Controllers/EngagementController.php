@@ -164,7 +164,7 @@ class EngagementController extends Controller
                     return EngagementService::enrichEngagement($eng->id);
                 });
         }
-        Log::info('before returning all the engagements ')
+        Log::info('before returning all the engagements ');
         return response()->json([
             "status" => $this->success_status,
             "success" => true,
