@@ -73,7 +73,7 @@ Route::group(['middleware' => ['auth:api', 'cors']], function () {
         Route::post("cancelvalider/{id}", "ApurementController@cancelvalider")->name("cancelvalider");
     });
     
-    Route::get("getvariables", "VariableController@getvariables")->name('getvariables');
+    Route::get("getvariables", "VariableController@getVariables")->name('getVariables');
 });
 
 Route::get('/budgetsfonctionnement',"BudgetFonctionnementController@index");
