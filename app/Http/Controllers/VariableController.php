@@ -24,7 +24,10 @@ class VariableController extends Controller
         $variables = Variable::where($filter)
             ->orderBy('code')
             ->get();
+        
+        $objVariables = new stdClass();
+        $objVariables->message = "Variable Not Set";
         Log::info('avant denvoyer la reponse VariableController '. json_encode($variables));
-        return response()->json(["status" => $this->sucess_status, "success" => true, "data" => $variables]);
+        return response()->json(["status" => $this->sucess_status, "success" => true, "data" => $objVariables]);
     }
 }
