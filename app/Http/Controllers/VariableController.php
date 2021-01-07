@@ -21,8 +21,8 @@ class VariableController extends Controller
             array_push($filter, ['code', '=', $code]);
         }
         $variables = Variable::where($filter)
-            ->orderBy('code')->first();
-            //->get();
+            ->orderBy('code')
+            ->get();
 
         return response()->json(["status" => $this->sucess_status, "success" => true, "data" => $variables]);
     }
