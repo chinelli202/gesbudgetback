@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Validator;
 use Spatie\Activitylog\Contracts\Activity;
+use Illuminate\Support\Facades\Log;
 
 
 class EngagementController extends Controller
@@ -163,7 +164,7 @@ class EngagementController extends Controller
                     return EngagementService::enrichEngagement($eng->id);
                 });
         }
-        
+        Log::info('before returning all the engagements ')
         return response()->json([
             "status" => $this->success_status,
             "success" => true,
