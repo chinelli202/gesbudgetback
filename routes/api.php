@@ -24,7 +24,7 @@ Route::post("user-login", "UserController@userLogin")->name('userLogin');
 
 Route::get("user-login", "UserController@getLogin")->name('getLogin');
 
-Route::group(['middleware' => ['auth:api', 'api']], function () {
+Route::group(['middleware' => ['auth:api', 'cors']], function () {
     Route::get("user-detail", "UserController@userDetail");
     Route::get("user-logout", "UserController@userLogout")->name('userLogout');
     Route::get("users/list", "UserController@getUsers")->name('getUsers');
