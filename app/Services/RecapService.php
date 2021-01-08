@@ -29,7 +29,9 @@ class RecapService {
         
         $recap = new stdClass();
         $recap->type = 'ligne';
-        $recap->libelle = $rligne->label." / ".$rligne->rubrique->chapitre->label;
+        $recap->libelle = $rligne->label;
+        $header_name = $rligne->label." / ".$rligne->rubrique->chapitre->label;
+        //$recap->libelle = $rligne->label." / ".$rligne->rubrique->chapitre->label;
         $recap->id = $rligne->id;
         $recap->prevision = 0;
         $recap->realisations = 0;
@@ -173,7 +175,7 @@ class RecapService {
             }
         }
         $periode = $this->computePeriodeLabels($critere, $params);
-        $recap->header = $this->setHeader($recap->libelle, 'ligne', $periode);
+        $recap->header = $this->setHeader($header_name, 'ligne', $periode);
         return $recap;
     }
 
@@ -186,7 +188,9 @@ class RecapService {
         $recap->id = $rrubrique->id;
         $recap->type = 'rubrique';
         $recap->prevision = 0;
-        $recap->libelle = $rrubrique->label." / ".$rrubrique->chapitre->label;
+        $recap->libelle = $rrubrique->label;
+        $header_name = $rrubrique->label." / ".$rrubrique->chapitre->label;
+        //$recap->libelle = $rrubrique->label." / ".$rrubrique->chapitre->label;
         $recap->chapitre = $rrubrique->chapitre->label;
         $recap->realisations = 0;
         $recap->realisationsMois = 0;
@@ -215,11 +219,7 @@ class RecapService {
         
         //if($critere!='mois')
         $recap->tauxExecution = $recap->prevision != 0 ? floor(100 * ($recap->execution/$recap->prevision)) : 0;
-        
-        // $rrubrique->collection = $collection;
-        // $rrubrique->sumrow = $sumrow;
 
-        
         $recap->collection = $collection;        
         //$recap->sumrow = $sumrow;
 
@@ -236,7 +236,7 @@ class RecapService {
         Log::info( "prevision : ".$recap->prevision);
 
         $periode = $this->computePeriodeLabels($critere, $params);
-        $recap->header = $this->setHeader($recap->libelle, 'lignes', $periode);
+        $recap->header = $this->setHeader($header_name, 'lignes', $periode);
         return $recap;
     }
 

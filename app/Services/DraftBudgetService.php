@@ -206,56 +206,76 @@ class DraftBudgetService{
         
         for($k = 0; $k < count($titres); $k++){
             //loop testing
-            $titre = $titres[$k];
-            echo "the heck";
-            echo "\n";
-            echo $titre['label'];
-            echo "\n";
-            //persist titre
-            $titreEntry = new Titre();
-            //$titreEntry->numero = $titre['numero'];
-            $titreEntry->label = $titre['label'];
-            $titreEntry->description = $titre['description'];
-            $titreEntry->domaine = $titre['domaine'];
-            $titreEntry->section = $titre['section'];
-            $titreEntry->save();
-            echo "saved titre : ".$titreEntry->label;
-            Log::info('saved titre : '.$titreEntry->label);
-            echo "\n";
+            $titre = $titres[$k];           
+            $titredb = Titre::where("label", $titre["label"])->first();
+            if(empty($titredb)){
+                echo "\n";
+                Log::info('no titre match for : '.$titre["label"]);
+                echo 'no titre match for : '.$titre["label"];
+                //persist titre
+                $titreEntry = new Titre();
+                //$titreEntry->numero = $titre['numero'];
+                $titreEntry->label = $titre['label'];
+                $titreEntry->description = $titre['description'];
+                $titreEntry->domaine = $titre['domaine'];
+                $titreEntry->section = $titre['section'];
+                $titredb = $titreEntry->save();
+                $titredb = $titreEntry;
+                echo "saved titre : ".$titreEntry->label;
+                Log::info('saved titre : '.$titreEntry->label);
+                echo "\n";
+            }
             $chapitres = $titre['chapitres'];
-            $chapitre_progress_rate = $titre_progress_rate/count($chapitres);
+
             for ($i = 0; $i < count($chapitres); $i++){
                 $chapitre = $chapitres[$i];
 
-                $chapitreEntry = new Chapitre;
-                //$chapitreEntry->numero = $chapitre['numero'];
-                $chapitreEntry->label = $chapitre['label'];
-                $chapitreEntry->description = $chapitre['description'];
-                $chapitreEntry->domaine = $chapitre['domaine'];
-                $chapitreEntry->section = $chapitre['section'];
-                if(isset($chapitre['sous_section'])){
-                    $chapitreEntry->sous_section = $chapitre['sous_section'];
+                $chapitredb = Chapitre::where("label", $chapitre["label"])->first();
+                if(empty($chapitredb)){
+                    Log::info('no chapitre match for : '.$chapitre["label"]);
+                    echo 'no chapitre match for : '.$chapitre["label"];
+                    $chapitreEntry = new Chapitre;
+                    //$chapitreEntry->numero = $chapitre['numero'];
+                    $chapitreEntry->label = $chapitre['label'];
+                    $chapitreEntry->description = $chapitre['description'];
+                    $chapitreEntry->domaine = $chapitre['domaine'];
+                    $chapitreEntry->section = $chapitre['section'];
+                    $chapitreEntry->titre_id = $titredb->id;
+                    if(isset($chapitre['sous_section'])){
+                        $chapitreEntry->sous_section = $chapitre['sous_section'];
+                    }
+                    $chapitredb = $chapitreEntry->save();
+                    $chapitredb = $chapitreEntry;
+                    //$titreEntry -> chapitres() -> save($chapitreEntry);
+                    echo "saved chapitre : ".$chapitreEntry->label;
+                    echo "\n";                   
                 }
-                $titreEntry -> chapitres() -> save($chapitreEntry);
-                echo "saved chapitre : ".$chapitreEntry->label;
-                
-                echo "\n";
+
                 $rubriques = $chapitre['rubriques'];
                 for($j = 0; $j < count($rubriques); $j++){
                     $rubrique = $rubriques[$j];
-                    $rubriqueEntry = new Rubrique;
-                    //$rubriqueEntry->numero = $rubrique['numero'];
-                    $rubriqueEntry->label = $rubrique['label'];
-                    $rubriqueEntry->description = $rubrique['description'];
-                    $rubriqueEntry->domaine = $rubrique['domaine'];
-                    $rubriqueEntry->section = $rubrique['section'];
-                    if(isset($rubrique['sous_section'])){
-                        $rubriqueEntry->sous_section = $rubrique['sous_section'];
+                    $rubriquedb = Rubrique::where("label", $rubrique["label"])->where('chapitre_id', $chapitredb->id)->first();
+                    if(empty($rubriquedb)){
+                        Log::info('no rubrique match for : '.$rubrique["label"]);
+                        echo 'no rubrique match for : '.$rubrique["label"];
+                        $rubriqueEntry = new Rubrique;
+                        //$rubriqueEntry->numero = $rubrique['numero'];
+                        $rubriqueEntry->label = $rubrique['label'];
+                        $rubriqueEntry->description = $rubrique['description'];
+                        $rubriqueEntry->domaine = $rubrique['domaine'];
+                        $rubriqueEntry->section = $rubrique['section'];
+                        $rubriqueEntry->chapitre_id = $chapitredb->id;
+                        if(isset($rubrique['sous_section'])){
+                            $rubriqueEntry->sous_section = $rubrique['sous_section'];
+                        }
+                        $rubriquedb = $rubriqueEntry->save();
+                        $rubriquedb = $rubriqueEntry;
+                        //$chapitreEntry -> rubriques() -> save($rubriqueEntry);
+                        echo "saved rubrique : ".$rubriqueEntry->label;
+                        Log::info('saved rubrique : '.$rubriqueEntry->label);    
+                        echo "\n";
                     }
-                    $chapitreEntry -> rubriques() -> save($rubriqueEntry);
-                    echo "saved rubrique : ".$rubriqueEntry->label;
-                    Log::info('saved rubrique : '.$rubriqueEntry->label);    
-                    echo "\n";
+
                     $lignes = $rubrique['lignes'];
                     for($m = 0; $m < count($lignes); $m++){
                         $ligne = $lignes[$m];
@@ -273,8 +293,9 @@ class DraftBudgetService{
                             $ligneEntry->sous_section = $ligne['sous_section'];
                         }
                         $ligneEntry->exercice_budgetaire_id = $budget->id;
-
-                        $rubriqueEntry -> lignes() -> save($ligneEntry);
+                        $ligneEntry->rubrique_id = $rubriquedb->id;
+                        $ligneEntry->save();
+                        //$rubriqueEntry -> lignes() -> save($ligneEntry);
                         echo "saved ligne : ".$ligneEntry->label;
                         Log::channel('syslog')->info('saved ligne : '.$ligneEntry->label);
                         Log::info('saved ligne : '.$ligneEntry->label);
