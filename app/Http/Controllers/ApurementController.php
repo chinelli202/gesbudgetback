@@ -36,7 +36,7 @@ class ApurementController extends Controller
         $apurement = Apurement::create([
             "engagement_id" => $request->engagement_id,
             "reference_paiement" => $request->reference_paiement,
-            "reference_paiement" => $request->type_paiement,
+            "type_paiement" => $request->type_paiement,
             "montant_ttc" => $request->montant_ttc,
             "montant_ht" => 0,
             "devise" => $request->devise,
@@ -56,7 +56,7 @@ class ApurementController extends Controller
         return response()->json([
             "status" => $this->success_status
             , "success" => true
-            , "message" => "Création d'un apurement réussie pour l'engagement ". $apurement->engagement->id
+            , "message" => "Création d'un apurement réussie pour l'engagement ". $apurement->engagement->code
             , "data" => EngagementService::enrichEngagement($apurement->engagement->id)
         ]);
     }
@@ -84,7 +84,7 @@ class ApurementController extends Controller
         return response()->json([
             "status" => $this->success_status
             , "success" => true
-            , "message" => "Apurement ". $apurement->id ." mis à jour avec succès"
+            , "message" => "Apurement mis à jour avec succès"
             , "data" => EngagementService::enrichEngagement($engagement->id)
         ]);
     }
@@ -104,7 +104,7 @@ class ApurementController extends Controller
         return response()->json([
             "status" => $this->success_status
             , "success" => true
-            , "message" => "Apurement ". $apurement->id ." cloturé avec succès"
+            , "message" => "Apurement cloturé avec succès"
             , "data" => EngagementService::enrichEngagement($apurement->engagement->id)
         ]);
     }
@@ -115,8 +115,7 @@ class ApurementController extends Controller
         if ($apurement->etat !== Config::get('gesbudget.variables.etat_engagement.CLOT')[1]) {
             return response()->json([
                 "error" => true
-                , "message" => "Cet engagement '". $apurement->id
-                    ."' n'est pas clôturé ". $apurement->etat
+                , "message" => "Cet apurement n'est pas clôturé. Il est en l'état ". $apurement->etat
             ]);
         }
         session()->put(['CommentApurement'.Auth::user()->id.$apurementId, $request->comment]);
@@ -128,7 +127,7 @@ class ApurementController extends Controller
         return response()->json([
             "status" => $this->success_status
             , "success" => true
-            , "message" => "Apurement ". $apurement->id ." restauré avec succès"
+            , "message" => "Apurement restauré avec succès"
             , "data" => EngagementService::enrichEngagement($apurement->engagement->id)]);
     }
 
@@ -147,7 +146,7 @@ class ApurementController extends Controller
         return response()->json([
             "status" => $this->success_status
             , "success" => true
-            , "message" => "Commentaire ajouté à l'Apurement ". $apurement->id ." avec succès"
+            , "message" => "Commentaire ajouté à l'Apurement avec succès"
             , "data" => EngagementService::enrichEngagement($apurement->engagement->id)
         ]);
     }
@@ -168,7 +167,7 @@ class ApurementController extends Controller
         return response()->json([
             "status" => $this->success_status
             , "success" => true
-            , "message" => "Apurement ". $apurement->id ." renvoyé avec succès." //$engagement->next_statut 
+            , "message" => "Apurement renvoyé avec succès." //$engagement->next_statut 
             , "data" => EngagementService::enrichEngagement($apurement->engagement->id)
         ]);
     }
@@ -194,7 +193,7 @@ class ApurementController extends Controller
 
         return response()->json([
             "status" => $this->success_status
-            , "success" => true, "message" => "Apurement ". $apurement->id ." mis à jour avec succès'"
+            , "success" => true, "message" => "Apurement mis à jour avec succès'"
             , "data" => EngagementService::enrichEngagement($apurement->engagement->id)
         ]);
     }
@@ -231,7 +230,7 @@ class ApurementController extends Controller
             /** The engagement is closed */
             return response()->json([
                 "error" => true
-                , "message" => "Cette entité ". $apurement->id ." est déjà clôturé. Vous ne pouvez pas la valider."
+                , "message" => "Cette entité est déjà clôturée. Vous ne pouvez pas la valider."
             ]);
         }
 
@@ -239,7 +238,7 @@ class ApurementController extends Controller
             /** The engagement doesn't have the INIT state */
             return response()->json([
                 "error" => true
-                , "message" => "Cette entité ". $apurement->id .", n'est pas à l'état 'Initié' donc ne peut être validé en tant que préengagement."
+                , "message" => "Cette entité, n'est pas à l'état 'Initié' donc ne peut être validé en tant que préengagement."
             ]);
         }
 
@@ -247,8 +246,7 @@ class ApurementController extends Controller
             /** The current performed the n-1 action on the engagement */
             return response()->json([
                 "error" => true
-                , "message" => "Vous ne pouvez pas valider l'engagement ". $apurement->id 
-                    ." que vous avez ". $statutsEngagement[$statutsEngagementKeys[$statutIndice - 1]][0]
+                , "message" => "Vous ne pouvez pas valider l'apurement que vous avez ". $statutsEngagement[$statutsEngagementKeys[$statutIndice - 1]][0]
             ]);
         }
 
@@ -256,7 +254,7 @@ class ApurementController extends Controller
             /** The engagement has been sent back for correction*/
             return response()->json([
                 "error" => true
-                , "message" => "Vous ne pouvez pas valider l'apurement ". $apurement->id .". Il a été renvoyé à l'opérateur de saisi pour modification.
+                , "message" => "Vous ne pouvez pas valider l'apurement . Il a été renvoyé à l'opérateur de saisi pour modification.
                     Celui-ci doit mettre à jour l'engagement afin que vous puissiez valider."
             ]);
         }
@@ -265,7 +263,7 @@ class ApurementController extends Controller
             /** The engagement has been sent back for correction*/
             return response()->json([
                 "error" => true
-                , "message" => "Vous ne pouvez pas valider l'apurement ". $apurement->id ." en cet état.
+                , "message" => "Vous ne pouvez pas valider l'apurement en cet état.
                     Celui-ci doit d'abord être ". $statutsEngagement[$prevRequiredStatut][0]
             ]);
         }
@@ -300,7 +298,7 @@ class ApurementController extends Controller
         return response()->json([
             "status" => $this->success_status
             , "success" => true
-            , "message" => "Apurement ". $apurement->id . " ". $statutsEngagement[$statut][0]. " avec succès"
+            , "message" => "Apurement ". $statutsEngagement[$statut][0]. " avec succès"
             , "data" => EngagementService::enrichEngagement($engagement->id)
         ]);
     }
@@ -319,7 +317,7 @@ class ApurementController extends Controller
             /** The engagement is closed */
             return response()->json([
                 "error" => true
-                , "message" => "Cette entité ". $apurement->id ." est déjà clôturé. Vous ne pouvez annuler de validation."
+                , "message" => "Cette entité est déjà clôturée. Vous ne pouvez annuler de validation."
             ]);
         }
 
@@ -327,8 +325,7 @@ class ApurementController extends Controller
             /** The engagement doesn't have the INIT state */
             return response()->json([
                 "error" => true
-                , "message" => "Annulation de validation Impossible. Cet apurement "
-                    . $apurement->id .", n'est pas à l'état 'Initié'. -" . $apurement->etat
+                , "message" => "Annulation de validation Impossible. Cet apurement, n'est pas à l'état 'Initié'. -" . $apurement->etat
             ]);
         }
 
@@ -336,9 +333,8 @@ class ApurementController extends Controller
             /** The current validation hasn't been done by the current user */
             return response()->json([
                 "error" => true
-                , "message" => "Annulation de validation Impossible pour l'apurement ". $apurement->id 
-                    .", car que vous n'êtes pas celui qui l'a ". $statutsEngagement[$statutsEngagementKeys[$statutIndice]][0]
-                    . "operateursKeys statutIndice"
+                , "message" => "Annulation de validation Impossible pour cet apurement
+                    , car que vous n'êtes pas celui qui l'a ". $statutsEngagement[$statutsEngagementKeys[$statutIndice]][0]
             ]);
         }
 
@@ -346,8 +342,7 @@ class ApurementController extends Controller
             /** The validation to cancel hasn't been performed */
             return response()->json([
                 "error" => true
-                , "message" => "Annulation de validation impossible. Cet apurement ". $apurement->id 
-                    ." n'a pas été ". $statutsEngagement[$statutsEngagementKeys[$statutIndice ]][0]
+                , "message" => "Annulation de validation impossible. Cet apurement n'a pas été ". $statutsEngagement[$statutsEngagementKeys[$statutIndice ]][0]
             ]);
         }
 
@@ -355,7 +350,7 @@ class ApurementController extends Controller
             /** The engagement has been sent back for correction*/
             return response()->json([
                 "error" => true
-                , "message" => "Vous ne pouvez pas valider l'apurement ". $apurement->id .". Il a été renvoyé à l'opérateur de saisi pour modification.
+                , "message" => "Vous ne pouvez pas valider l'apurement . Il a été renvoyé à l'opérateur de saisi pour modification.
                     Celui-ci doit mettre à jour l'engagement afin que vous puissiez valider."
             ]);
         }
@@ -386,7 +381,7 @@ class ApurementController extends Controller
         return response()->json([
             "status" => $this->success_status
             , "success" => true
-            , "message" => "Annulation de validation réussie pour l'apurement ". $apurement->id
+            , "message" => "Annulation de validation réussie pour cet apurement."
             , "data" => EngagementService::enrichEngagement($engagement->id)
         ]);
     }
