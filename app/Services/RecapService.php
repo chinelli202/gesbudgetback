@@ -21,6 +21,13 @@ class RecapService {
         $this->soussections = ['investissement', 'fonctionnement'];
         $this->sectionsmandat = ['depenses', 'recettes'];
         $this->sectionsfonctionnement = ['fonctionnement', 'investissements', 'recettes'];
+        $this->title_names = [
+                                "fonctionnement" => "Fonctionnement",
+                                "investissement" => "Investissement",
+                                "recettes" => "Recettes",
+                                "depenses" => "Dépenses",
+                                "mandat" => "Mandat"
+                            ];
     }
 
     //method for retrieving recap values of a given ligne
@@ -30,6 +37,7 @@ class RecapService {
         $recap = new stdClass();
         $recap->type = 'ligne';
         $recap->libelle = $rligne->label;
+        $recap->libelleParent = $rligne->label;
         $header_name = $rligne->label." / ".$rligne->rubrique->chapitre->label;
         //$recap->libelle = $rligne->label." / ".$rligne->rubrique->chapitre->label;
         $recap->id = $rligne->id;
@@ -189,6 +197,7 @@ class RecapService {
         $recap->type = 'rubrique';
         $recap->prevision = 0;
         $recap->libelle = $rrubrique->label;
+        $recap->libelleParent = $rrubrique->label." / ".$rrubrique->chapitre->label;
         $header_name = $rrubrique->label." / ".$rrubrique->chapitre->label;
         //$recap->libelle = $rrubrique->label." / ".$rrubrique->chapitre->label;
         $recap->chapitre = $rrubrique->chapitre->label;
@@ -248,6 +257,7 @@ class RecapService {
         $recap = new stdClass();
         
         $recap->libelle = $name;
+        $recap->libelleParent = $name;
         $recap->type = 'groupe';
         $recap->prevision = 0;
         $recap->realisations = 0;
@@ -272,7 +282,8 @@ class RecapService {
             array_push($collection, $recaprubrique);
         }
         //TODO add properties
-        $recap->tauxExecution = floor(100 * ($recap->execution/$recap->prevision));
+        //$recap->tauxExecution = floor(100 * ($recap->execution/$recap->prevision));
+        $recap->tauxExecution = $recap->prevision != 0 ? floor(100 * ($recap->execution/$recap->prevision)) : 0;
         
        
         $recap->collection = $collection;        
@@ -304,6 +315,7 @@ class RecapService {
         $recap->type = 'chapitre';
         $recap->prevision = 0;
         $recap->libelle = $rchapitre->label;
+        $recap->libelleParent = $rchapitre->label;
         $recap->realisations = 0;
         $recap->realisationsMois = 0;
         $recap->realisationsMoisPrecedents = 0;
@@ -326,7 +338,8 @@ class RecapService {
             array_push($collection, $rrubrique);
         }
         //TODO add properties
-        $recap->tauxExecution = floor(100 * ($recap->execution/$recap->prevision));
+        //$recap->tauxExecution = floor(100 * ($recap->execution/$recap->prevision));
+        $recap->tauxExecution = $recap->prevision != 0 ? floor(100 * ($recap->execution/$recap->prevision)) : 0;
         
         
         $recap->collection = $collection;        
@@ -446,7 +459,7 @@ class RecapService {
         $recap->rchapitres = [];
         $collection = [];
         $recap->prevision = 0;
-        $recap->libelle = $params->sectionname." - ".$params->domaine;
+        $recap->libelle = $this->title_names[$params->sectionname]." - ".$this->title_names[$params->domaine];
         $recap->realisations = 0;
         $recap->realisationsMois = 0;
         $recap->realisationsMoisPrecedents = 0;
@@ -470,7 +483,8 @@ class RecapService {
         }
 
         //TODO add properties
-        $recap->tauxExecution = floor(100 * ($recap->execution/$recap->prevision));
+        //$recap->tauxExecution = floor(100 * ($recap->execution/$recap->prevision));
+        $recap->tauxExecution = $recap->prevision != 0 ? floor(100 * ($recap->execution/$recap->prevision)) : 0;
         
         $recap->collection = $collection;        
         $periode = $this->computePeriodeLabels($critere, $params);

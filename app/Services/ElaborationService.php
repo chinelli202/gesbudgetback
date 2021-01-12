@@ -86,7 +86,7 @@ class ElaborationService{
     }
 
     public function getExercice($year){
-        $exercice = ExerciceBudgetaire::where("annee_vote",$year-1)->get();
+        $exercice = ExerciceBudgetaire::where("annee_vote",$year-1)->first();
         if(empty($exercice)){
             //if there is no excercice set, create a new exercice with year being the year 1900, then save it
             echo "no exercice found. creating a new one";
@@ -289,11 +289,11 @@ class ElaborationService{
     // basically here, we don't add new titre, chapitres or rubriques.
     // we just match those in the maquette with those in the database. 
     // for now, if there is no match, then we just continue.
-    private function process_external_maquette($maquette_name){
+    private function process_external_maquette($maquette_name, $exercice){
         Log::info('processing maquette file');
 
         //$service = new DraftBudgetService;
-        $budget = $this->getRunningExercice();
+        //$budget = $this->getRunningExercice();
         
         //$file = Maquette::where('name',$name)->first();
         //$file_ref = Storage::get('public\files\\'.$name);
@@ -316,7 +316,7 @@ class ElaborationService{
             $titre = $titres[$k];
 
             //matching titre
-            $titredb = Titre::where("label", $titre["label"]);
+            $titredb = Titre::where("label", $titre["label"])->first();
             if(empty($titredb)){
                 Log::info('no titre match for : '.$titre["label"]);
                 echo 'no titre match for : '.$titre["label"];
@@ -355,6 +355,10 @@ class ElaborationService{
                                 for($m = 0; $m < count($lignes); $m++){
                                     $ligne = $lignes[$m];
                                     // matching ligne. do I though?
+                                    // yes I think I very much do!!
+                                    
+
+
                                     $ligneEntry = new Ligne;
                                     //truncating label length to 100 characters if found longer
                                     if(strlen($ligne['label']) >= 100){
@@ -369,7 +373,7 @@ class ElaborationService{
                                     if(isset($ligne['sous_section'])){
                                         $ligneEntry->sous_section = $ligne['sous_section'];
                                     }
-                                    $ligneEntry->exercice_budgetaire_id = $budget->id;
+                                    $ligneEntry->exercice_budgetaire_id = $exercice->id;
                                     $ligneEntry->rubrique_id = $rubriquedb->id;
                                     //$rubriquedb->lignes()->save($ligneEntry);
                                     $ligneEntry->save();
