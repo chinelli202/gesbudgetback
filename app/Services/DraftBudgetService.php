@@ -193,7 +193,7 @@ class DraftBudgetService{
         //$file_ref = Storage::get('public\files\\'.$name);
         
         //echo $file_ref;
-        $path = Storage::path('public\files\\'.$name);
+        $path = Storage::path('public/files/'.$name);
         $titres = include $path;
         echo ('path found : '.$path);
         echo count($titres);

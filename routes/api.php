@@ -14,9 +14,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
+// Route::middleware('auth:api')->get('/user', function (Request $request) {
+//     return $request->user();
+// });
 
 Route::post("create-user", "UserController@createUser")->name('createUser');
 
@@ -24,7 +24,7 @@ Route::post("user-login", "UserController@userLogin")->name('userLogin');
 
 Route::get("user-login", "UserController@getLogin")->name('getLogin');
 
-Route::group(['middleware' => 'auth:api'], function () {
+Route::group(['middleware' => ['auth:api', 'cors']], function () {
     Route::get("user-detail", "UserController@userDetail");
     Route::get("user-logout", "UserController@userLogout")->name('userLogout');
     Route::get("users/list", "UserController@getUsers")->name('getUsers');
@@ -73,7 +73,7 @@ Route::group(['middleware' => 'auth:api'], function () {
         Route::post("cancelvalider/{id}", "ApurementController@cancelvalider")->name("cancelvalider");
     });
     
-    Route::get("getvariables", "VariableController@getvariables")->name('getvariables');
+    Route::get("getvariables", "VariableController@getVariables")->name('getVariables');
 });
 
 Route::get('/budgetsfonctionnement',"BudgetFonctionnementController@index");

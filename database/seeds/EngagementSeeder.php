@@ -78,7 +78,8 @@ class EngagementSeeder extends Seeder
                 foreach ($statutsEngagement as $statutapur => $statutapurdesc) {
                     $devise = array_keys($devises)[rand(0,2)];
                     $montant = rand(100000, 10000000);
-                    $typePaiement = $typesPaiement[mt_rand(0,2)][1];
+                    $typePaiementKey = array_keys($typesPaiement)[rand(0,2)];
+                    $typePaiement = $typesPaiement[$typePaiementKey][1];
 
                     if($statutapur === 'VALIDF') {
                         $etatEng = 'APUR';
@@ -125,7 +126,7 @@ class EngagementSeeder extends Seeder
      */
     public function createEngagement($typeEng, $montant, $devise, $natureEng, $etatEng, $statutEng ){
         $ligne = \App\Models\Ligne::all()->first();
-        $ligne_id = $ligne->id + rand(0, 475);
+        $ligne_id = $ligne->id + rand(0, 300);
         $rubrique = \App\Models\Rubrique::where('id', $ligne->rubrique_id)->first();
 
         $engagement = \App\Models\Engagement::firstOrCreate([
