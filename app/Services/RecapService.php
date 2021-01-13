@@ -251,7 +251,7 @@ class RecapService {
 
     //method for retrieving a recap object consisting of recap properties and collections of all recap rubriques with the given name
     public function getRecapRubriqueGroup($name, $critere, $params){
-        $rubriques = Rubrique::where('label', $name)->get();
+        $rubriques = Rubrique::where('label', $name)->where('sous_section','Fonctionnement')->get();
         $collection = [];
         $sumrow = new stdClass();
         $recap = new stdClass();
