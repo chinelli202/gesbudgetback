@@ -23,6 +23,7 @@ class CreateUsersTable extends Migration
             $table->string('addresse')->nullable();
             $table->string('num_compte')->nullable();
             $table->string('dom_bancaire')->nullable(); //domiciliation bancaire
+            $table->string('representation');
             $table->string('email')->unique();
             $table->string('matricule')->unique();
             $table->timestamp('email_verified_at')->nullable();

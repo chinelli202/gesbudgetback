@@ -201,7 +201,8 @@ class EngagementController extends Controller
              * '113' is the id of the newly created engagement
              */
             "code" => $request->type .now()->format('ym') .strval($lasteng ? $lasteng->id +1 : 1),
-            "code_comptabilite" => $request->type .substr(now()->format('ymd-His-u'),0,17),
+            "code_comptabilite" => $request->type .now()->format('ym') .strval($lasteng ? $lasteng->id +1 : 1),
+            "eng_date" => $request->eng_date,
             "libelle" => $request->libelle,
             "montant_ttc" => $request->montant_ttc,
             "montant_ht" => 0,
@@ -247,6 +248,7 @@ class EngagementController extends Controller
         $engagement = Engagement::findOrFail($engagementId);
         $engagement->update([
             "libelle" => $request->libelle,
+            "eng_date" => $request->eng_date,
             "montant_ttc" => $request->montant_ttc,
             "montant_ht" => 0,
             "devise" => $request->devise,
@@ -365,6 +367,7 @@ class EngagementController extends Controller
         $engagement = Engagement::findOrFail($engagementId);
         $engagement->update([
             "libelle" => $request->libelle,
+            "eng_date" => $request->eng_date,
             "montant_ttc" => $request->montant_ttc,
             "montant_ht" => 0,
             "devise" => $request->devise,
