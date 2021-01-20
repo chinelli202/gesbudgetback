@@ -14,7 +14,7 @@ use App\Models\Titre;
 use Carbon\Traits\Timestamp;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-
+use stdClass;
 
 class DraftBudgetService{
 
@@ -277,8 +277,10 @@ class DraftBudgetService{
                     }
 
                     $lignes = $rubrique['lignes'];
+                    $parentLigne = new stdClass();
                     for($m = 0; $m < count($lignes); $m++){
                         $ligne = $lignes[$m];
+
                         $ligneEntry = new Ligne;
                         //truncating label length to 100 characters if found longer
                         if(strlen($ligne['label']) >= 100){
@@ -294,7 +296,12 @@ class DraftBudgetService{
                         }
                         $ligneEntry->exercice_budgetaire_id = $budget->id;
                         $ligneEntry->rubrique_id = $rubriquedb->id;
-                        $ligneEntry->save();
+                        if(isset($ligne['has_parent']))
+                            $ligneEntry->parent_id = $parentLigne->id;
+                        
+                            $ligneEntry->save();
+                        if(!isset($ligne['has_parent']))
+                            $parentLigne = $ligneEntry;
                         //$rubriqueEntry -> lignes() -> save($ligneEntry);
                         echo "saved ligne : ".$ligneEntry->label;
                         Log::channel('syslog')->info('saved ligne : '.$ligneEntry->label);

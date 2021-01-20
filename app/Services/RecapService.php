@@ -539,8 +539,21 @@ class RecapService {
                     if($li->statut != "actif"){
                         continue;
                     }
+                    // if(count($li->sousLignes) > 0){
+                    //     continue;
+                    // }
+                    $sous_lignes = $li->sousLignes;
+                    Log::info("found ".count($sous_lignes)." sous lignes for ".$li->label.", ".$newchap->label);
+                    if(count($sous_lignes) > 0){
+                        continue;
+                    }
                     $newli = new stdClass();
-                    $newli->label = $li->label;
+                    if(!is_null($li->parent_id)){
+                        $newli->label = $li->parent->label." - ".$li->label; //forming the ligne's label. "parent's label - sous ligne's label
+                    }
+                    else
+                        $newli->label = $li->label;
+                    
                     $newli->id =  $li->id;
                     array_push($lignes, $newli);
                 }

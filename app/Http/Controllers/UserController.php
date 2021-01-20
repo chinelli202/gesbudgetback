@@ -49,6 +49,7 @@ class UserController extends Controller
             "email"             =>          $request->email,
             "matricule"         =>          $request->matricule,
             "password"          =>          bcrypt($request->password),
+            'representation'    =>          $request->representation ? $request->representation : 'YDE',
             'division'          =>          $request->division, 
             'fonction'          =>          $request->fonction,
             'saisisseur'        =>          $current_user ? $current_user->matricule : 'NA', 

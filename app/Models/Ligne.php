@@ -22,11 +22,11 @@ class Ligne extends Model
     }
 
     public function parent(){
-        return $this->belongsTo('App\Models\Ligne');
+        return $this->belongsTo('App\Models\Ligne', 'parent_id', 'id');
     }
 
     public function sousLignes(){
-        return $this->hasMany('App\Models\Ligne');
+        return $this->hasMany('App\Models\Ligne', 'parent_id', 'id');
     }
 
     public function updateStatut(){
