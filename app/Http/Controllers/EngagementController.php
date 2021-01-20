@@ -196,10 +196,6 @@ class EngagementController extends Controller
             return response()->json(["validation_errors" => $validator->errors()]);
         }
         $engagement = Engagement::create([
-            /** TODO : generate the code in this format : 020-LDC-113 
-             * where '020' is the last 3 digit of the year
-             * '113' is the id of the newly created engagement
-             */
             "code" => $request->type .now()->format('ym') .strval($lasteng ? $lasteng->id +1 : 1),
             "code_comptabilite" => $request->type .substr(now()->format('ymd-His-u'),0,17),
             "libelle" => $request->libelle,
@@ -208,6 +204,8 @@ class EngagementController extends Controller
             "devise" => $request->devise,
             "type" => $request->type,
             "nature" => $request->nature,
+
+            "eng_date" => $request->eng_date,
             
             'etat' => Config::get('gesbudget.variables.etat_engagement.INIT')[1],
             'statut' => Config::get('gesbudget.variables.statut_engagement.SAISI')[1],
@@ -250,6 +248,7 @@ class EngagementController extends Controller
             "montant_ttc" => $request->montant_ttc,
             "montant_ht" => 0,
             "devise" => $request->devise,
+            "eng_date" => $request->eng_date,
             "type" => $request->type,
             "nature" => $request->nature,
             "ligne_id" => $request->ligne_id,
