@@ -205,8 +205,6 @@ class EngagementController extends Controller
             "devise" => $request->devise,
             "type" => $request->type,
             "nature" => $request->nature,
-
-            "eng_date" => $request->eng_date,
             
             'etat' => Config::get('gesbudget.variables.etat_engagement.INIT')[1],
             'statut' => Config::get('gesbudget.variables.statut_engagement.SAISI')[1],
@@ -250,7 +248,6 @@ class EngagementController extends Controller
             "montant_ttc" => $request->montant_ttc,
             "montant_ht" => 0,
             "devise" => $request->devise,
-            "eng_date" => $request->eng_date,
             "type" => $request->type,
             "nature" => $request->nature,
             "ligne_id" => $request->ligne_id,
