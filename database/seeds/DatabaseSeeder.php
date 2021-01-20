@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
         $this->call(LaratrustSeeder::class);
         $service->loadMaquette('maquette2021.php');
         
-        $this->call(EngagementSeeder::class);
+        //$this->call(EngagementSeeder::class);
         $this->call(VariablesSeeder::class);
          DB::table('mocks_budgets_fonctionnement')->insert([
             'label' => 'Charges de personnel',

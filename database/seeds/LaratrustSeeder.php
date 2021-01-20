@@ -301,6 +301,7 @@ class LaratrustSeeder extends Seeder
 
         $user = \App\Models\User::create([
             'matricule' => '00379',
+            'sexe' => 'M',
             'name' => 'NGANGO EBANDJO Eugène',
             'first_name' => 'Eugène',
             'last_name' => 'NGANGO EBANDJO',
@@ -318,6 +319,7 @@ class LaratrustSeeder extends Seeder
 
         $user = \App\Models\User::create([
             'matricule' => '00000',
+            'sexe' => 'F',
             'name' => 'MENGUE ME MBARGA Salomé',
             'first_name' => 'Salomé',
             'last_name' => 'MENGUE ME MBARGA',
@@ -335,6 +337,7 @@ class LaratrustSeeder extends Seeder
 
         $user = \App\Models\User::create([
             'matricule' => '00475',
+            'sexe' => 'F',
             'name' => 'NGO MBOG Odette',
             'first_name' => 'Odette',
             'last_name' => 'NGO MBOG',
@@ -352,6 +355,7 @@ class LaratrustSeeder extends Seeder
 
         $user = \App\Models\User::create([
             'matricule' => '00362',
+            'sexe' => 'M',
             'name' => 'NAAH AMBASSA Ignace',
             'first_name' => 'Ignace',
             'last_name' => 'NAAH AMBASSA',
@@ -369,6 +373,7 @@ class LaratrustSeeder extends Seeder
 
         $user = \App\Models\User::create([
             'matricule' => '00171',
+            'sexe' => 'M',
             'name' => 'BELINGA Louis Roger',
             'first_name' => 'Louis Roger',
             'last_name' => 'BELINGA',
@@ -386,6 +391,7 @@ class LaratrustSeeder extends Seeder
 
         $user = \App\Models\User::create([
             'matricule' => '00614',
+            'sexe' => 'M',
             'name' => 'NJOCK ELOKOBI',
             'first_name' => 'NJOCK ELOKOBI',
             'last_name' => 'NJOCK ELOKOBI',
@@ -403,6 +409,7 @@ class LaratrustSeeder extends Seeder
 
         $user = \App\Models\User::create([
             'matricule' => '00705',
+            'sexe' => 'M',
             'name' => 'NANGA NOUKITI Noël Axel',
             'first_name' => 'Noël Axel',
             'last_name' => 'NANGA NOUKITI',
