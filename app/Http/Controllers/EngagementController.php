@@ -157,12 +157,22 @@ class EngagementController extends Controller
                                 }
                             });
 
-            $total = $preQuery->count();   
-            $engagements = $preQuery->orderBy('latest_edited_at', 'desc')
+            $total = $preQuery->count();
+
+            if(!is_null($request->page) && !is_null($request->limit)) {
+                $side = "no_page_no_limit".$request->page."-".$request->limit;
+                $engagements = $preQuery->orderBy('latest_edited_at', 'desc')
                 ->paginate($request->limit)
                 ->map(function ($eng) {
                     return EngagementService::enrichEngagement($eng->id);
                 });
+            } else {
+                $side = "page_or_limit";
+                $engagements = $preQuery->orderBy('latest_edited_at', 'desc')->get()
+                ->map(function ($eng) {
+                    return EngagementService::enrichEngagement($eng->id);
+                });
+            }
         }
         Log::info('before returning all the engagements ');
         return response()->json([
@@ -170,6 +180,8 @@ class EngagementController extends Controller
             "success" => true,
             "data" => $engagements,
             "total" => $total,
+            "sizeof_engagments" => sizeof($engagements),
+            "side" => $side,
             "query" => $query,
             "lignes" => $lignes,
             "saisisseurs" => $saisisseurs,
