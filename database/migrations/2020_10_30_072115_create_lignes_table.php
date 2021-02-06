@@ -25,6 +25,8 @@ class CreateLignesTable extends Migration
             $table->enum('statut', ['draft', 'soumis','validé','rejetté','corrigé','supprimé', 'actif', 'archivé']);
             $table->unsignedBigInteger('rubrique_id');
             $table->foreign('rubrique_id')->references('id')->on('rubriques')->onDelete('cascade');
+            $table->string('sous_categorie')->nullable();
+            $table->string('sous_rubrique')->nullable();
             $table->unsignedBigInteger('parent_id')->nullable();
             $table->foreign('parent_id')->references('id')->on('lignes')->onDelete('cascade');
             $table->unsignedBigInteger('exercice_budgetaire_id');

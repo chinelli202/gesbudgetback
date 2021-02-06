@@ -35,6 +35,7 @@ class LaratrustSetupTables extends Migration
             $table->bigIncrements('id');
             $table->string('code')->unique();
             $table->string('name')->nullable();
+            $table->string('to_perform_on')->nullable();
             $table->string('display_name')->nullable();
             $table->string('description')->nullable();
             $table->string('saisisseur');

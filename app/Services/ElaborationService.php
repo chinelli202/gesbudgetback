@@ -86,7 +86,7 @@ class ElaborationService{
     }
 
     public function getExercice($year){
-        $exercice = ExerciceBudgetaire::where("annee_vote",$year-1)->get();
+        $exercice = ExerciceBudgetaire::where("annee_vote",$year-1)->first();
         if(empty($exercice)){
             //if there is no excercice set, create a new exercice with year being the year 1900, then save it
             echo "no exercice found. creating a new one";
@@ -289,11 +289,11 @@ class ElaborationService{
     // basically here, we don't add new titre, chapitres or rubriques.
     // we just match those in the maquette with those in the database. 
     // for now, if there is no match, then we just continue.
-    private function process_external_maquette($maquette_name){
+    private function process_external_maquette($maquette_name, $exercice){
         Log::info('processing maquette file');
 
         //$service = new DraftBudgetService;
-        $budget = $this->getRunningExercice();
+        //$budget = $this->getRunningExercice();
         
         //$file = Maquette::where('name',$name)->first();
         //$file_ref = Storage::get('public\files\\'.$name);
@@ -316,7 +316,7 @@ class ElaborationService{
             $titre = $titres[$k];
 
             //matching titre
-            $titredb = Titre::where("label", $titre["label"]);
+            $titredb = Titre::where("label", $titre["label"])->first();
             if(empty($titredb)){
                 Log::info('no titre match for : '.$titre["label"]);
                 echo 'no titre match for : '.$titre["label"];
@@ -352,33 +352,47 @@ class ElaborationService{
                                 echo 'into rubrique : '.$rubrique["label"];
                                 echo "\n";
                                 $lignes = $rubrique['lignes'];
+                                
+                                $actives = Ligne::where("statut", "actif")->where("rubrique_id", $rubriquedb->id)->get();
                                 for($m = 0; $m < count($lignes); $m++){
                                     $ligne = $lignes[$m];
                                     // matching ligne. do I though?
-                                    $ligneEntry = new Ligne;
-                                    //truncating label length to 100 characters if found longer
-                                    if(strlen($ligne['label']) >= 100){
-                                        $ligne['label'] = substr($ligne['label'],0,100);
+                                    // I need to try to match this one with of the the sentences in $actives
+                                    foreach($actives as $ligne_active){
+                                        if($this->match_sentences($ligne, $ligne_active, 0.8)){
+                                            //persist ligne montant here and break out of the loop
+                                            Log::info('matched '.$ligne.' with '.$ligne_active);
+                                            echo 'matched '.$ligne.' with '.$ligne_active;
+                                            //collect all dbrubrique lignes that are active
+        
+        
+                                            // $ligneEntry = new Ligne;
+                                            // //truncating label length to 100 characters if found longer
+                                            // if(strlen($ligne['label']) >= 100){
+                                            //     $ligne['label'] = substr($ligne['label'],0,100);
+                                            // }
+                                            // $ligneEntry->label = $ligne['label'];
+                                            // $ligneEntry->description = $ligne['description'];
+                                            // $ligneEntry->montant = str_replace(" ","", $ligne['montant']);
+                                            // $ligneEntry->domaine = $ligne['domaine'];
+                                            // $ligneEntry->section = $ligne['section'];
+                                            // $ligneEntry->statut = "archive";
+                                            // if(isset($ligne['sous_section'])){
+                                            //     $ligneEntry->sous_section = $ligne['sous_section'];
+                                            // }
+                                            // $ligneEntry->exercice_budgetaire_id = $exercice->id;
+                                            // $ligneEntry->rubrique_id = $rubriquedb->id;
+                                            // //$rubriquedb->lignes()->save($ligneEntry);
+                                            // $ligneEntry->save();
+                                            // echo "saved ligne : ".$ligneEntry->label;
+                                            // //Log::channel('syslog')->info('saved ligne : '.$ligneEntry->label);
+                                            // //Log::info('saved ligne : '.$ligneEntry->label);
+                    
+                                            // Log::stack(['single', 'syslog'])->info('saved ligne'.$ligneEntry->label);
+                                            // echo "\n";
+                                            break;
+                                        }
                                     }
-                                    $ligneEntry->label = $ligne['label'];
-                                    $ligneEntry->description = $ligne['description'];
-                                    $ligneEntry->montant = str_replace(" ","", $ligne['montant']);
-                                    $ligneEntry->domaine = $ligne['domaine'];
-                                    $ligneEntry->section = $ligne['section'];
-                                    $ligneEntry->statut = "archive";
-                                    if(isset($ligne['sous_section'])){
-                                        $ligneEntry->sous_section = $ligne['sous_section'];
-                                    }
-                                    $ligneEntry->exercice_budgetaire_id = $budget->id;
-                                    $ligneEntry->rubrique_id = $rubriquedb->id;
-                                    //$rubriquedb->lignes()->save($ligneEntry);
-                                    $ligneEntry->save();
-                                    echo "saved ligne : ".$ligneEntry->label;
-                                    //Log::channel('syslog')->info('saved ligne : '.$ligneEntry->label);
-                                    //Log::info('saved ligne : '.$ligneEntry->label);
-            
-                                    Log::stack(['single', 'syslog'])->info('saved ligne'.$ligneEntry->label);
-                                    echo "\n";
                                 }
                             }
                         }   
@@ -386,5 +400,39 @@ class ElaborationService{
                 }
             }
         }
+    }
+
+    private function load_monthly_report($maquette, $year){
+        
+    }
+
+    private function match_sentences($sentence1, $sentence2, $threshold = 0.5){
+        // forming tokens
+        $tokens1 = explode(" ", $sentence1);
+        $tokens2 = explode(" ", $sentence2);
+        // looking for matches
+        $union = $tokens2;
+        $intersection = [];
+        
+        foreach ($tokens1 as $token1 ){
+            // try matching each token of second sentence with this token. if no match is found at the end of the loop, then add it to the union array.
+            // if a match is found, add it to the intersection
+            $matched = false;
+            foreach($tokens2 as $token2){
+                if($token1 === $token2){
+                    $matched = true;
+                    break;
+                }
+            }
+            if($matched == true){
+                array_push($intersection, $token1);
+            }
+            else{
+                array_push($union, $token1);
+            } 
+        }
+        // calculate Jaccard similarity formula
+        $ratio = count($intersection)/count($union);
+        return $ratio >= $threshold ? true : false;
     }
 }

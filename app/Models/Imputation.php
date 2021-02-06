@@ -51,14 +51,14 @@ class Imputation extends Model
 
         if($eventName === 'updated'){
             // TODO : specify the right description depending on the action
-
             // Handle
             if (isset($activity->properties['attributes']['statut'])) {
+                $newStatut = $activity->properties['attributes']['statut'];
+                $oldStatut = $activity->properties['old']['statut'];
+
                 /** The 'Statut' has changed 
                  * So we'll set the description to the corresponding statut's change action : VALIDP, VALIDS, VALIDF 
                 */
-                $newStatut = $activity->properties['attributes']['statut'];
-                $oldStatut = $activity->properties['old']['statut'];
 
                 if ($oldStatut === 'SAISI' && $newStatut === 'VALIDP') {
                     /** This is a Validation at the first level 

@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Variable;
+use Illuminate\Support\Facades\Log;
 
 class VariableController extends Controller
 {
     private $sucess_status = 200;
 
     public function getVariables(Request $request){
+        Log::info('avant avant denvoyer la reponse VariableController ');
         $cle = $request->cle;
         $code = $request->code;
         $filter = [];
@@ -23,7 +25,9 @@ class VariableController extends Controller
         $variables = Variable::where($filter)
             ->orderBy('code')
             ->get();
-
+        
+        
+        Log::info('avant denvoyer la reponse VariableController '. json_encode($variables));
         return response()->json(["status" => $this->sucess_status, "success" => true, "data" => $variables]);
     }
 }

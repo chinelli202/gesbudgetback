@@ -21,6 +21,13 @@ class RecapService {
         $this->soussections = ['investissement', 'fonctionnement'];
         $this->sectionsmandat = ['depenses', 'recettes'];
         $this->sectionsfonctionnement = ['fonctionnement', 'investissements', 'recettes'];
+        $this->title_names = [
+                                "fonctionnement" => "Fonctionnement",
+                                "investissement" => "Investissement",
+                                "recettes" => "Recettes",
+                                "depenses" => "Dépenses",
+                                "mandat" => "Mandat"
+                            ];
     }
 
     //method for retrieving recap values of a given ligne
@@ -29,7 +36,10 @@ class RecapService {
         
         $recap = new stdClass();
         $recap->type = 'ligne';
-        $recap->libelle = $rligne->label." / ".$rligne->rubrique->chapitre->label;
+        $recap->libelle = $rligne->label;
+        $recap->libelleParent = $rligne->label;
+        $header_name = $rligne->label." / ".$rligne->rubrique->chapitre->label;
+        //$recap->libelle = $rligne->label." / ".$rligne->rubrique->chapitre->label;
         $recap->id = $rligne->id;
         $recap->prevision = 0;
         $recap->realisations = 0;
@@ -173,7 +183,7 @@ class RecapService {
             }
         }
         $periode = $this->computePeriodeLabels($critere, $params);
-        $recap->header = $this->setHeader($recap->libelle, 'ligne', $periode);
+        $recap->header = $this->setHeader($header_name, 'ligne', $periode);
         return $recap;
     }
 
@@ -186,7 +196,10 @@ class RecapService {
         $recap->id = $rrubrique->id;
         $recap->type = 'rubrique';
         $recap->prevision = 0;
-        $recap->libelle = $rrubrique->label." / ".$rrubrique->chapitre->label;
+        $recap->libelle = $rrubrique->label;
+        $recap->libelleParent = $rrubrique->label." / ".$rrubrique->chapitre->label;
+        $header_name = $rrubrique->label." / ".$rrubrique->chapitre->label;
+        //$recap->libelle = $rrubrique->label." / ".$rrubrique->chapitre->label;
         $recap->chapitre = $rrubrique->chapitre->label;
         $recap->realisations = 0;
         $recap->realisationsMois = 0;
@@ -215,11 +228,7 @@ class RecapService {
         
         //if($critere!='mois')
         $recap->tauxExecution = $recap->prevision != 0 ? floor(100 * ($recap->execution/$recap->prevision)) : 0;
-        
-        // $rrubrique->collection = $collection;
-        // $rrubrique->sumrow = $sumrow;
 
-        
         $recap->collection = $collection;        
         //$recap->sumrow = $sumrow;
 
@@ -236,18 +245,19 @@ class RecapService {
         Log::info( "prevision : ".$recap->prevision);
 
         $periode = $this->computePeriodeLabels($critere, $params);
-        $recap->header = $this->setHeader($recap->libelle, 'lignes', $periode);
+        $recap->header = $this->setHeader($header_name, 'lignes', $periode);
         return $recap;
     }
 
     //method for retrieving a recap object consisting of recap properties and collections of all recap rubriques with the given name
     public function getRecapRubriqueGroup($name, $critere, $params){
-        $rubriques = Rubrique::where('label', $name)->get();
+        $rubriques = Rubrique::where('label', $name)->where('sous_section','Fonctionnement')->get();
         $collection = [];
         $sumrow = new stdClass();
         $recap = new stdClass();
         
         $recap->libelle = $name;
+        $recap->libelleParent = $name;
         $recap->type = 'groupe';
         $recap->prevision = 0;
         $recap->realisations = 0;
@@ -272,7 +282,8 @@ class RecapService {
             array_push($collection, $recaprubrique);
         }
         //TODO add properties
-        $recap->tauxExecution = floor(100 * ($recap->execution/$recap->prevision));
+        //$recap->tauxExecution = floor(100 * ($recap->execution/$recap->prevision));
+        $recap->tauxExecution = $recap->prevision != 0 ? floor(100 * ($recap->execution/$recap->prevision)) : 0;
         
        
         $recap->collection = $collection;        
@@ -304,6 +315,7 @@ class RecapService {
         $recap->type = 'chapitre';
         $recap->prevision = 0;
         $recap->libelle = $rchapitre->label;
+        $recap->libelleParent = $rchapitre->label;
         $recap->realisations = 0;
         $recap->realisationsMois = 0;
         $recap->realisationsMoisPrecedents = 0;
@@ -326,7 +338,8 @@ class RecapService {
             array_push($collection, $rrubrique);
         }
         //TODO add properties
-        $recap->tauxExecution = floor(100 * ($recap->execution/$recap->prevision));
+        //$recap->tauxExecution = floor(100 * ($recap->execution/$recap->prevision));
+        $recap->tauxExecution = $recap->prevision != 0 ? floor(100 * ($recap->execution/$recap->prevision)) : 0;
         
         
         $recap->collection = $collection;        
@@ -446,7 +459,7 @@ class RecapService {
         $recap->rchapitres = [];
         $collection = [];
         $recap->prevision = 0;
-        $recap->libelle = $params->sectionname." - ".$params->domaine;
+        $recap->libelle = $this->title_names[$params->sectionname]." - ".$this->title_names[$params->domaine];
         $recap->realisations = 0;
         $recap->realisationsMois = 0;
         $recap->realisationsMoisPrecedents = 0;
@@ -470,7 +483,8 @@ class RecapService {
         }
 
         //TODO add properties
-        $recap->tauxExecution = floor(100 * ($recap->execution/$recap->prevision));
+        //$recap->tauxExecution = floor(100 * ($recap->execution/$recap->prevision));
+        $recap->tauxExecution = $recap->prevision != 0 ? floor(100 * ($recap->execution/$recap->prevision)) : 0;
         
         $recap->collection = $collection;        
         $periode = $this->computePeriodeLabels($critere, $params);
@@ -525,8 +539,21 @@ class RecapService {
                     if($li->statut != "actif"){
                         continue;
                     }
+                    // if(count($li->sousLignes) > 0){
+                    //     continue;
+                    // }
+                    $sous_lignes = $li->sousLignes;
+                    Log::info("found ".count($sous_lignes)." sous lignes for ".$li->label.", ".$newchap->label);
+                    if(count($sous_lignes) > 0){
+                        continue;
+                    }
                     $newli = new stdClass();
-                    $newli->label = $li->label;
+                    if(!is_null($li->parent_id)){
+                        $newli->label = $li->parent->label." - ".$li->label; //forming the ligne's label. "parent's label - sous ligne's label
+                    }
+                    else
+                        $newli->label = $li->label;
+                    
                     $newli->id =  $li->id;
                     array_push($lignes, $newli);
                 }

@@ -37,12 +37,19 @@ return [
         ],
         'statut_engagement' => [
             // 'VALIDF_NOEXC' => ['Validé au niveau final sans exécution (imputation ou apurement)', 'NA'],
+            'NEW' => ['Nouveau', 'NEW'],
             'SAISI' => ['Saisi', 'SAISI'],
             'VALIDP' => ['Validé au premier niveau', 'VALIDP'],
             'VALIDS' => ['Validé au second niveau', 'VALIDS'],
             'VALIDF' => ['Validé au niveau final', 'VALIDF']
         ],
+        'statut_required' => [
+            'SAISI' => ['Saisi', 'SAISI'],
+            'VALIDP' => ['Validé au premier niveau', 'VALIDP'],
+            'VALIDF' => ['Validé au niveau final', 'VALIDF']
+        ],
         'operateur' => [
+            'NEW' => ['new', 'NEW'],
             'saisisseur' => ['Saisiseur', 'saisisseur'],
             'valideur_first' => ['Valideur au premier niveau', 'valideur_first'],
             'valideur_second' => ['Valideur au second niveau', 'valideur_second'],
@@ -51,7 +58,15 @@ return [
         'constante' => [
             'TVA' => ['Taxe sur la valeur ajoutée au Cameroun', '19.25']
         ],
+        'type_paiement' => [
+            'BANQ_VIR'  => ['Banque - Virement', 'BANQ_VIR'],
+            'BANQ_CHQ'  => ['Banque - Chèque', 'BANQ_CHQ'],
+            'CAISS'     => ['Caisse', 'CAISS']
+        ],
         'actions' => [
+            'LOGIN' => ['Connexion à l\'application', 'LOGIN'],
+            'LOGOUT' => ['Connexion à l\'application', 'LOGOUT'],
+
             'VALIDP' => ['Validation premier niveau', 'VALIDP'],
             'VALIDS' => ['Validation second niveau', 'VALIDS'],
             'VALIDF' => ['Validation niveau final', 'VALIDF'],

@@ -20,13 +20,59 @@ class EngagementService {
 
   }
 
-   
+  public static function getLowestStatut($entitiesarray) {
+    if(gettype($entitiesarray) === 'object') {
+      /** $entitiesarray has only one entry. So we will put it in an array */
+      $entitiesarray = array($entitiesarray[0]);
+    }
+    
+    $lowestStatut = Config::get('gesbudget.variables.statut_engagement.VALIDF')[1];
+    $statutsapurements = array_map(function($el) {
+      return $el->statut;
+    }, $entitiesarray);
+    
+    if(in_array(Config::get('gesbudget.variables.statut_engagement.SAISI')[1], $statutsapurements)) {
+
+      $lowestStatut = Config::get('gesbudget.variables.statut_engagement.SAISI')[1];
+    } else if(in_array(Config::get('gesbudget.variables.statut_engagement.VALIDP')[1], $statutsapurements)) {
+
+      $lowestStatut = Config::get('gesbudget.variables.statut_engagement.VALIDP')[1];
+
+    } else if(in_array(Config::get('gesbudget.variables.statut_engagement.VALIDS')[1], $statutsapurements)) {
+
+      $lowestStatut = Config::get('gesbudget.variables.statut_engagement.VALIDS')[1];
+    }
+
+    // return $lowestStatut = json_encode([
+    //   "statutsapurements" => $statutsapurements,
+    //   "Configget" => Config::get('gesbudget.variables.statut_engagement.VALIDS')[1],
+    //   "array_search" => in_array(Config::get('gesbudget.variables.statut_engagement.VALIDS')[1], $statutsapurements)
+    //   ]);
+    return $lowestStatut;
+  }
+
+  public static function getLatestEditionDate($entitiesarray) {
+    if(gettype($entitiesarray) === 'object') {
+      /** $entitiesarray has only one entry. So we will put it in an array */
+      $entitiesarray = array($entitiesarray[0]);
+    }
+    usort($entitiesarray, function($a, $b) {
+      if($a->updated_at == $b->updated_at) {
+        return 0;
+      }
+      return ($a->updated_at < $b->updated_at) ? 1 : -1;
+    });
+  
+    return $entitiesarray[0]->updated_at;
+  }
+
   public static function enrichEngagement($engagementId) {
-    $imputations = [];
     $engagement = Engagement::findOrFail($engagementId);
+    $imputations = $engagement->imputations;
+    $apurements = $engagement->apurements;
 
     /** Add all enriched imputations */
-    $engagement['imputations_labelled'] = $engagement->imputations
+    $engagement['imputations_labelled'] = $imputations
       ->filter(function($imp) {
         return $imp->etat !== Config::get('gesbudget.variables.etat_engagement.CLOT')[1];
       })
@@ -34,8 +80,8 @@ class EngagementService {
         return ImputationService::enrichImputation($imp->id);
       });
     
-    /** Add all enriched imputations */
-    $engagement['apurements_labelled'] = $engagement->apurements
+    /** Add all enriched apurements */
+    $engagement['apurements_labelled'] = $apurements
       ->filter(function($apur) {
         return $apur->etat !== Config::get('gesbudget.variables.etat_engagement.CLOT')[1];
       })
@@ -44,16 +90,35 @@ class EngagementService {
       });
     
     /** Add pending apurements and imputations */
-    $engagement['cumul_imputations_initie_ttc'] = $engagement->imputations
+    $engagement['cumul_imputations_initie_ttc'] = $imputations
       ->reduce(function ($cumul, $imp) {
         return $cumul + $imp->montant_ttc;
       }, 0);
     
-    $engagement['cumul_apurements_initie_ttc'] = $engagement->apurements
+    $engagement['cumul_apurements_initie_ttc'] = $apurements
       ->reduce(function ($cumul, $apur) {
         return $cumul + $apur->montant_ttc;
       }, 0);
 
+    /** Add latest_statut */
+    $latestStatut = Config::get('gesbudget.variables.statut_engagement.SAISI')[1];
+    if(sizeof($apurements) !== 0) {
+      $latestStatut = $engagement->latest_statut;
+    } else if ( sizeof($imputations) !== 0) {
+      if($engagement->latest_statut === Config::get('gesbudget.variables.statut_engagement.VALIDF')[1]) {
+        $latestStatut = 'NEW';
+      } else {
+        $latestStatut = $engagement->latest_statut;
+      }
+    } else if($engagement->etat === Config::get('gesbudget.variables.etat_engagement.PEG')[1]) {
+      $latestStatut = 'NEW';
+    } else {
+      $latestStatut = $engagement->latest_statut;
+    }
+
+    $engagement['latest_statut'] = $latestStatut;
+
+    /** Add operators */
     $saisisseur = User::where('matricule', $engagement->saisisseur)->first();
     $valideurP = User::where('matricule', $engagement->valideur_first)->first();
     $valideurS = User::where('matricule', $engagement->valideur_second)->first();
@@ -90,10 +155,10 @@ class EngagementService {
     $engagement["etat_libelle"] = $etat->libelle ?? '';
     $engagement["statut_libelle"] = $statut->libelle ?? '';
 
-    $engagement["chapitre_id"] = $chapitre->id;
-    $engagement["rubrique_id"] = $rubrique->id;
     $engagement["domaine"] = $chapitre->domaine;
-    $engagement["ligne_libelle"] = $chapitre->label . " // " . $rubrique->label . " // " . $ligne->label;
+    $engagement["ligne_libelle"] = $ligne->label;
+    $engagement["rubrique_libelle"] = $rubrique->label;
+    $engagement["chapitre_libelle"] = $chapitre->label;
 
     return $engagement;
   }

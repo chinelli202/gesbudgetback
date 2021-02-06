@@ -31,15 +31,23 @@ class CreateEngagementsTable extends Migration
             $table->id();
             $table->timestamps();
             $table->string('code')->unique();
+            $table->string('code_comptabilite')->unique();
             $table->string('libelle');
             $table->bigInteger('montant_ht')->nullable();
             $table->bigInteger('montant_ttc');
+
+            
+            $table->string('regime_tva')->nullable();
+            $table->string('regime_impot')->nullable();
+
             $table->string('devise');
 
             $table->string('nature');
             $table->string('type');
             $table->string('etat');
             $table->string('statut');
+            $table->string('latest_statut');
+            $table->string('latest_edited_at');
             $table->string('next_statut')->nullable();
             $table->json('documents')->nullable();
             
@@ -53,8 +61,12 @@ class CreateEngagementsTable extends Migration
             $table->string('valideur_final')->nullable();
             $table->string('source');
             $table->unsignedBigInteger('ligne_id');
+            $table->unsignedBigInteger('rubrique_id');
+            $table->unsignedBigInteger('chapitre_id');
             
             $table->foreign('ligne_id')->references('id')->on('lignes')->onDelete('cascade');
+            $table->foreign('rubrique_id')->references('id')->on('rubriques')->onDelete('cascade');
+            $table->foreign('chapitre_id')->references('id')->on('chapitres')->onDelete('cascade');
             $table->foreign('saisisseur')->references('matricule')->on('users')
                 ->onUpdate('cascade')->onDelete('cascade');
             $table->foreign('valideur_first')->references('matricule')->on('users')
