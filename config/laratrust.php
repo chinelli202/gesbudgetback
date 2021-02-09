@@ -161,6 +161,8 @@ return [
         'permission_user' => 'permission_user',
 
         'permission_role' => 'permission_role',
+
+        'ownership' => 'ownerships'
     ],
 
     /*
@@ -252,7 +254,7 @@ return [
         | Please check the docs to see what you need to do in case you have the package already configured.
         |
         */
-        'enabled' => false,
+        'enabled' => true,
 
         /*
         |--------------------------------------------------------------------------
@@ -266,6 +268,19 @@ return [
         |
         */
         'strict_check' => false,
+    ],
+
+    'advanced_ownership' => [
+        /*
+        |--------------------------------------------------------------------------
+        | Use advance ownership feature in the package
+        |--------------------------------------------------------------------------
+        |
+        | Defines if Laratrust will use the advance ownership feature.
+        | Please check the docs to see what you need to do in case you have the package already configured.
+        |
+        */
+        'enabled' => true,
     ],
 
     /*
