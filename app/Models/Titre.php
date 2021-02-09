@@ -9,8 +9,9 @@ class Titre extends Model
     protected $attributes = [
         'label' => "Libelle Titre",
         'description' => "Description Titre",
-        'statut' => 'actif'
-
+        'statut' => 'actif',
+        'representation' => 'YDE',
+        'entreprise' => 'SNH'
     ];
 
     public function chapitres() {
