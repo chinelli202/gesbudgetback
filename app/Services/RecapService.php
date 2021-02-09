@@ -629,7 +629,7 @@ class RecapService {
     private function setHeader($name, $headerlabel, $periode){
         $header = new stdClass();
         $header->name = $name;
-        $header->labelLabel = $headerlabel;
+        $header->labelLabel = ucfirst($headerlabel);
         $header->previsionsLabel = "Prévisions";
         $header->realisationsLabel = "Réalisations cumulées ".$periode;//"Réalisations ".$periode;
         $header->realisationsMoisPrecedentsLabel = "Réalisations précédentes";

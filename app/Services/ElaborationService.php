@@ -294,7 +294,20 @@ class ElaborationService{
 
         //$service = new DraftBudgetService;
         //$budget = $this->getRunningExercice();
+        $total_lines = 0;
+        $matched_lines = 0;
+
+        $total_titres = 0;
+        $matched_titres = 0;
         
+        $total_chapitres = 0;
+        $matched_chapitres = 0;
+        
+        $total_rubriques = 0;
+        $matched_rubriques = 0;
+
+
+
         //$file = Maquette::where('name',$name)->first();
         //$file_ref = Storage::get('public\files\\'.$name);
         
@@ -309,7 +322,7 @@ class ElaborationService{
         //     return "couldn't find file";
         // }
         //$titres = include 'maquette.php';
-        
+        $total_titres = count($titres);
         
         for($k = 0; $k < count($titres); $k++){
             //loop testing
@@ -322,10 +335,12 @@ class ElaborationService{
                 echo 'no titre match for : '.$titre["label"];
             }
             else{
+                $matched_titres++;
                 Log::info('into titre : '.$titre["label"]);
                 echo 'into titre : '.$titre["label"];
                 echo "\n";
                 $chapitres = $titre['chapitres'];
+                $total_chapitres+=count($chapitres);
                 for ($i = 0; $i < count($chapitres); $i++){
                     $chapitre = $chapitres[$i];
                     //matching chapitre
@@ -335,10 +350,12 @@ class ElaborationService{
                         echo 'no chapitre match for : '.$chapitre["label"];
                     }
                     else{
+                        $matched_chapitres++;
                         Log::info($chapitre["label"]." matched by ".$chapitredb->label);
                         Log::info('into chapitre : '.$chapitre["label"]);
                         echo "\n";
                         $rubriques = $chapitre['rubriques'];
+                        $total_rubriques+=count($rubriques);
                         for($j = 0; $j < count($rubriques); $j++){
                             $rubrique = $rubriques[$j];
                             // matching rubrique
@@ -348,21 +365,26 @@ class ElaborationService{
                                 echo 'no rubrique match for : '.$rubrique["label"];
                             }
                             else{
+                                $matched_rubriques++;
                                 Log::info('into rubrique : '.$rubrique["label"]);
                                 echo 'into rubrique : '.$rubrique["label"];
                                 echo "\n";
                                 $lignes = $rubrique['lignes'];
                                 
                                 $actives = Ligne::where("statut", "actif")->where("rubrique_id", $rubriquedb->id)->get();
+                                $total_lines+=count($actives);
                                 for($m = 0; $m < count($lignes); $m++){
                                     $ligne = $lignes[$m];
                                     // matching ligne. do I though?
                                     // I need to try to match this one with of the the sentences in $actives
                                     foreach($actives as $ligne_active){
-                                        if($this->match_sentences($ligne, $ligne_active, 0.8)){
+                                        if($this->match_sentences($ligne["label"], $ligne_active->label, 0.8)){
                                             //persist ligne montant here and break out of the loop
-                                            Log::info('matched '.$ligne.' with '.$ligne_active);
-                                            echo 'matched '.$ligne.' with '.$ligne_active;
+                                            Log::info('matched '.$ligne["label"].' with '.$ligne_active->label);
+                                            echo 'matched '.$ligne["label"].' with '.$ligne_active->label;
+                                            echo "\n";
+                                            $matched_lines++;
+                                            break;
                                             //collect all dbrubrique lignes that are active
         
         
@@ -400,13 +422,22 @@ class ElaborationService{
                 }
             }
         }
+
+        Log::info("total number of lines in db : ".$total_lines);
+        Log::info("total matched lines : ".$matched_lines);
+        Log::info("total number of titres in file : ".$total_titres);
+        Log::info("total matched titres : ".$matched_titres);
+        Log::info("total number of chapitres in file : ".$total_chapitres);
+        Log::info("total matched chapitres : ".$matched_chapitres);
+        Log::info("total number of rubriques in file : ".$total_rubriques);
+        Log::info("total matched rubriques : ".$matched_rubriques);
     }
 
     private function load_monthly_report($maquette, $year){
         
     }
 
-    private function match_sentences($sentence1, $sentence2, $threshold = 0.5){
+    private function match_sentences($sentence1, $sentence2, $threshold = 0.7){
         // forming tokens
         $tokens1 = explode(" ", $sentence1);
         $tokens2 = explode(" ", $sentence2);

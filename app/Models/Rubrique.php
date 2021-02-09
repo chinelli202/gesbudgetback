@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class Rubrique extends Model
 {
     protected $attributes = [
-        'statut' => "actif"
+        'statut' => "actif",
+        'representation' => 'YDE',
+        'entreprise' => 'SNH'
     ];
 
     public function lignes(){

@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class Chapitre extends Model
 {
     protected $attributes = [
-        'statut' => "actif"
+        'statut' => "actif",
+        'representation' => 'YDE',
+        'entreprise' => 'SNH'
     ];
 
     public function rubriques(){
