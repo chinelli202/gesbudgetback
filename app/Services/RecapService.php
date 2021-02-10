@@ -98,9 +98,9 @@ class RecapService {
                     ->join('lignes', 'engagements.ligne_id', '=', 'lignes.id')
                     //->whereMonth('imputation.created_at', $params['month'])
                     //->select('engagements.montant_ttc','engagements.created_at')
-                    ->select('engagements.cumul_imputations','engagements.created_at')
+                    ->select('engagements.cumul_imputations','engagements.eng_date')
                     ->where('lignes.id',$ligne_id)
-                    ->whereDate('engagements.created_at','<',$jour)
+                    ->whereDate('engagements.eng_date','<',$jour)
                     ->sum('engagements.cumul_imputations');
                 //2. on a given month
                 $recap->realisationsMois = $realisationsMois;
