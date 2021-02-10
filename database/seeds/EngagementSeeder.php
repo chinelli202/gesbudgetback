@@ -132,6 +132,7 @@ class EngagementSeeder extends Seeder
         $engagement = \App\Models\Engagement::firstOrCreate([
             'code' => $typeEng .substr(now()->format('ymd-His-u'),0,17), 
             'code_comptabilite' => $typeEng .strval(DB::getPdo()->lastInsertId()+1).'-'.substr(now()->format('ymd-His-u'),0,17), 
+            'eng_date' => now(),
             'libelle' => 'Engagement de type ' . $typeEng . ' du '. now(),
             'montant_ht' => 0,
             'montant_ttc' => $montant,

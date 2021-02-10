@@ -21,13 +21,20 @@ class UserController extends Controller
         $current_user   =       Auth::user();
         $validator      =       Validator::make($request->all(),
             [
+                'sexe'              =>        'nullable|size:1',
+                'date_naissance'    =>        'nullable|date',
+                'date_embauche'     =>        'nullable|date',
+                'addresse'          =>        'nullable',
+                'num_compte'        =>        'nullable',
+                'dom_bancaire'      =>        'nullable',
                 'first_name'        =>        'required',
                 'last_name'         =>        'required',
                 'email'             =>        'required|email|unique:users',
-                'matricule'         =>        'required|alpha_num|unique:users',
+                'matricule'         =>        'required|alpha_num|unique:users|size:5',
                 'password'          =>        'required|min:5',
                 'confirm_password'  =>        'required|same:password',
                 'division'          =>        'required',
+                'representation'    =>        'required',
                 'fonction'          =>        'required'
             ]
         );
@@ -43,12 +50,19 @@ class UserController extends Controller
         }
 
         $dataArray          =       array(
+            'sexe'              =>          $request->sexe,
+            'date_naissance'    =>          $request->date_naissance,
+            'date_embauche'     =>          $request->date_embauche,
+            'addresse'          =>          $request->addresse,
+            'num_compte'        =>          $request->num_compte,
+            'dom_bancaire'      =>          $request->dom_bancaire,
             "first_name"        =>          $request->first_name,
             "last_name"         =>          $request->last_name,
             "name"              =>          $name,
             "email"             =>          $request->email,
             "matricule"         =>          $request->matricule,
             "password"          =>          bcrypt($request->password),
+            'representation'    =>          $request->representation ? $request->representation : 'YDE',
             'division'          =>          $request->division, 
             'fonction'          =>          $request->fonction,
             'saisisseur'        =>          $current_user ? $current_user->matricule : 'NA', 
@@ -83,7 +97,6 @@ class UserController extends Controller
 
     // -------------- [ User Login ] ---------------
     public function userLogin(Request $request) {
-
         if(Auth::attempt(['matricule' => $request->matricule, 'password' => $request->password, 'statut_utilisateur' => 'Init'])){
             activity()
                 ->causedBy(Auth::user())
