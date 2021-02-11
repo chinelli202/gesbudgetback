@@ -62,4 +62,9 @@ class MaquetteTreeController extends Controller
         return response()->json(["status" => $this->success_status, "success" => true, "data" => $mandat]);
     }
     public function getGlobalTree(RecapService $service){}
+
+    public function getEntrepriseTree(RecapService $service){
+        // call get representation tree function. 
+        // 
+    }
 }
