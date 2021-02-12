@@ -117,6 +117,23 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Laratrust Object Models
+    |--------------------------------------------------------------------------
+    |
+    | This is the array that contains the information of the object ownable models.
+    | This information is used in the add-trait command, for the ownership
+    | relationships with the possible ownable object models, and the
+    | administration panel to attach objects to the teams.
+    |
+    | The key in the array is the name of the relationship inside the roles and permissions.
+    |
+    */
+    'object_models' => [
+        'lignes' => \App\Models\Ligne::class,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Laratrust Models
     |--------------------------------------------------------------------------
     |
@@ -193,6 +210,16 @@ return [
          * Role foreign key on Laratrust's role_user and permission_user tables.
          */
         'team' => 'team_id',
+
+        /**
+         * Team foreign key on Laratrust's ownership tables.
+         */
+        'team_owner' => 'owner_id',
+
+        /**
+         * Object foreign key on Laratrust's ownership tables.
+         */
+        'ligne' => 'ligne_id',
     ],
 
     /*

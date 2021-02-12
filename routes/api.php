@@ -76,6 +76,10 @@ Route::group(['middleware' => ['auth:api', 'cors']], function () {
     Route::get("getvariables", "VariableController@getVariables")->name('getVariables');
 });
 
+Route::prefix('team')->name('team')->group(function () {
+    Route::get("lignes/{id}", "TeamController@getlignes")->name("lignes");
+});
+
 Route::get('/budgetsfonctionnement',"BudgetFonctionnementController@index");
 Route::get('/etats/fonctionnement/depenses/groupe/{groupename}',"EtatsGroupesFonctionnementController@getGroupe");
 Route::get('/etats/fonctionnement/depenses/soussection/fonctionnement',"EtatsFonctionnementController@getRecapSousSectionFonctionnement");
