@@ -179,7 +179,7 @@ return [
 
         'permission_role' => 'permission_role',
 
-        'ownership' => 'ownerships'
+        'ownable' => 'ownables'
     ],
 
     /*
@@ -219,7 +219,7 @@ return [
         /**
          * Object foreign key on Laratrust's ownership tables.
          */
-        'ligne' => 'ligne_id',
+        'ownable' => 'ownable_id',
     ],
 
     /*

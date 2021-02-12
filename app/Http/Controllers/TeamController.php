@@ -13,7 +13,15 @@ class TeamController extends Controller
     public function getlignes(Request $request) {
         $teamId = $request->id;
         $team = Team::findOrFail($teamId);
-        $lignes = $team->lignes();
+        $lignes = $team->lignes()->get();
+        return response()->json(["status" => $this->sucess_status, "success" => true, "data" => $lignes]);       
+    }
+
+    public function addlignes(Request $request) {
+        $ligneIDs = explode(',', $request->ids);
+        $teamId = $request->id;
+        $team = Team::findOrFail($teamId);
+        $lignes = $team->lignes()->get();
         return response()->json(["status" => $this->sucess_status, "success" => true, "data" => $lignes]);       
     }
 }
