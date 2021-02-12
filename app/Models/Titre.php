@@ -9,12 +9,14 @@ class Titre extends Model
     protected $attributes = [
         'label' => "Libelle Titre",
         'description' => "Description Titre",
-        'statut' => 'actif',
-        'representation' => 'YDE',
-        'entreprise' => 'SNH'
+        'statut' => 'actif'
     ];
 
     public function chapitres() {
         return $this->hasMany('App\Models\Chapitre');
+    }
+
+    public function entreprise(){
+        return $this->belongsTo('App\Models\Entreprise');
     }
 }
