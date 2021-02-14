@@ -191,109 +191,239 @@ class LaratrustSeeder extends Seeder
             'valideur' => 'NA',
             'source' => Config::get('laratrust.constants.user_creation_source.SEEDER')
         ]);
+
+        /** Rôles de base de l'application */
+        $roledbc = \App\Models\Role::firstOrCreate([
+            'name' => 'DBC',
+            'display_name' => 'Directeur du budget',
+            'description' => 'Directeur du budget',
+            'saisisseur' => 'NA',
+            'valideur' => 'NA',
+            'source' => Config::get('laratrust.constants.user_creation_source.SEEDER')
+        ]);
+
+        $roledbc->attachPermission('ENG_INIT_SAISI');
+        $roledbc->attachPermission('ENG_INIT_CLOT');
+        $roledbc->attachPermission('ENG_PEG_SAISI');
+        $roledbc->attachPermission('ENG_PEG_CLOT');
+        $roledbc->attachPermission('ENG_IMP_SAISI');
+        $roledbc->attachPermission('ENG_IMP_CLOT');
+        $roledbc->attachPermission('ENG_IMP_REG');
+
+        $roledbc->attachPermission('ENG_INIT_VALIDP');
+        $roledbc->attachPermission('ENG_INIT_VALIDS');
+        $roledbc->attachPermission('ENG_PEG_VALIDP');
+        $roledbc->attachPermission('ENG_PEG_VALIDS');
+        $roledbc->attachPermission('ENG_IMP_VALIDP');
+        $roledbc->attachPermission('ENG_IMP_VALIDS');
+
+        $roledbc->attachPermission('ENG_INIT_VALIDF');
+        $roledbc->attachPermission('ENG_PEG_VALIDF');
+        $roledbc->attachPermission('ENG_IMP_VALIDF');
         
         
-        foreach ($config as $key => $modules) {
+        $roledbca = \App\Models\Role::firstOrCreate([
+            'name' => 'DBCA',
+            'display_name' => 'Directeur adjoint du budget',
+            'description' => 'Directeur adjoint du budget',
+            'saisisseur' => 'NA',
+            'valideur' => 'NA',
+            'source' => Config::get('laratrust.constants.user_creation_source.SEEDER')
+        ]);
 
-            // Create a new role
-            $role = \App\Models\Role::firstOrCreate([
-                'name' => $key,
-                'display_name' => ucwords(str_replace('_', ' ', $key)),
-                'description' => ucwords(str_replace('_', ' ', $key)),
-                'saisisseur' => 'NA',
-                'valideur' => 'NA',
-                'source' => Config::get('laratrust.constants.user_creation_source.SEEDER')
-            ]);
-            $permissions = [];
+        $roledbca->attachPermission('ENG_INIT_SAISI');
+        $roledbca->attachPermission('ENG_INIT_CLOT');
+        $roledbca->attachPermission('ENG_PEG_SAISI');
+        $roledbca->attachPermission('ENG_PEG_CLOT');
+        $roledbca->attachPermission('ENG_IMP_SAISI');
+        $roledbca->attachPermission('ENG_IMP_CLOT');
+        $roledbca->attachPermission('ENG_IMP_REG');
 
-            $this->command->info('Creating Role '. strtoupper($key));
+        $roledbca->attachPermission('ENG_INIT_VALIDP');
+        $roledbca->attachPermission('ENG_INIT_VALIDS');
+        $roledbca->attachPermission('ENG_PEG_VALIDP');
+        $roledbca->attachPermission('ENG_PEG_VALIDS');
+        $roledbca->attachPermission('ENG_IMP_VALIDP');
+        $roledbca->attachPermission('ENG_IMP_VALIDS');
 
-            // Reading role permission modules
-            foreach ($modules as $module => $value) {
+        $roledbca->attachPermission('ENG_INIT_VALIDF');
+        $roledbca->attachPermission('ENG_PEG_VALIDF');
+        $roledbca->attachPermission('ENG_IMP_VALIDF');
 
-                foreach (explode(',', $value) as $p => $perm) {
+        $rolecc = \App\Models\Role::firstOrCreate([
+            'name' => 'chef-cellule',
+            'display_name' => 'Chef de cellule',
+            'description' => 'Chef de cellule',
+            'saisisseur' => 'NA',
+            'valideur' => 'NA',
+            'source' => Config::get('laratrust.constants.user_creation_source.SEEDER')
+        ]);
 
-                    $permissionValue = $mapPermission->get($perm);
+        $rolecc->attachPermission('ENG_INIT_SAISI');
+        $rolecc->attachPermission('ENG_INIT_CLOT');
+        $rolecc->attachPermission('ENG_PEG_SAISI');
+        $rolecc->attachPermission('ENG_PEG_CLOT');
+        $rolecc->attachPermission('ENG_IMP_SAISI');
+        $rolecc->attachPermission('ENG_IMP_CLOT');
+        $rolecc->attachPermission('ENG_IMP_REG');
 
-                    $permissions[] = \App\Models\Permission::firstOrCreate([
-                        'code' => $module . '-' . $permissionValue,
-                        'name' => ucfirst($permissionValue) . ' ' . ucfirst($module),
-                        'description' => ucfirst($permissionValue) . ' ' . ucfirst($module),
-                        'saisisseur' => 'NA',
-                        'valideur' => 'NA',
-                        'source' => Config::get('laratrust.constants.user_creation_source.SEEDER')
-                    ])->id;
+        $rolecc->attachPermission('ENG_INIT_VALIDP');
+        $rolecc->attachPermission('ENG_INIT_VALIDS');
+        $rolecc->attachPermission('ENG_PEG_VALIDP');
+        $rolecc->attachPermission('ENG_PEG_VALIDS');
+        $rolecc->attachPermission('ENG_IMP_VALIDP');
+        $rolecc->attachPermission('ENG_IMP_VALIDS');
 
-                    $this->command->info('Creating Permission to '.$permissionValue.' for '. $module);
-                }
-            }
+        $rolesai = \App\Models\Role::firstOrCreate([
+            'name' => 'saisisseur',
+            'display_name' => 'Saisisseur',
+            'description' => 'Saisisseur',
+            'saisisseur' => 'NA',
+            'valideur' => 'NA',
+            'source' => Config::get('laratrust.constants.user_creation_source.SEEDER')
+        ]);
+        $rolesai->attachPermission('ENG_INIT_SAISI');
+        $rolesai->attachPermission('ENG_INIT_CLOT');
+        $rolesai->attachPermission('ENG_PEG_SAISI');
+        $rolesai->attachPermission('ENG_PEG_CLOT');
+        $rolesai->attachPermission('ENG_IMP_SAISI');
+        $rolesai->attachPermission('ENG_IMP_CLOT');
+        $rolesai->attachPermission('ENG_IMP_REG');
 
-            // Attach all permissions to the role
-            $role->permissions()->sync($permissions);
-            
-            if($role->name === 'user') {
-                $role->attachPermission('ENG_INIT_SAISI');
-                $role->attachPermission('ENG_INIT_CLOT');
-                $role->attachPermission('ENG_PEG_SAISI');
-                $role->attachPermission('ENG_PEG_CLOT');
-                $role->attachPermission('ENG_IMP_SAISI');
-                $role->attachPermission('ENG_IMP_CLOT');
-                $role->attachPermission('ENG_IMP_REG');
-            }
+        $roleuser = \App\Models\Role::firstOrCreate([
+            'name' => 'user',
+            'display_name' => 'Utilisateur',
+            'description' => 'Utilisateur',
+            'saisisseur' => 'NA',
+            'valideur' => 'NA',
+            'source' => Config::get('laratrust.constants.user_creation_source.SEEDER')
+        ]);
 
-            if($role->name === 'administrator') {
-                $role->attachPermission('ENG_INIT_VALIDP');
-                $role->attachPermission('ENG_INIT_VALIDS');
-                $role->attachPermission('ENG_PEG_VALIDP');
-                $role->attachPermission('ENG_PEG_VALIDS');
-                $role->attachPermission('ENG_IMP_VALIDP');
-                $role->attachPermission('ENG_IMP_VALIDS');
-            }
+        $user = \App\Models\User::create([
+            'matricule' => '00379',
+            'sexe' => 'M',
+            'name' => 'NGANGO EBANDJO Eugène',
+            'first_name' => 'Eugène',
+            'last_name' => 'NGANGO EBANDJO',
+            'email' => 'eugene.ngango@snh.cm',
+            'password' => bcrypt('00379'),
+            'saisisseur' => 'NA',
+            'statut_utilisateur' => Config::get('laratrust.constants.user_status.INITIATED'),
+            'valideur' => 'NA',
+            'source'  => Config::get('laratrust.constants.user_creation_source.SEEDER'),
+            'division' => 'DBC',
+            'fonction' => 'directeur',
+            'representation' => 'YDE'
+        ]);
+        $user->attachRole($roledbc);
 
-            if($role->name === 'superadministrator') {
-                $role->attachPermission('ENG_INIT_VALIDF');
-                $role->attachPermission('ENG_PEG_VALIDF');
-                $role->attachPermission('ENG_IMP_VALIDF');
-            }
+        $user = \App\Models\User::create([
+            'matricule' => '00000',
+            'sexe' => 'F',
+            'name' => 'MENGUE ME MBARGA Salomé',
+            'first_name' => 'Salomé',
+            'last_name' => 'MENGUE ME MBARGA',
+            'email' => 'salome.mengue@snh.cm',
+            'password' => bcrypt('00000'),
+            'saisisseur' => 'NA',
+            'statut_utilisateur' => Config::get('laratrust.constants.user_status.INITIATED'),
+            'valideur' => 'NA',
+            'source'  => Config::get('laratrust.constants.user_creation_source.SEEDER'),
+            'division' => 'DBC',
+            'fonction' => 'sous_directeur',
+            'representation' => 'YDE'
+        ]);
+        $user->attachRole($roledbca);
 
-            if(Config::get('laratrust_seeder.create_users')) {
-                $this->command->info("Creating '{$key}' user");
-                // Create default user for each role
-                $user = \App\Models\User::create([
-                    'matricule' => '0000'. $increment,
-                    'name' => ucwords(str_replace('_', ' ', $key)).'1',
-                    'email' => $key.'1@app.com',
-                    'password' => bcrypt('12345'),
-                    'saisisseur' => 'NA',
-                    'statut_utilisateur' => Config::get('laratrust.constants.user_status.INITIATED'),
-                    'valideur' => 'NA',
-                    'source'  => Config::get('laratrust.constants.user_creation_source.SEEDER'),
-                    'division' => 'DBC',
-                    'fonction' => 'cadre'
-                ]);
-                $user->attachRole($role);
-                $increment += 1;
-            }
+        $user = \App\Models\User::create([
+            'matricule' => '00475',
+            'sexe' => 'F',
+            'name' => 'NGO MBOG Odette',
+            'first_name' => 'Odette',
+            'last_name' => 'NGO MBOG',
+            'email' => 'odette.ngombog@snh.cm',
+            'password' => bcrypt('00475'),
+            'saisisseur' => 'NA',
+            'statut_utilisateur' => Config::get('laratrust.constants.user_status.INITIATED'),
+            'valideur' => 'NA',
+            'source'  => Config::get('laratrust.constants.user_creation_source.SEEDER'),
+            'division' => 'DBC',
+            'fonction' => 'chef_section_cellule',
+            'representation' => 'YDE'
+        ]);
+        $user->attachRole($rolecc);
 
-            if(Config::get('laratrust_seeder.create_users')) {
-                $this->command->info("Creating '{$key}' user");
-                // Create default user for each role
-                $user = \App\Models\User::create([
-                    'matricule' => '0000'. $increment,
-                    'name' => ucwords(str_replace('_', ' ', $key)).'2',
-                    'email' => $key.'2@app.com',
-                    'password' => bcrypt('12345'),
-                    'saisisseur' => 'NA',
-                    'statut_utilisateur' => Config::get('laratrust.constants.user_status.INITIATED'),
-                    'valideur' => 'NA',
-                    'source'  => Config::get('laratrust.constants.user_creation_source.SEEDER'),
-                    'division' => 'DBC',
-                    'fonction' => 'cadre'
-                ]);
-                $user->attachRole($role);
-                $increment += 1;
-            }
-        }
+        $user = \App\Models\User::create([
+            'matricule' => '00362',
+            'sexe' => 'M',
+            'name' => 'NAAH AMBASSA Ignace',
+            'first_name' => 'Ignace',
+            'last_name' => 'NAAH AMBASSA',
+            'email' => 'ignace.naah@snh.cm',
+            'password' => bcrypt('00362'),
+            'saisisseur' => 'NA',
+            'statut_utilisateur' => Config::get('laratrust.constants.user_status.INITIATED'),
+            'valideur' => 'NA',
+            'source'  => Config::get('laratrust.constants.user_creation_source.SEEDER'),
+            'division' => 'DBC',
+            'fonction' => 'chef_section_cellule',
+            'representation' => 'YDE'
+        ]);
+        $user->attachRole($rolecc);
+
+        $user = \App\Models\User::create([
+            'matricule' => '00171',
+            'sexe' => 'M',
+            'name' => 'BELINGA Louis Roger',
+            'first_name' => 'Louis Roger',
+            'last_name' => 'BELINGA',
+            'email' => 'roger.belinga@snh.cm',
+            'password' => bcrypt('00171'),
+            'saisisseur' => 'NA',
+            'statut_utilisateur' => Config::get('laratrust.constants.user_status.INITIATED'),
+            'valideur' => 'NA',
+            'source'  => Config::get('laratrust.constants.user_creation_source.SEEDER'),
+            'division' => 'DBC',
+            'fonction' => 'agent_maitrise',
+            'representation' => 'YDE'
+        ]);
+        $user->attachRole($rolesai);
+
+        $user = \App\Models\User::create([
+            'matricule' => '00614',
+            'sexe' => 'M',
+            'name' => 'NJOCK ELOKOBI',
+            'first_name' => 'NJOCK ELOKOBI',
+            'last_name' => 'NJOCK ELOKOBI',
+            'email' => 'njock.elokobi@snh.cm',
+            'password' => bcrypt('00614'),
+            'saisisseur' => 'NA',
+            'statut_utilisateur' => Config::get('laratrust.constants.user_status.INITIATED'),
+            'valideur' => 'NA',
+            'source'  => Config::get('laratrust.constants.user_creation_source.SEEDER'),
+            'division' => 'DBC',
+            'fonction' => 'cadre',
+            'representation' => 'YDE'
+        ]);
+        $user->attachRole($rolesai);
+
+        $user = \App\Models\User::create([
+            'matricule' => '00705',
+            'sexe' => 'M',
+            'name' => 'NANGA NOUKITI Noël Axel',
+            'first_name' => 'Noël Axel',
+            'last_name' => 'NANGA NOUKITI',
+            'email' => 'noel.nanga@app.com',
+            'password' => bcrypt('00705'),
+            'saisisseur' => 'NA',
+            'statut_utilisateur' => Config::get('laratrust.constants.user_status.INITIATED'),
+            'valideur' => 'NA',
+            'source'  => Config::get('laratrust.constants.user_creation_source.SEEDER'),
+            'division' => 'DBC',
+            'fonction' => 'temporaire',
+            'representation' => 'YDE'
+        ]);
+        $user->attachRole($rolesai);
     }
 
     /**

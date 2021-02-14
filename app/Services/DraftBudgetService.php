@@ -237,6 +237,12 @@ class DraftBudgetService{
                 $titreEntry->description = $titre['description'];
                 $titreEntry->domaine = $titre['domaine'];
                 $titreEntry->section = $titre['section'];
+                if(isset($titre['entreprise'])){
+                    $titreEntry->entreprise = $titre['entreprise'];
+                }
+                if(isset($titre['representation'])){
+                    $titreEntry->representation = $titre['representation'];
+                }
                 $titredb = $titreEntry->save();
                 $titredb = $titreEntry;
                 echo "saved titre : ".$titreEntry->label;
@@ -262,6 +268,12 @@ class DraftBudgetService{
                     if(isset($chapitre['sous_section'])){
                         $chapitreEntry->sous_section = $chapitre['sous_section'];
                     }
+                    if(isset($chapitre['entreprise'])){
+                        $chapitreEntry->entreprise = $chapitre['entreprise'];
+                    }
+                    if(isset($chapitre['representation'])){
+                        $chapitreEntry->representation = $chapitre['representation'];
+                    }
                     $chapitredb = $chapitreEntry->save();
                     $chapitredb = $chapitreEntry;
                     //$titreEntry -> chapitres() -> save($chapitreEntry);
@@ -286,6 +298,13 @@ class DraftBudgetService{
                         if(isset($rubrique['sous_section'])){
                             $rubriqueEntry->sous_section = $rubrique['sous_section'];
                         }
+
+                        if(isset($rubrique['entreprise'])){
+                            $rubriqueEntry->entreprise = $rubrique['entreprise'];
+                        }
+                        if(isset($rubrique['representation'])){
+                            $rubriqueEntry->representation = $rubrique['representation'];
+                        }
                         $rubriquedb = $rubriqueEntry->save();
                         $rubriquedb = $rubriqueEntry;
                         //$chapitreEntry -> rubriques() -> save($rubriqueEntry);
@@ -309,6 +328,14 @@ class DraftBudgetService{
                         $ligneEntry->montant = str_replace(" ","", $ligne['montant']);//;$ligne['montant'];
                         $ligneEntry->domaine = $ligne['domaine'];
                         $ligneEntry->section = $ligne['section'];
+
+                        if(isset($ligne['entreprise'])){
+                            $ligneEntry->entreprise = $ligne['entreprise'];
+                        }
+                        if(isset($ligne['representation'])){
+                            $ligneEntry->representation = $ligne['representation'];
+                        }
+
                         if(isset($ligne['sous_section'])){
                             $ligneEntry->sous_section = $ligne['sous_section'];
                         }
