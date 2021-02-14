@@ -24,8 +24,8 @@ class CreateChapitresTable extends Migration
             $table->enum('section', ['Dépenses','Recettes']);
             $table->string('sous_section')->nullable();
             $table->unsignedBigInteger('titre_id');
-            $table->unsignedBigInteger('entreprise_id');
-            $table->foreign('entreprise_id')->references('id')->on('entreprises')->onDelete('cascade');
+            $table->string('code_entreprise');
+            $table->foreign('code_entreprise')->references('code')->on('entreprises')->onDelete('cascade');
             $table->foreign('titre_id')->references('id')->on('titres')->onDelete('cascade');
         });
     }

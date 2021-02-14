@@ -7,7 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class Ligne extends Model
 {
     protected $attributes = [
-        'statut' => "actif"
+        'statut' => "actif",
+        'code_entreprise' => 'SNHSIEGE'
     ];
     public function rubrique(){
         return $this->belongsTo('App\Models\Rubrique');
@@ -34,7 +35,7 @@ class Ligne extends Model
     }
 
     public function entreprise(){
-        return $this->belongsTo('App\Models\Entreprise');
+        return $this->belongsTo('App\Models\Entreprise', 'code_entreprise', 'code');
     }
 
     public function updateStatut(){

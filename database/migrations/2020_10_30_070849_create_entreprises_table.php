@@ -16,11 +16,11 @@ class CreateEntreprisesTable extends Migration
         Schema::create('entreprises', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->string('code');
+            $table->string('code')->unique();
             $table->string('nom');
             $table->string('description');
             $table->string('localisation');
-            $table->boolean('hasDomaine');
+            $table->boolean('hasDomaines');
         });
     }
 
