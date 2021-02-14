@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Entreprise;
 use App\Services\RecapService;
 use Illuminate\Http\Request;
 use stdClass;
@@ -72,6 +73,33 @@ class MaquetteTreeController extends Controller
 
         else    
             return "badly formed request";
+    }
+
+    public function getEntrepriseTree(RecapService $service, $entrepriseid){
+
+        $entreprise = Entreprise::find($entrepriseid);
+        if(!isEmpty($entreprise)){
+            $tree = new stdClass();
+            $tree->levels = 3;
+            if($entreprise->hasDomains){
+                $tree->levels = 4;
+                $domaines = [];
+            }
+            else{
+    
+            }
+        }
+        else    
+            return "badly formed request";
+
+        // if($this->validateParams($request)){
+        //     $tree = new stdClass();
+        //     $tree = $service->getTree('Mandat','Dépenses', null, $request->entreprise, $request->representation);
+        //     return response()->json(["status" => $this->success_status, "success" => true, "data" => $tree]);
+        // }
+
+        // else    
+        //     return "badly formed request";
     }
 
     private function validateParams(Request $request){

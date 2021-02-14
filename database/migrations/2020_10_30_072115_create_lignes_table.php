@@ -27,8 +27,8 @@ class CreateLignesTable extends Migration
             $table->foreign('rubrique_id')->references('id')->on('rubriques')->onDelete('cascade');
             $table->string('sous_categorie')->nullable();
             $table->string('sous_rubrique')->nullable();
-            $table->string('representation');
-            $table->string('entreprise');
+            $table->unsignedBigInteger('entreprise_id');
+            $table->foreign('entreprise_id')->references('id')->on('entreprises')->onDelete('cascade');
             $table->unsignedBigInteger('parent_id')->nullable();
             $table->foreign('parent_id')->references('id')->on('lignes')->onDelete('cascade');
             $table->unsignedBigInteger('exercice_budgetaire_id');

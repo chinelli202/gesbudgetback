@@ -511,7 +511,7 @@ class RecapService {
         //recap sous section investissement, recap chapitres investissement, recap section recettes, recap chapitres recette
     }
 
-    public function getTree($domaine_p, $section_p, $sous_section_p, $entreprise, $representation){
+    public function getTree($domaine_p, $section_p, $sous_section_p, $entrepriseid){
         //load all chapitres of fonctionnement.
         //for each chapitre, load rubriques
         //for each rubrique, load lignes.
@@ -522,14 +522,14 @@ class RecapService {
         }   
         
         
-        if(!is_null($representation) && !is_null($entreprise)){
-            $chapitresdb = Chapitre::where('entreprise',$entreprise)
-                ->where('representation', $representation)->get();
+        if(is_null($domaine_p)){
+            $chapitresdb = Chapitre::where('entreprise_id',$entrepriseid)->get();
+                //->where('representation', $representation)->get();
         }
 
         else {
             $chapitresdb = Chapitre::where('domaine',$domaine_p)
-        ->where($sous_section_type, $section_p)->get();
+                ->where($sous_section_type, $section_p)->where('entreprise_id', $entrepriseid)->get();
         }
 
         $chapitres = [];
