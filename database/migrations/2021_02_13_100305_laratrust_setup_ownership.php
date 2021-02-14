@@ -6,6 +6,7 @@ class LaratrustSetupOwnership extends Migration
 {
     /**
      * Run the migrations.
+     * Added by github.com/bloomverga
      *
      * @return  void
      */

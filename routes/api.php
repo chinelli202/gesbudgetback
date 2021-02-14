@@ -78,6 +78,9 @@ Route::group(['middleware' => ['auth:api', 'cors']], function () {
 
 Route::prefix('team')->name('team')->group(function () {
     Route::get("{id}/getlignes", "TeamController@getlignes")->name("lignes");
+        // 127.0.0.1:8000/api/team/1/getlignes
+    Route::get("{id}/ownsligne", "TeamController@ownlignes")->name("ownsligne");
+        // 127.0.0.1:8000/api/team/1/ownsligne?ids=2,4&requireall=false
     Route::get("{id}/addlignes", "TeamController@addlignes")->name("lignes");
 });
 
