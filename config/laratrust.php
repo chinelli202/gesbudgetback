@@ -181,7 +181,9 @@ return [
 
         'permission_role' => 'permission_role',
 
-        'ownable' => 'ownables'
+        'ownable' => 'ownables',
+
+        'team_entity' => 'entreprises'
     ],
 
     /*

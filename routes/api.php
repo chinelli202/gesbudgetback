@@ -74,16 +74,16 @@ Route::group(['middleware' => ['auth:api', 'cors']], function () {
     });
     
     Route::get("getvariables", "VariableController@getVariables")->name('getVariables');
+    Route::get("userteams", "TeamController@getteams")->name("getteams");
 });
 
 Route::prefix('team')->name('team')->group(function () {
     Route::get("getlignes", "TeamController@getlignes")->name("lignes");
         // 127.0.0.1:8000/api/team/1/getlignes
-    Route::get("ownsligne", "TeamController@ownlignes")->name("ownsligne");
+    Route::get("ownslignes", "TeamController@ownlignes")->name("ownsligne");
         // 127.0.0.1:8000/api/team/1/ownsligne?ids=2,4&requireall=false
     Route::get("addlignes", "TeamController@addlignes")->name("lignes");
 });
-Route::get("{id}/getlignes", "TeamController@getlignes")->name("lignes");
 
 Route::get('/budgetsfonctionnement',"BudgetFonctionnementController@index");
 Route::get('/etats/fonctionnement/depenses/groupe/{groupename}',"EtatsGroupesFonctionnementController@getGroupe");
