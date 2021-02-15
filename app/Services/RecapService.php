@@ -97,10 +97,11 @@ class RecapService {
                     //->join('engagements', 'imputations.engagement_id', '=', 'engagements.code')
                     ->join('lignes', 'engagements.ligne_id', '=', 'lignes.id')
                     //->whereMonth('imputation.created_at', $params['month'])
-                    ->select('engagements.montant_ttc','engagements.created_at')
+                    //->select('engagements.montant_ttc','engagements.created_at')
+                    ->select('engagements.cumul_imputations','engagements.eng_date')
                     ->where('lignes.id',$ligne_id)
-                    ->whereDate('engagements.created_at','<',$jour)
-                    ->sum('engagements.montant_ttc');
+                    ->whereDate('engagements.eng_date','<',$jour)
+                    ->sum('engagements.cumul_imputations');
                 //2. on a given month
                 $recap->realisationsMois = $realisationsMois;
                 $recap->realisationsMoisPrecedents = $realisationsMoisPrecedents;
@@ -130,10 +131,10 @@ class RecapService {
                     //->join('engagements', 'imputations.engagement_id', '=', 'engagements.code')
                     ->join('lignes', 'engagements.ligne_id', '=', 'lignes.id')
                     //->whereMonth('imputation.created_at', $params['month'])
-                    ->select('engagements.montant_ttc','engagements.created_at')
+                    ->select('engagements.cumul_imputations','engagements.created_at')
                     ->where('lignes.id',$ligne_id)
                     ->whereMonth('engagements.created_at',$params->mois)
-                    ->sum('engagements.montant_ttc');
+                    ->sum('engagements.cumul_imputations');
                 //2. on a given month
                 $recap->realisations = $realisations;
                 $recap->engagements = $soe_imputations;//$soe_imputations - $realisations;
@@ -510,7 +511,7 @@ class RecapService {
         //recap sous section investissement, recap chapitres investissement, recap section recettes, recap chapitres recette
     }
 
-    public function getTree($domaine_p, $section_p, $sous_section_p){
+    public function getTree($domaine_p, $section_p, $sous_section_p, $code_entreprise){
         //load all chapitres of fonctionnement.
         //for each chapitre, load rubriques
         //for each rubrique, load lignes.
@@ -518,11 +519,21 @@ class RecapService {
         $sous_section_type = 'section';
         if(!is_null($sous_section_p)){
             $sous_section_type = 'sous_section';
+        }   
+        
+        
+        if(is_null($domaine_p)){
+            $chapitresdb = Chapitre::where('code_entreprise',$code_entreprise)->get();
+                //->where('representation', $representation)->get();
         }
-        $chapitresdepenses = Chapitre::where('domaine',$domaine_p)
-                    ->where($sous_section_type, $section_p)->get();
+
+        else {
+            $chapitresdb = Chapitre::where('domaine',$domaine_p)
+                ->where($sous_section_type, $section_p)->where('code_entreprise', $code_entreprise)->get();
+        }
+
         $chapitres = [];
-        foreach($chapitresdepenses as $chap){
+        foreach($chapitresdb as $chap){
             $newchap = new stdClass();
             $newchap->label = $chap->label;
             $newchap->id = $chap->id;
@@ -582,6 +593,10 @@ class RecapService {
         return $section;
     }
 
+    public function getRepresentationTree(){
+
+    }
+
     public function getRecapGeneralMandat(){
 
     }
@@ -629,7 +644,7 @@ class RecapService {
     private function setHeader($name, $headerlabel, $periode){
         $header = new stdClass();
         $header->name = $name;
-        $header->labelLabel = $headerlabel;
+        $header->labelLabel = ucfirst($headerlabel);
         $header->previsionsLabel = "Prévisions";
         $header->realisationsLabel = "Réalisations cumulées ".$periode;//"Réalisations ".$periode;
         $header->realisationsMoisPrecedentsLabel = "Réalisations précédentes";

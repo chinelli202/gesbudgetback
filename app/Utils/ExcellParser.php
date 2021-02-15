@@ -77,7 +77,7 @@ class ExcellParser {
                     'rgb'=>'000000'
                 ],
                 'bold'=>true,
-                'size'=>11
+                'size'=>12
             ],
             'fill'=>[
                 'fillType' => Fill::FILL_SOLID,
@@ -274,7 +274,7 @@ class ExcellParser {
         ->setCellValue('G'.$this->row,$data->execution)
         ->setCellValue('H'.$this->row,$data->solde)
         ->setCellValue('I'.$this->row,$data->tauxExecution);
-        $this->sheet->getStyle('B'.$this->row.":H".$this->row)->getNumberFormat()->setFormatCode('### ### ### ###0,00');
+        $this->sheet->getStyle('B'.$this->row.":H".$this->row)->getNumberFormat()->setFormatCode('# ##0.0');
         if($this->deletegap == 'rubrique')
             $this->sheet->removeRow($this->rowgap-1,1);
         //$this->sheet->removeRow($this->row,2);
@@ -316,7 +316,7 @@ class ExcellParser {
         ->setCellValue('G'.$this->row,$data->execution)
         ->setCellValue('H'.$this->row,$data->solde)
         ->setCellValue('I'.$this->row,$data->tauxExecution);
-        $this->sheet->getStyle('B'.$this->row.":H".$this->row)->getNumberFormat()->setFormatCode('### ### ### ###0,00');
+        $this->sheet->getStyle('B'.$this->row.":H".$this->row)->getNumberFormat()->setFormatCode('### ### ### ###');
         if($this->deletegap == 'collection')
             $this->sheet->removeRow($this->rowgap-1,1);
         //$this->sheet->removeRow($this->row,1);
@@ -360,7 +360,7 @@ class ExcellParser {
         ->setCellValue('G'.$this->row,$data->execution)
         ->setCellValue('H'.$this->row,$data->solde)
         ->setCellValue('I'.$this->row,$data->tauxExecution);
-        $this->sheet->getStyle('B'.$this->row.":H".$this->row)->getNumberFormat()->setFormatCode('### ### ### ###0,00');
+        $this->sheet->getStyle('B'.$this->row.":H".$this->row)->getNumberFormat()->setFormatCode('### ### ### ###');
         if($this->deletegap == 'chapitre')
             $this->sheet->removeRow($this->rowgap-1,1);
         $this->sheet->removeRow($this->row,2);
@@ -390,7 +390,7 @@ class ExcellParser {
             ->setCellValue('G'.$this->row,$ligne->execution)
             ->setCellValue('H'.$this->row,$ligne->solde)
             ->setCellValue('I'.$this->row,$ligne->tauxExecution);
-            $this->sheet->getStyle('B'.$this->row.":H".$this->row)->getNumberFormat()->setFormatCode('### ### ### ###0,00');
+            $this->sheet->getStyle('B'.$this->row.":H".$this->row)->getNumberFormat()->setFormatCode('### ### ### ###');
         
         //setting solde column bold
         $this->sheet->getStyle('H'.$this->row)->getFont()->setBold(true);

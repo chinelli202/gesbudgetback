@@ -7,7 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class Chapitre extends Model
 {
     protected $attributes = [
-        'statut' => "actif"
+        'statut' => "actif",
+        'code_entreprise' => 'SNHSIEGE'
     ];
 
     public function rubriques(){
@@ -16,5 +17,9 @@ class Chapitre extends Model
 
     public function titre(){
         return $this->belongsTo('App\Models\Titre');
+    }
+
+    public function entreprise(){
+        return $this->belongsTo('App\Models\Entreprise','code_entreprise', 'code');
     }
 }

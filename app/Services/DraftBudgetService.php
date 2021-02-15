@@ -115,6 +115,20 @@ class DraftBudgetService{
         }
     }
 
+    public function updateMaquette($file_name){
+        //just check if the file exists and then launch the load process
+        $exists = Storage::exists('public/files/'.$file_name);
+
+        if(!$exists){
+            echo "file does not exist";
+            //return false;
+        }
+        else{
+            $this->process_maquette_file($file_name);
+            return 'finished';
+        }
+    }
+
     //create new exercice
     public function save($request){
         $budget = $this->getRunningExercice();
@@ -183,6 +197,10 @@ class DraftBudgetService{
         //return 'not implemented yet';
     }
 
+    public function deleteTitre(){
+        
+    }
+
     private function process_maquette_file($name){
         Log::info('processing maquette file');
 
@@ -219,6 +237,10 @@ class DraftBudgetService{
                 $titreEntry->description = $titre['description'];
                 $titreEntry->domaine = $titre['domaine'];
                 $titreEntry->section = $titre['section'];
+                if(isset($titre['entreprise'])){
+                    $titreEntry->code_entreprise = $titre['entreprise'];
+                }
+                
                 $titredb = $titreEntry->save();
                 $titredb = $titreEntry;
                 echo "saved titre : ".$titreEntry->label;
@@ -244,6 +266,10 @@ class DraftBudgetService{
                     if(isset($chapitre['sous_section'])){
                         $chapitreEntry->sous_section = $chapitre['sous_section'];
                     }
+                    if(isset($chapitre['entreprise'])){
+                        $chapitreEntry->code_entreprise = $chapitre['entreprise'];
+                    }
+                    
                     $chapitredb = $chapitreEntry->save();
                     $chapitredb = $chapitreEntry;
                     //$titreEntry -> chapitres() -> save($chapitreEntry);
@@ -268,6 +294,11 @@ class DraftBudgetService{
                         if(isset($rubrique['sous_section'])){
                             $rubriqueEntry->sous_section = $rubrique['sous_section'];
                         }
+
+                        if(isset($rubrique['entreprise'])){
+                            $rubriqueEntry->code_entreprise = $rubrique['entreprise'];
+                        }
+                        
                         $rubriquedb = $rubriqueEntry->save();
                         $rubriquedb = $rubriqueEntry;
                         //$chapitreEntry -> rubriques() -> save($rubriqueEntry);
@@ -291,6 +322,11 @@ class DraftBudgetService{
                         $ligneEntry->montant = str_replace(" ","", $ligne['montant']);//;$ligne['montant'];
                         $ligneEntry->domaine = $ligne['domaine'];
                         $ligneEntry->section = $ligne['section'];
+
+                        if(isset($ligne['entreprise'])){
+                            $ligneEntry->code_entreprise = $ligne['entreprise'];
+                        }
+
                         if(isset($ligne['sous_section'])){
                             $ligneEntry->sous_section = $ligne['sous_section'];
                         }
@@ -307,7 +343,7 @@ class DraftBudgetService{
                         Log::channel('syslog')->info('saved ligne : '.$ligneEntry->label);
                         Log::info('saved ligne : '.$ligneEntry->label);
 
-                        // //create 3 new engagements for each month and each ligne
+                        //create 3 new engagements for each month and each ligne
                         // $coefs = [1/48,1/24,1/72,1/48];
                         // if($ligneEntry->montant!=0)
                         // {

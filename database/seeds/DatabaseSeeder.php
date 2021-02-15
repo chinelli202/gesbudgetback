@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Entreprise;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -15,6 +16,37 @@ class DatabaseSeeder extends Seeder
         // $this->call(UserSeeder::class);
         $service = new App\Services\DraftBudgetService();
         $this->call(LaratrustSeeder::class);
+
+        //seeding entreprises
+        $siege = Entreprise::firstOrCreate([
+            'code' => 'SNHSIEGE',
+            'nom' => 'SNH SIEGE',
+            'description' => 'SOCIETE NATIONALE DES HYDROCARBURES',
+            'localisation' => 'YDE',
+            'hasDomaines' => true
+        ]);
+        $cpsp = Entreprise::firstOrCreate([
+            'code' => 'CPSP',
+            'nom' => 'CPSP',
+            'description' => 'COMITE DE PILOTATE ET DE SUIVI DU PIPELINE',
+            'localisation' => 'YDE',
+            'hasDomaines' => false
+        ]);
+        $snhdouala = Entreprise::firstOrCreate([
+            'code' => 'SNHDOUALA',
+            'nom' => 'REPRESENTATION SNH DOUALA',
+            'description' => 'REPRESENTATION SNH DOUALA',
+            'localisation' => 'DLA',
+            'hasDomaines' => false
+        ]);    
+        $snhkribi = Entreprise::firstOrCreate([
+            'code' => 'SNHKRIBI',
+            'nom' => 'SNH KRIBI',
+            'description' => 'REPRESENTATION SNH KRIBI',
+            'localisation' => 'KRB',
+            'hasDomaines' => false
+        ]);
+
         $service->loadMaquette('maquette2021.php');
         
         //$this->call(EngagementSeeder::class);
