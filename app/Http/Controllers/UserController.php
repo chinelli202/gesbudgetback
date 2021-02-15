@@ -143,6 +143,30 @@ class UserController extends Controller
         $user           =       Auth::user();
         $user['roles'] = $request->user()->getRoles();
         $user['permissions'] = $request->user()->allPermissions();
+        $emptyarray = [];
+        $user['teams'] = array_reduce(
+            $request->user()->rolesTeams()->get()->toArray(),
+            function($old, $new) {
+                $newId = $new['id'];
+                if($old && array_key_exists($newId, $old)) {
+                    $oldpivot = $old[$newId]['pivot'];
+                    if(is_object($oldpivot)) {
+                        unset($old['pivot']);
+                        $old[$newId]['pivot'][] = $oldpivot;
+                    }
+                    $old[$newId]['pivot'][] = $new['pivot'];
+                } else {
+                    $keys = array_keys($new);
+                    foreach ($keys as $key) {
+                        if($key == 'pivot') continue;
+                        $old[$newId][$key] = $new[$key];
+                    }
+                    $old[$newId]['pivot'][] = $new['pivot'];
+                }
+                return $old;
+            },
+            []
+        );
 
         if(!is_null($user)) {
             return response()->json(["status" => $this->sucess_status, "success" => true, "data" => $user]);
