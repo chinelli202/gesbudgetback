@@ -81,14 +81,16 @@ class MaquetteTreeController extends Controller
         if(!empty($entreprise)){
             $tree = new stdClass();
             $tree->levels = 3;
-            if($entreprise->hasDomains){
+            if($entreprise->hasDomaines){
                 $tree->levels = 4;
                 $domaines = [];
                 $mandat = new stdClass();
+                $mandat->name = 'Mandat';
                 $mandat->depenses = $service->getTree('Mandat','Dépenses', null, $entrepriseid);
                 $mandat->recettes = $service->getTree('Mandat','Recettes',null, $entrepriseid); 
 
                 $fonctionnement = new stdClass();
+                $fonctionnement->name = 'Fonctionnement';   
                 $fonctionnement->depenses = $service->getTree('Fonctionnement','Dépenses',null, $entrepriseid);
                 $fonctionnement->recettes = $service->getTree('Fonctionnement','Recettes',null, $entrepriseid);
                 $domaines = [$fonctionnement, $mandat];
