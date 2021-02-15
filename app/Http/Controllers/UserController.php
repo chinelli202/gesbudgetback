@@ -148,21 +148,14 @@ class UserController extends Controller
             $request->user()->rolesTeams()->get()->toArray(),
             function($old, $new) {
                 $newId = $new['id'];
-                if($old && array_key_exists($newId, $old)) {
-                    $oldpivot = $old[$newId]['pivot'];
-                    if(is_object($oldpivot)) {
-                        unset($old['pivot']);
-                        $old[$newId]['pivot'][] = $oldpivot;
-                    }
-                    $old[$newId]['pivot'][] = $new['pivot'];
-                } else {
+                if(!($old && array_key_exists($newId, $old))) {
                     $keys = array_keys($new);
                     foreach ($keys as $key) {
                         if($key == 'pivot') continue;
                         $old[$newId][$key] = $new[$key];
                     }
-                    $old[$newId]['pivot'][] = $new['pivot'];
                 }
+                $old[$newId]['roles_id'][] = $new['pivot']['role_id'];
                 return $old;
             },
             []
