@@ -7,7 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class Rubrique extends Model
 {
     protected $attributes = [
-        'statut' => "actif"
+        'statut' => "actif",
+        'code_entreprise' => 'SNHSIEGE'
     ];
 
     public function lignes(){
@@ -16,6 +17,10 @@ class Rubrique extends Model
 
     public function chapitre(){
         return $this->belongsTo('App\Models\Chapitre');
+    }
+
+    public function entreprise(){
+        return $this->belongsTo('App\Models\Entreprise','code_entreprise', 'code');
     }
 
     public function updateStatut(){
