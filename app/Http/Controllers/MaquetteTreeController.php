@@ -77,16 +77,28 @@ class MaquetteTreeController extends Controller
 
     public function getEntrepriseTree(RecapService $service, $entrepriseid){
 
-        $entreprise = Entreprise::find($entrepriseid);
-        if(!isEmpty($entreprise)){
+        $entreprise = Entreprise::where('code',$entrepriseid)->first();//find($entrepriseid);
+        if(!empty($entreprise)){
             $tree = new stdClass();
             $tree->levels = 3;
             if($entreprise->hasDomains){
                 $tree->levels = 4;
                 $domaines = [];
+                $mandat = new stdClass();
+                $mandat->depenses = $service->getTree('Mandat','Dépenses', null, $entrepriseid);
+                $mandat->recettes = $service->getTree('Mandat','Recettes',null, $entrepriseid); 
+
+                $fonctionnement = new stdClass();
+                $fonctionnement->depenses = $service->getTree('Fonctionnement','Dépenses',null, $entrepriseid);
+                $fonctionnement->recettes = $service->getTree('Fonctionnement','Recettes',null, $entrepriseid);
+                $domaines = [$fonctionnement, $mandat];
+
+                $tree->domaines = $domaines;
+                return response()->json(["status" => $this->success_status, "success" => true, "data" => $tree]);
             }
             else{
-    
+                $tree = $service->getTree(null,'Dépenses', null, $entrepriseid);
+                return response()->json(["status" => $this->success_status, "success" => true, "data" => $tree]);
             }
         }
         else    
