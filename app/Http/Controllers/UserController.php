@@ -171,6 +171,7 @@ class UserController extends Controller
             []
         );
         $user['team'] = $team;
+        unset($user['team']['pivot']);
         $user['roles'] = $roles = $user->getRoles($team);
         $user['permissions'] = array_reduce(
             $roleIDs[$teamId],
