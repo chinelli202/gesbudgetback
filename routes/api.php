@@ -101,7 +101,7 @@ Route::get('/maquettes/fonctionnement',"MaquetteTreeController@getFonctionnement
 Route::get('/maquettes/mandat',"MaquetteTreeController@getMandatTree");
 Route::get('/maquettes/all',"MaquetteTreeController@getGlobalTree");
 Route::get('/maquettes/representation',"MaquetteTreeController@getRepresentationAndEntrepriseTree");
-Route::get('/maquettes/entreprise/{entrepriseid}',"MaquetteTreeController@getEntrepriseTree");
+Route::get('/maquettes/entreprise',"MaquetteTreeController@getEntrepriseTree");
 
 //routes for recap requests
 Route::get('/etats/fonctionnement/groupe/{groupename}',"EtatsFonctionnementController@getRecapRubriqueGroupe");

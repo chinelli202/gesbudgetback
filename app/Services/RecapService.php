@@ -528,8 +528,13 @@ class RecapService {
         }
 
         else {
-            $chapitresdb = Chapitre::where('domaine',$domaine_p)
-                ->where($sous_section_type, $section_p)->where('code_entreprise', $code_entreprise)->get();
+            if(is_null($section_p))
+                $chapitresdb = Chapitre::where('domaine',$domaine_p)
+                    ->where('code_entreprise', $code_entreprise)->get();
+            else{
+                $chapitresdb = Chapitre::where('domaine',$domaine_p)
+                    ->where($sous_section_type, $section_p)->where('code_entreprise', $code_entreprise)->get();
+            }
         }
 
         $chapitres = [];
@@ -539,6 +544,7 @@ class RecapService {
             $newchap->id = $chap->id;
             $rubriquesnewchap = $chap->rubriques;//Rubrique::where('chapitre_id',$chap->id);
             $rubriques = [];
+            $newchap->prevision = 0;
             //loop through rubs and build rubriques
             foreach($rubriquesnewchap as $rub){
                 $newrub = new stdClass();
@@ -546,6 +552,7 @@ class RecapService {
                 $newrub->id = $rub->id;
                 $lignesnewrub = $rub->lignes;//Ligne::where('rubrique_id',$rub->id);
                 $lignes = [];
+                $newrub->prevision = 0;
                 foreach($lignesnewrub as $li){
                     if($li->statut != "actif"){
                         continue;
@@ -563,12 +570,15 @@ class RecapService {
                         $newli->label = $li->parent->label." - ".$li->label; //forming the ligne's label. "parent's label - sous ligne's label
                     }
                     else
-                        $newli->label = $li->label;
+                    $newli->label = $li->label;
                     
+                    $newli->prevision = $li->montant;
                     $newli->id =  $li->id;
                     array_push($lignes, $newli);
+                    $newrub->prevision += $li->montant;
                 }
                 $newrub->lignes = $lignes;
+                $newchap->prevision += $newrub->prevision;
                 array_push($rubriques, $newrub);
             }
             //add rubriques array to newchap
