@@ -224,6 +224,11 @@ return [
          * Object foreign key on Laratrust's ownership tables.
          */
         'ownable' => 'ownable_id',
+        
+        /**
+         * Object foreign key on Laratrust's ownership tables.
+         */
+        'team_entity' => 'entreprise_id',
     ],
 
     /*

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Team;
 use App\Models\Role;
+use App\Models\Entreprise;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
@@ -155,6 +156,9 @@ class UserController extends Controller
         $roleIDs = [];
         if(is_null($teamId)) {
             $team = $request->user()->rolesTeams()->first();
+            if(is_null($team)) {
+                return response()->json(["status" => $this->sucess_status, "success" => true, "data" => $user]);
+            }    
             $teamId = $team['id'];
         } else {
             $team = Team::findOrFail($teamId);
@@ -163,16 +167,19 @@ class UserController extends Controller
         $user['teams'] = array_reduce(
             $request->user()->rolesTeams()->get()->toArray(),
             function($old, $new) use (&$roleIDs) {
-                $roleIDs[$new['id']][] = $new['pivot']['role_id'];
+                $newId = $new['id'];
+                $roleIDs[$newId][] = $new['pivot']['role_id'];
                 unset($new['pivot']);
-                $old[$new['id']] = $new;
+                $old[$newId] = $new;
+                $old[$newId]['entreprise_code'] = Entreprise::findOrFail($new['entreprise_id'])->code;
                 return $old;
             },
             []
         );
         $user['team'] = $team;
         unset($user['team']['pivot']);
-        $user['roles'] = $roles = $user->getRoles($team);
+        $user['team']['entreprise_code'] = Entreprise::findOrFail($team['entreprise_id'])->code;
+        $user['roles'] = $user->getRoles($team);
         $user['permissions'] = array_reduce(
             $roleIDs[$teamId],
             function($array, $roleID) {
