@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Team;
+use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
@@ -139,16 +141,76 @@ class UserController extends Controller
     }
 
     // ---------------- [ User Detail ] -------------------
+    /**
+     * Return current user's detail for a specific team. If no team is specified, then return details for the first team to which
+     * the user belongs. 
+     */
     public function userDetail(Request $request) {
         $user           =       Auth::user();
-        $user['roles'] = $request->user()->getRoles();
-        $user['permissions'] = $request->user()->allPermissions();
-
-        if(!is_null($user)) {
-            return response()->json(["status" => $this->sucess_status, "success" => true, "data" => $user]);
-        }
-        else {
+        if(is_null($user)) {
             return response()->json(["status" => "failed", "success" => false, "message" => "Whoops! no user found"]);
         }
+
+        $teamId = $request->teamId;
+        $roleIDs = [];
+        if(is_null($teamId)) {
+            $team = $request->user()->rolesTeams()->first();
+            $teamId = $team['id'];
+        } else {
+            $team = Team::findOrFail($teamId);
+        }
+        // Building team list and roleIDS list of all the roles per teams
+        $user['teams'] = array_reduce(
+            $request->user()->rolesTeams()->get()->toArray(),
+            function($old, $new) use (&$roleIDs) {
+                $roleIDs[$new['id']][] = $new['pivot']['role_id'];
+                unset($new['pivot']);
+                $old[$new['id']] = $new;
+                return $old;
+            },
+            []
+        );
+        $user['team'] = $team;
+        unset($user['team']['pivot']);
+        $user['roles'] = $roles = $user->getRoles($team);
+        $user['permissions'] = array_reduce(
+            $roleIDs[$teamId],
+            function($array, $roleID) {
+                $permissions = Role::findOrFail($roleID)->permissions()->get()->toArray();
+                foreach($permissions as $permission) {
+                    $array[] = $permission;
+                }
+                return $array;
+            },
+            []
+        );
+
+        // building the 'teams' attribute to include the corresponding roles and permissions
+        /* $user['teams'] = array_reduce(
+            $request->user()->rolesTeams()->get()->toArray(),
+            function($old, $new) use (&$user) {
+                $newTeamId = $new['id'];
+                $newTeam = Team::findOrFail($newTeamId);
+                if(!($old && array_key_exists($newTeamId, $old))) {
+                    $keys = array_keys($new);
+                    foreach ($keys as $key) {
+                        if($key == 'pivot') continue;
+                        $old[$newTeamId][$key] = $new[$key];
+                    }
+                }
+                $roleID = $new['pivot']['role_id'];
+                $old[$newTeamId]['roles_id'][] = $roleID;
+                $old[$newTeamId]['roles'] = $roles = $user->getRoles($newTeam);
+                foreach($roles as $role) {
+                    $permissions = Role::findOrFail($roleID)->permissions()->get()->toArray();
+                    foreach($permissions as $permission) {
+                        $old[$newTeamId]['permissions'][] = $permission;
+                    }
+                }
+                return $old;
+            },
+            []
+        ); */
+        return response()->json(["status" => $this->sucess_status, "success" => true, "data" => $user]);
     }
 }
