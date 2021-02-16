@@ -143,7 +143,11 @@ class UserController extends Controller
     // ---------------- [ User Detail ] -------------------
     public function userDetail(Request $request) {
         $user           =       Auth::user();
-        $emptyarray = [];
+        if(is_null($user)) {
+            return response()->json(["status" => "failed", "success" => false, "message" => "Whoops! no user found"]);
+        }
+
+        // building the 'teams' attribute to include the corresponding roles and permissions
         $user['teams'] = array_reduce(
             $request->user()->rolesTeams()->get()->toArray(),
             function($old, $new) use (&$user) {
@@ -169,12 +173,6 @@ class UserController extends Controller
             },
             []
         );
-
-        if(!is_null($user)) {
-            return response()->json(["status" => $this->sucess_status, "success" => true, "data" => $user]);
-        }
-        else {
-            return response()->json(["status" => "failed", "success" => false, "message" => "Whoops! no user found"]);
-        }
+        return response()->json(["status" => $this->sucess_status, "success" => true, "data" => $user]);
     }
 }
