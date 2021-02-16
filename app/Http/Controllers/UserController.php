@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Team;
+use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
@@ -141,21 +143,28 @@ class UserController extends Controller
     // ---------------- [ User Detail ] -------------------
     public function userDetail(Request $request) {
         $user           =       Auth::user();
-        $user['roles'] = $request->user()->getRoles();
-        $user['permissions'] = $request->user()->allPermissions();
         $emptyarray = [];
         $user['teams'] = array_reduce(
             $request->user()->rolesTeams()->get()->toArray(),
-            function($old, $new) {
-                $newId = $new['id'];
-                if(!($old && array_key_exists($newId, $old))) {
+            function($old, $new) use (&$user) {
+                $newTeamId = $new['id'];
+                $newTeam = Team::findOrFail($newTeamId);
+                if(!($old && array_key_exists($newTeamId, $old))) {
                     $keys = array_keys($new);
                     foreach ($keys as $key) {
                         if($key == 'pivot') continue;
-                        $old[$newId][$key] = $new[$key];
+                        $old[$newTeamId][$key] = $new[$key];
                     }
                 }
-                $old[$newId]['roles_id'][] = $new['pivot']['role_id'];
+                $roleID = $new['pivot']['role_id'];
+                $old[$newTeamId]['roles_id'][] = $roleID;
+                $old[$newTeamId]['roles'] = $roles = $user->getRoles($newTeam);
+                foreach($roles as $role) {
+                    $permissions = Role::findOrFail($roleID)->permissions()->get()->toArray();
+                    foreach($permissions as $permission) {
+                        $old[$newTeamId]['permissions'][] = $permission;
+                    }
+                }
                 return $old;
             },
             []
