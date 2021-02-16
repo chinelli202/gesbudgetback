@@ -141,14 +141,51 @@ class UserController extends Controller
     }
 
     // ---------------- [ User Detail ] -------------------
+    /**
+     * Return current user's detail for a specific team. If no team is specified, then return details for the first team to which
+     * the user belongs. 
+     */
     public function userDetail(Request $request) {
         $user           =       Auth::user();
         if(is_null($user)) {
             return response()->json(["status" => "failed", "success" => false, "message" => "Whoops! no user found"]);
         }
 
-        // building the 'teams' attribute to include the corresponding roles and permissions
+        $teamId = $request->teamId;
+        $roleIDs = [];
+        if(is_null($teamId)) {
+            $team = $request->user()->rolesTeams()->first();
+            $teamId = $team['id'];
+        } else {
+            $team = Team::findOrFail($teamId);
+        }
+        // Building team list and roleIDS list of all the roles per teams
         $user['teams'] = array_reduce(
+            $request->user()->rolesTeams()->get()->toArray(),
+            function($old, $new) use (&$roleIDs) {
+                $roleIDs[$new['id']][] = $new['pivot']['role_id'];
+                unset($new['pivot']);
+                $old[$new['id']] = $new;
+                return $old;
+            },
+            []
+        );
+        $user['team'] = $team;
+        $user['roles'] = $roles = $user->getRoles($team);
+        $user['permissions'] = array_reduce(
+            $roleIDs[$teamId],
+            function($array, $roleID) {
+                $permissions = Role::findOrFail($roleID)->permissions()->get()->toArray();
+                foreach($permissions as $permission) {
+                    $array[] = $permission;
+                }
+                return $array;
+            },
+            []
+        );
+
+        // building the 'teams' attribute to include the corresponding roles and permissions
+        /* $user['teams'] = array_reduce(
             $request->user()->rolesTeams()->get()->toArray(),
             function($old, $new) use (&$user) {
                 $newTeamId = $new['id'];
@@ -172,7 +209,7 @@ class UserController extends Controller
                 return $old;
             },
             []
-        );
+        ); */
         return response()->json(["status" => $this->sucess_status, "success" => true, "data" => $user]);
     }
 }
