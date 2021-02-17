@@ -59,7 +59,7 @@ class ExcellParser {
         $this->tablehead = [
             'font'=>[
                 'color'=>[
-                    'rgb'=>'FFFFFF'
+                    'rgb'=>'227447'
                 ],
                 'bold'=>true,
                 'size'=>13
@@ -67,7 +67,9 @@ class ExcellParser {
             'fill'=>[
                 'fillType' => Fill::FILL_SOLID,
                 'startColor' => [
-                    'rgb' => '538ED5'
+                    //'rgb' => '538ED5'
+                    'rgb' => 'BFBFBF'
+                    
                 ]
             ],
         ];
@@ -265,6 +267,7 @@ class ExcellParser {
         $this->sheet->getStyle('A'.$this->row.":I".$this->row)->getFont()->setBold(true);
         $this->sheet->getStyle("B".$this->row.":I".$this->row)->applyFromArray($this->greentext);
         $this->sheet->getStyle("A".$this->row.":I".$this->row)->applyFromArray($this->tablehead);
+        //$this->sheet->getStyle("B".$this->row.":I".$this->row)->applyFromArray($this->greentext);
         //set sum data.
         $this->sheet->setCellValue('B'.$this->row,$data->prevision)
         ->setCellValue('C'.$this->row,$data->realisationsMois)
@@ -274,7 +277,9 @@ class ExcellParser {
         ->setCellValue('G'.$this->row,$data->execution)
         ->setCellValue('H'.$this->row,$data->solde)
         ->setCellValue('I'.$this->row,$data->tauxExecution);
-        $this->sheet->getStyle('B'.$this->row.":H".$this->row)->getNumberFormat()->setFormatCode('# ##0.0');
+        //$this->sheet->getStyle('B'.$this->row.":H".$this->row)->getNumberFormat()->setFormatCode('# ##0.0');
+        //$this->sheet->getStyle('B'.$this->row.":H".$this->row)->getNumberFormat()->setFormatCode('# ##0.0');
+        //$this->sheet->getStyle('B'.$this->row.":H".$this->row)->getNumberFormat()->setFormatCode('#');
         if($this->deletegap == 'rubrique')
             $this->sheet->removeRow($this->rowgap-1,1);
         //$this->sheet->removeRow($this->row,2);
@@ -316,7 +321,7 @@ class ExcellParser {
         ->setCellValue('G'.$this->row,$data->execution)
         ->setCellValue('H'.$this->row,$data->solde)
         ->setCellValue('I'.$this->row,$data->tauxExecution);
-        $this->sheet->getStyle('B'.$this->row.":H".$this->row)->getNumberFormat()->setFormatCode('### ### ### ###');
+        //$this->sheet->getStyle('B'.$this->row.":H".$this->row)->getNumberFormat()->setFormatCode('### ### ### ###');
         if($this->deletegap == 'collection')
             $this->sheet->removeRow($this->rowgap-1,1);
         //$this->sheet->removeRow($this->row,1);
@@ -360,7 +365,7 @@ class ExcellParser {
         ->setCellValue('G'.$this->row,$data->execution)
         ->setCellValue('H'.$this->row,$data->solde)
         ->setCellValue('I'.$this->row,$data->tauxExecution);
-        $this->sheet->getStyle('B'.$this->row.":H".$this->row)->getNumberFormat()->setFormatCode('### ### ### ###');
+        //$this->sheet->getStyle('B'.$this->row.":H".$this->row)->getNumberFormat()->setFormatCode('### ### ### ###');
         if($this->deletegap == 'chapitre')
             $this->sheet->removeRow($this->rowgap-1,1);
         $this->sheet->removeRow($this->row,2);
@@ -390,7 +395,26 @@ class ExcellParser {
             ->setCellValue('G'.$this->row,$ligne->execution)
             ->setCellValue('H'.$this->row,$ligne->solde)
             ->setCellValue('I'.$this->row,$ligne->tauxExecution);
-            $this->sheet->getStyle('B'.$this->row.":H".$this->row)->getNumberFormat()->setFormatCode('### ### ### ###');
+            //$this->sheet->getStyle('B'.$this->row.":H".$this->row)->getNumberFormat()->setFormatCode('### ### ### ###');
+            
+            //formatting cells if value >= 1000
+            if($ligne->prevision >= 1000)
+                $this->sheet->getStyle('B'.$this->row)->getNumberFormat()->setFormatCode('### ### ### ###');
+            if($ligne->realisationsMois >= 1000)
+                $this->sheet->getStyle('C'.$this->row)->getNumberFormat()->setFormatCode('### ### ### ###');
+            if($ligne->realisationsMoisPrecedents >= 1000)
+                $this->sheet->getStyle('D'.$this->row)->getNumberFormat()->setFormatCode('### ### ### ###');
+            if($ligne->realisations >= 1000)
+                $this->sheet->getStyle('E'.$this->row)->getNumberFormat()->setFormatCode('### ### ### ###');
+            if($ligne->engagements >= 1000)
+                $this->sheet->getStyle('F'.$this->row)->getNumberFormat()->setFormatCode('### ### ### ###');
+            if($ligne->execution >= 1000)
+                $this->sheet->getStyle('G'.$this->row)->getNumberFormat()->setFormatCode('### ### ### ###');
+            if($ligne->solde >= 1000)
+                $this->sheet->getStyle('H'.$this->row)->getNumberFormat()->setFormatCode('### ### ### ###');
+            $this->sheet->getStyle('I'.$this->row)->getNumberFormat()->setFormatCode('#0%');
+   
+
         
         //setting solde column bold
         $this->sheet->getStyle('H'.$this->row)->getFont()->setBold(true);
@@ -424,7 +448,7 @@ class ExcellParser {
         // row height
         $this->sheet->getRowDimension($this->row)->setRowHeight(30);
         // cell value
-        $this->sheet->setCellValue('B'.$this->row,'EXECUTION  DU BUDGET  2020');
+        $this->sheet->setCellValue('B'.$this->row,'EXECUTION  DU BUDGET  2021');
         //bold
         $this->sheet->getStyle('B'.$this->row)->getFont()->setBold(true);
         //text size
