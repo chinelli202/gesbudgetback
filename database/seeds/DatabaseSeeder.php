@@ -47,6 +47,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $service->loadMaquette('maquette2021.php');
+        $this->call(LaratrustSeeder::class);
         
         //$this->call(EngagementSeeder::class);
         $this->call(VariablesSeeder::class);
@@ -139,6 +140,5 @@ class DatabaseSeeder extends Seeder
             'taux_execution' => 0,
         ]);
         
-        $this->call(LaratrustSeeder::class);
     }
 }
