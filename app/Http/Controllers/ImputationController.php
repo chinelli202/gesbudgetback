@@ -39,6 +39,7 @@ class ImputationController extends Controller
             "montant_ht" => 0,
             "devise" => $request->devise,
             "observations" => $request->observations,
+            "entreprise_code" => $request->entreprise_code,
             
             'etat' => Config::get('gesbudget.variables.etat_engagement.INIT')[1],
             'statut' => Config::get('gesbudget.variables.statut_engagement.SAISI')[1],

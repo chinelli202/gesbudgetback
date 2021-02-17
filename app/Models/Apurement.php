@@ -38,7 +38,7 @@ class Apurement extends Model {
      */
     protected $fillable = ['engagement_id', 'libelle', 'reference_paiement', 'type_paiement', 'montant_ht', 'montant_ttc', 'devise'
         , 'observations', 'statut', 'etat', 'saisisseur', 'valideur_first', 'valideur_second', 'valideur_final', 'source'
-        , 'next_statut', 'documents'
+        , 'next_statut', 'documents', 'entreprise_code'
     ];
 
     public function engagement(){

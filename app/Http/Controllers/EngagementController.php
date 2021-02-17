@@ -214,6 +214,7 @@ class EngagementController extends Controller
             "devise" => $request->devise,
             "type" => $request->type,
             "nature" => $request->nature,
+            "entreprise_code" => $request->entreprise_code,
             
             'etat' => Config::get('gesbudget.variables.etat_engagement.INIT')[1],
             'statut' => Config::get('gesbudget.variables.statut_engagement.SAISI')[1],
