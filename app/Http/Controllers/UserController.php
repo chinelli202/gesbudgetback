@@ -157,7 +157,7 @@ class UserController extends Controller
         if(is_null($teamId)) {
             $team = $request->user()->rolesTeams()->first();
             if(is_null($team)) {
-                return response()->json(["status" => $this->sucess_status, "success" => true, "data" => $user]);
+                return response()->json(["status" => "failed", "success" => false, "message" => "Cet utilisateur n'a pas d'équipe associée."]);
             }    
             $teamId = $team['id'];
         } else {
@@ -171,14 +171,12 @@ class UserController extends Controller
                 $roleIDs[$newId][] = $new['pivot']['role_id'];
                 unset($new['pivot']);
                 $old[$newId] = $new;
-                $old[$newId]['entreprise_code'] = Entreprise::findOrFail($new['entreprise_id'])->code;
                 return $old;
             },
             []
         );
         $user['team'] = $team;
         unset($user['team']['pivot']);
-        $user['team']['entreprise_code'] = Entreprise::findOrFail($team['entreprise_id'])->code;
         $user['roles'] = $user->getRoles($team);
         $user['permissions'] = array_reduce(
             $roleIDs[$teamId],

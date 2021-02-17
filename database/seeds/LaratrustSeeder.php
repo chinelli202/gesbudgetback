@@ -20,6 +20,13 @@ class LaratrustSeeder extends Seeder
         $mapPermission = collect(config('laratrust_seeder.permissions_map'));
         $increment = 1;
 
+        $teamSnhYde = \App\Models\Team::firstOrCreate([
+            'name' => 'snh_yde',
+            'display_name' => 'SNH YDE',
+            'description' => 'Siège SNH',
+            'entreprise_code' => 'SNHSIEGE'
+        ]);
+
         /** Permissions à l'étape d'initialisation des préengagements */
         $perm = \App\Models\Permission::create([
             'code' => 'ENG_INIT_SAISI',
@@ -315,7 +322,7 @@ class LaratrustSeeder extends Seeder
             'fonction' => 'directeur',
             'representation' => 'YDE'
         ]);
-        $user->attachRole($roledbc);
+        $user->attachRole($roledbc, $teamSnhYde);
 
         $user = \App\Models\User::create([
             'matricule' => '00000',
@@ -333,7 +340,7 @@ class LaratrustSeeder extends Seeder
             'fonction' => 'sous_directeur',
             'representation' => 'YDE'
         ]);
-        $user->attachRole($roledbca);
+        $user->attachRole($roledbca, $teamSnhYde);
 
         $user = \App\Models\User::create([
             'matricule' => '00475',
@@ -351,7 +358,7 @@ class LaratrustSeeder extends Seeder
             'fonction' => 'chef_section_cellule',
             'representation' => 'YDE'
         ]);
-        $user->attachRole($rolecc);
+        $user->attachRole($rolecc, $teamSnhYde);
 
         $user = \App\Models\User::create([
             'matricule' => '00362',
@@ -369,7 +376,7 @@ class LaratrustSeeder extends Seeder
             'fonction' => 'chef_section_cellule',
             'representation' => 'YDE'
         ]);
-        $user->attachRole($rolecc);
+        $user->attachRole($rolecc, $teamSnhYde);
 
         $user = \App\Models\User::create([
             'matricule' => '00171',
@@ -387,7 +394,7 @@ class LaratrustSeeder extends Seeder
             'fonction' => 'agent_maitrise',
             'representation' => 'YDE'
         ]);
-        $user->attachRole($rolesai);
+        $user->attachRole($rolesai, $teamSnhYde);
 
         $user = \App\Models\User::create([
             'matricule' => '00614',
@@ -405,7 +412,7 @@ class LaratrustSeeder extends Seeder
             'fonction' => 'cadre',
             'representation' => 'YDE'
         ]);
-        $user->attachRole($rolesai);
+        $user->attachRole($rolesai, $teamSnhYde);
 
         $user = \App\Models\User::create([
             'matricule' => '00705',
@@ -423,7 +430,7 @@ class LaratrustSeeder extends Seeder
             'fonction' => 'temporaire',
             'representation' => 'YDE'
         ]);
-        $user->attachRole($rolesai);
+        $user->attachRole($rolesai, $teamSnhYde);
     }
 
     /**

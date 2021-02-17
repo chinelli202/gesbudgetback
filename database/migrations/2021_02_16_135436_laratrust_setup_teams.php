@@ -17,10 +17,10 @@ class LaratrustSetupTeams extends Migration
             $table->string('name')->unique();
             $table->string('display_name')->nullable();
             $table->string('description')->nullable();
-            $table->unsignedBigInteger('entreprise_id')->nullable();
+            $table->string('entreprise_code')->nullable();
             $table->timestamps();
 
-            $table->foreign('entreprise_id')->references('id')->on('entreprises')
+            $table->foreign('entreprise_code')->references('code')->on('entreprises')
                 ->onUpdate('cascade')->onDelete('cascade');
         });
 
