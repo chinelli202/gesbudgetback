@@ -15,7 +15,6 @@ class DatabaseSeeder extends Seeder
     {
         // $this->call(UserSeeder::class);
         $service = new App\Services\DraftBudgetService();
-        $this->call(LaratrustSeeder::class);
 
         //seeding entreprises
         $siege = Entreprise::firstOrCreate([
@@ -139,5 +138,7 @@ class DatabaseSeeder extends Seeder
             'solde' => 20000000,
             'taux_execution' => 0,
         ]);
+        
+        $this->call(LaratrustSeeder::class);
     }
 }
