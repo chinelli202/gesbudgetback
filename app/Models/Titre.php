@@ -10,7 +10,7 @@ class Titre extends Model
         'label' => "Libelle Titre",
         'description' => "Description Titre",
         'statut' => 'actif',
-        'code_entreprise' => 'SNHSIEGE'
+        'entreprise_code' => 'SNHSIEGE'
     ];
 
     public function chapitres() {
@@ -18,6 +18,6 @@ class Titre extends Model
     }
 
     public function entreprise(){
-        return $this->belongsTo('App\Models\Entreprise', 'code_entreprise', 'code');
+        return $this->belongsTo('App\Models\Entreprise', 'entreprise_code', 'code');
     }
 }

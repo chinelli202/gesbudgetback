@@ -8,7 +8,7 @@ class Chapitre extends Model
 {
     protected $attributes = [
         'statut' => "actif",
-        'code_entreprise' => 'SNHSIEGE'
+        'entreprise_code' => 'SNHSIEGE'
     ];
 
     public function rubriques(){
@@ -20,6 +20,6 @@ class Chapitre extends Model
     }
 
     public function entreprise(){
-        return $this->belongsTo('App\Models\Entreprise','code_entreprise', 'code');
+        return $this->belongsTo('App\Models\Entreprise','entreprise_code', 'code');
     }
 }

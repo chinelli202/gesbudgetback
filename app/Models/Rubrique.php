@@ -8,7 +8,7 @@ class Rubrique extends Model
 {
     protected $attributes = [
         'statut' => "actif",
-        'code_entreprise' => 'SNHSIEGE'
+        'entreprise_code' => 'SNHSIEGE'
     ];
 
     public function lignes(){
@@ -20,7 +20,7 @@ class Rubrique extends Model
     }
 
     public function entreprise(){
-        return $this->belongsTo('App\Models\Entreprise','code_entreprise', 'code');
+        return $this->belongsTo('App\Models\Entreprise','entreprise_code', 'code');
     }
 
     public function updateStatut(){

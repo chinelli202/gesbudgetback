@@ -8,7 +8,7 @@ class Ligne extends Model
 {
     protected $attributes = [
         'statut' => "actif",
-        'code_entreprise' => 'SNHSIEGE'
+        'entreprise_code' => 'SNHSIEGE'
     ];
     public function rubrique(){
         return $this->belongsTo('App\Models\Rubrique');
@@ -35,7 +35,7 @@ class Ligne extends Model
     }
 
     public function entreprise(){
-        return $this->belongsTo('App\Models\Entreprise', 'code_entreprise', 'code');
+        return $this->belongsTo('App\Models\Entreprise', 'entreprise_code', 'code');
     }
 
     public function updateStatut(){
