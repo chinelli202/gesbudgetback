@@ -108,6 +108,7 @@ Route::get('/etats/fonctionnement/groupe/{groupename}',"EtatsFonctionnementContr
 Route::get('/etats/fonctionnement/rubrique/{rubriqueid}',"EtatsFonctionnementController@getRecapRubrique");
 Route::get('/etats/fonctionnement/chapitre/{chapitreid}',"EtatsFonctionnementController@getRecapChapitre");
 Route::get('/etats/fonctionnement/ligne/{ligneid}',"EtatsFonctionnementController@getRecapLigne");
+Route::get('/etats/entreprise/{entreprisecode}',"EtatsFonctionnementController@getRecapEntreprise");
 
 Route::get('/etats/section/{section}/{domaine}',"EtatsFonctionnementController@getRecapSection");
 

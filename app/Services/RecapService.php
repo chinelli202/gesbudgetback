@@ -350,6 +350,48 @@ class RecapService {
         return $recap;
     }
 
+    public function getRecapEntreprise($entreprise_code, $critere, $params){
+        $rchapitre = Chapitre::where('entreprise_code', $entreprise_code)->first();
+        //$rchapitre->rrubriques = [];
+        
+        $collection = [];
+        $recap = new stdClass();
+        $recap->id = $rchapitre->id;
+        $recap->type = 'entreprise';
+        $recap->prevision = 0;
+        $recap->libelle = $rchapitre->label;
+        $recap->libelleParent = $rchapitre->label;
+        $recap->realisations = 0;
+        $recap->realisationsMois = 0;
+        $recap->realisationsMoisPrecedents = 0;
+        $recap->engagements = 0;
+        $recap->execution = 0;
+        $recap->solde = 0;
+        if($critere=='mois'){
+            $recap->mois = date("F", mktime(0, 0, 0, $params->mois, 10));
+        }
+
+        foreach($rchapitre->rubriques as $rubrique){
+            $rrubrique = $this->getRecapRubrique($rubrique->id, $critere, $params);
+            $recap->prevision += $rrubrique->prevision;
+            $recap->realisations += $rrubrique->realisations;
+            $recap->realisationsMois += $rrubrique->realisationsMois;
+            $recap->realisationsMoisPrecedents += $rrubrique->realisationsMoisPrecedents;
+            $recap->engagements += $rrubrique->engagements;
+            $recap->execution += $rrubrique->execution;
+            $recap->solde += $rrubrique->solde;            
+            array_push($collection, $rrubrique);
+        }
+        //TODO add properties
+        //$recap->tauxExecution = floor(100 * ($recap->execution/$recap->prevision));
+        $recap->tauxExecution = $recap->prevision != 0 ? floor(100 * ($recap->execution/$recap->prevision)) : 0;
+        
+        $recap->collection = $collection;        
+        $periode = $this->computePeriodeLabels($critere, $params);
+        $recap->header = $this->setHeader($rchapitre->label, 'rubriques', $periode);
+        
+        return $recap;
+    }
     public function getRecapTitre($titre_id, $critere, $params){
         //get names, get recap named rubrique restricted to rubriques in this titre, group all recaps in a single collection
         $names = DB::table('rubriques')

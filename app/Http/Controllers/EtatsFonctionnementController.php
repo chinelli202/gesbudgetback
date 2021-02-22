@@ -83,6 +83,16 @@ class EtatsFonctionnementController extends Controller
         else return "missing or incorrect parameters";
     }
 
+    public function getRecapEntreprise(RecapService $recapService, $entreprisecode, Request $request){
+        $params = $this->validateParams($request, $recapService);
+        if(!is_null($params)){
+            $recap = $recapService->getRecapEntreprise($entreprisecode, $request->critere, $params);
+            
+            return response()->json(["status" => $this->success_status, "success" => true, "data" => $recap]);
+        }
+        else return "missing or incorrect parameters";
+    }
+
     public function getMonthsRecapChapitre(RecapService $recapService, $chapitreid, Request $request){
         $months = [];
         $params = $this->validateParams($request, $recapService);
