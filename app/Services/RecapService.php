@@ -572,7 +572,7 @@ class RecapService {
         else {
             if(is_null($section_p))
                 $chapitresdb = Chapitre::where('domaine',$domaine_p)
-                    ->where('code_entreprise', $code_entreprise)->get();
+                    ->where('entreprise_code', $code_entreprise)->get();
             else{
                 $chapitresdb = Chapitre::where('domaine',$domaine_p)
                     ->where($sous_section_type, $section_p)->where('entreprise_code', $code_entreprise)->get();

@@ -23,8 +23,8 @@ class CreateRubriquesTable extends Migration
             $table->enum('domaine', ['Fonctionnement','Mandat']);
             $table->enum('section', ['Dépenses','Recettes']);
             $table->string('sous_section')->nullable();
-            $table->string('code_entreprise');
-            $table->foreign('code_entreprise')->references('code')->on('entreprises')->onDelete('cascade');
+            $table->string('entreprise_code');
+            $table->foreign('entreprise_code')->references('code')->on('entreprises')->onDelete('cascade');
             $table->unsignedBigInteger('chapitre_id');
             $table->foreign('chapitre_id')->references('id')->on('chapitres')->onDelete('cascade');
         });
