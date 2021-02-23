@@ -74,9 +74,39 @@
     return $ratio >= $threshold ? true : false;
 }
 
-$sentence1 = "Etude en vue de la mise en place d'une Médiathèque";
-$sentence2 = "en place d'une Médiathèque";
-$sentence3 = "szel leeff lefqz leff";
+function setEntrepriseForModel(){
+    $titres = App\Models\Titre::all();
+    foreach($titres as $titre){
+        $titre->code_entreprise = "SNHSIEGE";
+        $titre->save();
+    }
+    echo "done setting titres\n";
+    $chapitres = App\Models\Chapitre::all();
+    foreach($chapitres as $chapitre){
+        $chapitre->code_entreprise = "SNHSIEGE";
+        $chapitre->save();
+    }
+    echo "done setting chapitres\n";
+    $rubriques = App\Models\Rubrique::all();
+    foreach($rubriques as $rubrique){
+        $rubrique->code_entreprise = "SNHSIEGE";
+        $rubrique->save();
+    }
+    echo "done setting rubriques\n";
+    $lignes = App\Models\Ligne::all();
+    foreach($lignes as $ligne){
+        $ligne->code_entreprise = "SNHSIEGE";
+        $ligne->save();
+    }
+    echo "done setting lignes\n";
 
-echo "result for matching ".$sentence1." with ".$sentence2."\n";
-echo match_sentences($sentence1, $sentence2, 0.8);
+    echo "done setting entreprise for model";
+}
+
+// $sentence1 = "Etude en vue de la mise en place d'une Médiathèque";
+// $sentence2 = "en place d'une Médiathèque";
+// $sentence3 = "szel leeff lefqz leff";
+
+// echo "result for matching ".$sentence1." with ".$sentence2."\n";
+// echo match_sentences($sentence1, $sentence2, 0.8);
+setEntrepriseForModel();
