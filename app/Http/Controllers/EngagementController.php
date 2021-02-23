@@ -573,4 +573,23 @@ class EngagementController extends Controller
             , "data" => EngagementService::enrichEngagement($engagement->id)
         ]);
     }
+
+    public function gethistory(Request $request){
+        $engagementId = $request->id;
+        $engagement = Engagement::findOrFail($engagementId);
+        $activities = $engagement->activities;
+        
+        $imputations = $engagement->imputations->map(function ($imp) use (&$activities) {
+            return array_merge($activities, $imp->activities);
+          });
+        $apurements = $engagement->apurements->map(function ($apur) use (&$activities) {
+            return array_merge($activities, $apur->activities);
+          });
+        
+        return response()->json([
+            "status" => $this->success_status
+            , "success" => true
+            , "data" => $activities
+        ]);
+    }
 }

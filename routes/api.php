@@ -33,7 +33,6 @@ Route::group(['middleware' => ['auth:api', 'cors']], function () {
     Route::get("ligne/solde/{id}", "LigneController@getSolde")->name('getLigneSolde');
 
     Route::get("getengagements", "EngagementController@getEngagements")->name('getEngagements');
-    Route::get("engagement/{id}", "EngagementController@getEngagement")->name('getEngagement');
 
     Route::prefix('engagement')->name('engagement')->group(function () {
         Route::post("addcomment/{id}", "EngagementController@addcomment")->name("addcomment");
@@ -45,6 +44,9 @@ Route::group(['middleware' => ['auth:api', 'cors']], function () {
         Route::post("resend/{id}", "EngagementController@resendupdate")->name("resendupdate");
         Route::post("valider/{id}", "EngagementController@valider")->name("valider");
         Route::post("cancelvalider/{id}", "EngagementController@cancelvalider")->name("cancelvalider");
+        
+        Route::get("history/{id}", "EngagementController@gethistory")->name("history");
+        Route::get("{id}", "EngagementController@getEngagement")->name('getEngagement');
         
         Route::post("uploadfile", "FileuploadController@uploadfile")->name("uploadfile");
     });
