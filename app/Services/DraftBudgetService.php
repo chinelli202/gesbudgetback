@@ -238,7 +238,7 @@ class DraftBudgetService{
                 $titreEntry->domaine = $titre['domaine'];
                 $titreEntry->section = $titre['section'];
                 if(isset($titre['entreprise'])){
-                    $titreEntry->code_entreprise = $titre['entreprise'];
+                    $titreEntry->entreprise_code = $titre['entreprise'];
                 }
                 
                 $titredb = $titreEntry->save();
@@ -267,7 +267,7 @@ class DraftBudgetService{
                         $chapitreEntry->sous_section = $chapitre['sous_section'];
                     }
                     if(isset($chapitre['entreprise'])){
-                        $chapitreEntry->code_entreprise = $chapitre['entreprise'];
+                        $chapitreEntry->entreprise_code = $chapitre['entreprise'];
                     }
                     
                     $chapitredb = $chapitreEntry->save();
@@ -296,7 +296,7 @@ class DraftBudgetService{
                         }
 
                         if(isset($rubrique['entreprise'])){
-                            $rubriqueEntry->code_entreprise = $rubrique['entreprise'];
+                            $rubriqueEntry->entreprise_code = $rubrique['entreprise'];
                         }
                         
                         $rubriquedb = $rubriqueEntry->save();
@@ -324,7 +324,7 @@ class DraftBudgetService{
                         $ligneEntry->section = $ligne['section'];
 
                         if(isset($ligne['entreprise'])){
-                            $ligneEntry->code_entreprise = $ligne['entreprise'];
+                            $ligneEntry->entreprise_code = $ligne['entreprise'];
                         }
 
                         if(isset($ligne['sous_section'])){
