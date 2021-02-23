@@ -12,7 +12,7 @@ class UpdateLigneRubriqueChapitreForEntreprise extends Migration
     public function up()
     {
         Schema::table('lignes', function (Blueprint $table) {// Add team_id column
-            $table->string('entreprise_code');
+            $table->string('entreprise_code')->nullable();
 
             // Create foreign keys
             $table->foreign('entreprise_code')->references('code')->on('entreprises')
@@ -20,7 +20,7 @@ class UpdateLigneRubriqueChapitreForEntreprise extends Migration
         });
 
         Schema::table('rubriques', function (Blueprint $table) {// Add team_id column
-            $table->string('entreprise_code');
+            $table->string('entreprise_code')->nullable();
 
             // Create foreign keys
             $table->foreign('entreprise_code')->references('code')->on('entreprises')
@@ -28,7 +28,7 @@ class UpdateLigneRubriqueChapitreForEntreprise extends Migration
         });
 
         Schema::table('chapitres', function (Blueprint $table) {// Add team_id column
-            $table->string('entreprise_code');
+            $table->string('entreprise_code')->nullable();
 
             // Create foreign keys
             $table->foreign('entreprise_code')->references('code')->on('entreprises')
@@ -36,7 +36,7 @@ class UpdateLigneRubriqueChapitreForEntreprise extends Migration
         });
         
         Schema::table('titres', function (Blueprint $table) {// Add team_id column
-            $table->string('entreprise_code');
+            $table->string('entreprise_code')->nullable();
 
             // Create foreign keys
             $table->foreign('entreprise_code')->references('code')->on('entreprises')
