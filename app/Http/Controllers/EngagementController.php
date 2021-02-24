@@ -574,7 +574,7 @@ class EngagementController extends Controller
         ]);
     }
 
-    public function gethistory(Request $request){
+    public function gettimeline(Request $request){
         $engagementId = $request->id;
         $engagement = Engagement::findOrFail($engagementId);
         $activities = $engagement->activities;
