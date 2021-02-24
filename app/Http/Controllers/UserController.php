@@ -155,7 +155,7 @@ class UserController extends Controller
         $teamId = $request->teamId;
         $roleIDs = [];
         if(is_null($teamId)) {
-            $team = $request->user()->rolesTeams()->first();
+            $team = $user->rolesTeams()->first();
             if(is_null($team)) {
                 return response()->json(["status" => "failed", "success" => false, "message" => "Cet utilisateur n'a pas d'équipe associée."]);
             }    
