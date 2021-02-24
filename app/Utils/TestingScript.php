@@ -77,25 +77,25 @@
 function setEntrepriseForModel(){
     $titres = App\Models\Titre::all();
     foreach($titres as $titre){
-        $titre->code_entreprise = "SNHSIEGE";
+        $titre->entreprise_code = "SNHSIEGE";
         $titre->save();
     }
     echo "done setting titres\n";
     $chapitres = App\Models\Chapitre::all();
     foreach($chapitres as $chapitre){
-        $chapitre->code_entreprise = "SNHSIEGE";
+        $chapitre->entreprise_code = "SNHSIEGE";
         $chapitre->save();
     }
     echo "done setting chapitres\n";
     $rubriques = App\Models\Rubrique::all();
     foreach($rubriques as $rubrique){
-        $rubrique->code_entreprise = "SNHSIEGE";
+        $rubrique->entreprise_code = "SNHSIEGE";
         $rubrique->save();
     }
     echo "done setting rubriques\n";
     $lignes = App\Models\Ligne::all();
     foreach($lignes as $ligne){
-        $ligne->code_entreprise = "SNHSIEGE";
+        $ligne->entreprise_code = "SNHSIEGE";
         $ligne->save();
     }
     echo "done setting lignes\n";
