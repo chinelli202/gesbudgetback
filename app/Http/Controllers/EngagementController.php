@@ -586,6 +586,14 @@ class EngagementController extends Controller
             return array_merge($activities, $apur->activities);
           });
         
+        $activities = $activities->map(function($activity){
+            $causerModel = new $activity['causer_type']();
+            $causer = $causerModel::findOrFail($activity['causer_id']);
+            $activity['causer_name'] = $causer->name;
+            $activity['civilite'] = $causer->sexe == 'M' ? 'M' : 'Mme';
+            return $activity;
+        });
+        
         return response()->json([
             "status" => $this->success_status
             , "success" => true
