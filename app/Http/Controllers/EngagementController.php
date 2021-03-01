@@ -579,13 +579,24 @@ class EngagementController extends Controller
         $engagement = Engagement::findOrFail($engagementId);
         $activities = $engagement->activities;
         
-        $imputations = $engagement->imputations->map(function ($imp) use (&$activities) {
-            return array_merge($activities, $imp->activities);
-          });
-        $apurements = $engagement->apurements->map(function ($apur) use (&$activities) {
-            return array_merge($activities, $apur->activities);
-          });
+        $imputations_activities = $engagement->imputations->reduce(function ($carry, $imp) {
+            $carry = $carry->merge($imp->activities->map(function($act){
+                if($act->description == 'created') $act->description = 'CREATED_IMP';
+                return $act;
+            }));
+            return $carry;
+          }, collect([]));
+        $apurements_activities = $engagement->apurements->reduce(function ($carry, $apur) {
+            $carry = $carry->merge($apur->activities->map(function($act){
+                if($act->description == 'created') $act->description = 'CREATED_APUR';
+                return $act;
+            }));
+            return $carry;
+          }, collect([]));
         
+        $activities = $activities->merge($imputations_activities);
+        $activities = $activities->merge($apurements_activities);
+
         $activities = $activities->map(function($activity){
             $causerModel = new $activity['causer_type']();
             $causer = $causerModel::findOrFail($activity['causer_id']);
