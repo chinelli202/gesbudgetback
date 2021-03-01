@@ -606,7 +606,7 @@ class EngagementController extends Controller
             return $activity;
         })->filter(function($activity){
             return !is_null($activity);
-        });
+        })->toArray();
         
         return response()->json([
             "status" => $this->success_status
