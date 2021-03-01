@@ -598,6 +598,7 @@ class EngagementController extends Controller
         $activities = $activities->merge($apurements_activities);
 
         $activities = $activities->map(function($activity){
+            Log::info('causer_type '. $activity['causer_type']);
             $causerModel = new $activity['causer_type']();
             $causer = $causerModel::findOrFail($activity['causer_id']);
             $activity['causer_name'] = $causer->name;
