@@ -29,6 +29,9 @@ Route::group(['middleware' => ['auth:api', 'cors']], function () {
     Route::get("user-logout", "UserController@userLogout")->name('userLogout');
     Route::get("users/list", "UserController@getUsers")->name('getUsers');
     
+    Route::prefix('user')->name('user')->group(function() {
+        Route::post('changepassword', "UserController@changepassword")->name("changepassword");
+    });
     
     Route::get("ligne/solde/{id}", "LigneController@getSolde")->name('getLigneSolde');
 
