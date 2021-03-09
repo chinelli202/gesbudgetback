@@ -69,37 +69,37 @@ class Apurement extends Model {
                      * 
                     */
 
-                    $activity->description = Config::get('gesbudget.variables.actions.IMP_VALIDP')[1];
+                    $activity->description = Config::get('gesbudget.variables.actions.APUR_VALIDP')[1];
                 } else if ($oldStatut === 'VALIDP' && $newStatut === 'VALIDS') {
                     /** This is a validation at the second level 
                      * 
                     */
 
-                    $activity->description = Config::get('gesbudget.variables.actions.IMP_VALIDS')[1];
+                    $activity->description = Config::get('gesbudget.variables.actions.APUR_VALIDS')[1];
                 } else if ($oldStatut === 'VALIDS' && $newStatut === 'VALIDF') {
                     /** This is a validation at the final level 
                      * 
                     */
 
-                    $activity->description = Config::get('gesbudget.variables.actions.IMP_VALIDF')[1];
+                    $activity->description = Config::get('gesbudget.variables.actions.APUR_VALIDF')[1];
                 } else if ($oldStatut === 'VALIDP' && $newStatut === 'SAISI') {
                     /** This is a Cancelation of a Validation at the first level 
                      * 
                     */
 
-                    $activity->description = Config::get('gesbudget.variables.actions.IMP_CANCEL_VALIDP')[1];
+                    $activity->description = Config::get('gesbudget.variables.actions.APUR_CANCEL_VALIDP')[1];
                 } else if ($oldStatut === 'VALIDS' && $newStatut === 'VALIDP') {
                     /** This is a Cancelation of a validation at the second level 
                      * 
                     */
 
-                    $activity->description = Config::get('gesbudget.variables.actions.IMP_CANCEL_VALIDS')[1];
+                    $activity->description = Config::get('gesbudget.variables.actions.APUR_CANCEL_VALIDS')[1];
                 } else if ($oldStatut === 'VALIDF' && $newStatut === 'VALIDS') {
                     /** This is a Cancelation of a validation at the final level
                      * 
                     */
 
-                    $activity->description = Config::get('gesbudget.variables.actions.IMP_CANCEL_VALIDF')[1];
+                    $activity->description = Config::get('gesbudget.variables.actions.APUR_CANCEL_VALIDF')[1];
                 } else {
                     $activity->description = 'UNKNOWN_STATUT_CHANGE';
                 }
@@ -112,13 +112,13 @@ class Apurement extends Model {
                      * 
                     */
 
-                    $activity->description = Config::get('gesbudget.variables.actions.IMP_CLOSE')[1];
+                    $activity->description = Config::get('gesbudget.variables.actions.APUR_CLOSE')[1];
                 } else if ($oldEtat === 'CLOT') {
                     /** The engagement has been closed
                      * 
                     */
 
-                    $activity->description = Config::get('gesbudget.variables.actions.IMP_RESTORE')[1];
+                    $activity->description = Config::get('gesbudget.variables.actions.APUR_RESTORE')[1];
                 } else {
                     $activity->description = 'UNKNOWN_ETAT_CHANGE + old:'. $oldEtat . ' new:' . $newEtat;
                 }
@@ -128,14 +128,14 @@ class Apurement extends Model {
                 $oldNS = $activity->properties['old']['next_statut'];
 
                 if(is_null($newNS)) {
-                    $activity->description = Config::get('gesbudget.variables.actions.IMP_RESEND')[1] . "_FROM_" .$oldNS;
+                    $activity->description = Config::get('gesbudget.variables.actions.APUR_RESEND')[1] . "_FROM_" .$oldNS;
                 } else if (is_null($oldNS)) {
-                    $activity->description = Config::get('gesbudget.variables.actions.IMP_SEND_BACK')[1] . "_FOR_" .$newNS;
+                    $activity->description = Config::get('gesbudget.variables.actions.APUR_SEND_BACK')[1] . "_FOR_" .$newNS;
                 } else {
                     $activity->description = 'UNKNOWN_SEND_BACK';
                 }
             } else {
-                $activity->description = Config::get('gesbudget.variables.actions.IMP_UPDATE')[1];
+                $activity->description = Config::get('gesbudget.variables.actions.APUR_UPDATE')[1];
             } 
         }
     }

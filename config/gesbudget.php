@@ -66,6 +66,7 @@ return [
         'actions' => [
             'LOGIN' => ['Connexion à l\'application', 'LOGIN'],
             'LOGOUT' => ['Connexion à l\'application', 'LOGOUT'],
+            'CHANGE_PASSWORD' => ['Changement de mot de passe', 'CHANGE_PASSWORD'],
 
             'VALIDP' => ['Validation premier niveau', 'VALIDP'],
             'VALIDS' => ['Validation second niveau', 'VALIDS'],

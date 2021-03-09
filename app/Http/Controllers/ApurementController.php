@@ -356,7 +356,7 @@ class ApurementController extends Controller
             ]);
         }
 
-        session()->put('CommentApurement'.Auth::user()->id.$ApurementId, $request->comment);
+        session()->put('CommentApurement'.Auth::user()->id.$apurementId, $request->comment);
         
         $engagement = $apurement->engagement;
         /** We change the 'etat' attribute to the next state if the validation to perform is a 'VALIDF' type of validation */
