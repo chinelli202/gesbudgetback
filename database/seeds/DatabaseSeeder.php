@@ -46,7 +46,7 @@ class DatabaseSeeder extends Seeder
             'hasDomaines' => false
         ]);
 
-        $service->loadMaquette('maquetteCPSP2021.php');
+        $service->loadMaquette('maquette2021.php');
         $this->call(LaratrustSeeder::class);
         
         //$this->call(EngagementSeeder::class);

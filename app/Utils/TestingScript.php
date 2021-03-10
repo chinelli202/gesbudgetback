@@ -103,10 +103,22 @@ function setEntrepriseForModel(){
     echo "done setting entreprise for model";
 }
 
+function resetAllMandat(){
+    $titres_mandat = App\Models\Titre::where('domaine', 'Mandat')->get();
+    foreach($titres_mandat as $titre){
+        $titre->delete();
+    }
+
+    $service = new App\Services\DraftBudgetService();
+    $service->loadMaquette('maquetteMandat2021.php');
+    $service->loadMaquette('maquetteCPSP2021.txt');
+}
+
 // $sentence1 = "Etude en vue de la mise en place d'une Médiathèque";
 // $sentence2 = "en place d'une Médiathèque";
 // $sentence3 = "szel leeff lefqz leff";
 
 // echo "result for matching ".$sentence1." with ".$sentence2."\n";
 // echo match_sentences($sentence1, $sentence2, 0.8);
-setEntrepriseForModel();
+//setEntrepriseForModel();
+resetAllMandat();

@@ -12,44 +12,44 @@ class MaquetteTreeController extends Controller
 
     public $success_status = 200;
     
-    public function getDepensesFonctionnementTree(RecapService $service){
-        $tree = $service->getTree('Fonctionnement','Dépenses', null, null, null);
+    public function getDepensesFonctionnementTree(Request $request, RecapService $service){
+        $tree = $service->getTree('Fonctionnement','Dépenses', null, null, $request->entreprise_code);
         
         return response()->json(["status" => $this->success_status, "success" => true, "data" => $tree]); 
     }
 
-    public function getRecettesFonctionnementTree(RecapService $service){   
+    public function getRecettesFonctionnementTree(Request $request, RecapService $service){   
         $tree = $service->getTree('Fonctionnement','Recettes',null, null, null);
         
         return response()->json(["status" => $this->success_status, "success" => true, "data" => $tree]);
     }
 
-    public function getDepensesMandatTree(RecapService $service){
-        $tree = $service->getTree('Mandat','Dépenses',null, null, null);
+    public function getDepensesMandatTree(Request $request, RecapService $service){
+        $tree = $service->getTree('Mandat','Dépenses',null, null, $request->entreprise_code);
         
         return response()->json(["status" => $this->success_status, "success" => true, "data" => $tree]);
     }
 
-    public function getRecettesMandatTree(RecapService $service){
-        $tree = $service->getTree('Mandat','Recettes',null, null, null);
+    public function getRecettesMandatTree(Request $request, RecapService $service){
+        $tree = $service->getTree('Mandat','Recettes',null, null, $request->entreprise_code);
         
         return response()->json(["status" => $this->success_status, "success" => true, "data" => $tree]);
     }
 
-    public function getFonctionnementTree(RecapService $service){
+    public function getFonctionnementTree(Request $request, RecapService $service){
         $fonctionnement = new stdClass();
-        $fonctionnement->depenses = $service->getTree('Fonctionnement','Dépenses',null, null, null);
-        $fonctionnement->recettes = $service->getTree('Fonctionnement','Recettes',null, null, null);
+        $fonctionnement->depenses = $service->getTree('Fonctionnement','Dépenses', null, $request->entreprise_code);
+        $fonctionnement->recettes = $service->getTree('Fonctionnement','Recettes', null, $request->entreprise_code);
         return response()->json(["status" => $this->success_status, "success" => true, "data" => $fonctionnement]);
     }
 
-    public function getFonctionnementWithSectionsTree (RecapService $service){
+    public function getFonctionnementWithSectionsTree (Request $request, RecapService $service){
         $fonctionnement = new stdClass();
         //$recettes = $service->getTree('Fonctionnement','Recettes',null);
-        $fonctionnement->recettes = $service->getTree('Fonctionnement','Recettes',null, null, null);
+        $fonctionnement->recettes = $service->getTree('Fonctionnement','Recettes', null, $request->entreprise_code);
         
-        $ss_fonctionnement = $service->getTree('Fonctionnement','Fonctionnement', 'Fonctionnement', null, null);
-        $ss_investissement = $service->getTree('Fonctionnement','Investissement', 'Investissement', null, null);
+        $ss_fonctionnement = $service->getTree('Fonctionnement','Fonctionnement', 'Fonctionnement', $request->entreprise_code);
+        $ss_investissement = $service->getTree('Fonctionnement','Investissement', 'Investissement', $request->entreprise_code);
 
         $depenses = new stdClass;
         $depenses->section = 'Dépenses';
@@ -58,12 +58,14 @@ class MaquetteTreeController extends Controller
         
         return response()->json(["status" => $this->success_status, "success" => true, "data" => $fonctionnement]);
     }
-    public function getMandatTree(RecapService $service){
+
+    public function getMandatTree(Request $request, RecapService $service){
         $mandat = new stdClass();
-        $mandat->depenses = $service->getTree('Mandat','Dépenses', null, null, null);
-        $mandat->recettes = $service->getTree('Mandat','Recettes',null, null, null);
+        $mandat->depenses = $service->getTree('Mandat','Dépenses', null, $request->entreprise_code);
+        $mandat->recettes = $service->getTree('Mandat','Recettes',null, $request->entreprise_code);
         return response()->json(["status" => $this->success_status, "success" => true, "data" => $mandat]);
     }
+
     public function getGlobalTree(RecapService $service){}
 
     public function getRepresentationAndEntrepriseTree(Request $request, RecapService $service){
