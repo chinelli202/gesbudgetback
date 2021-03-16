@@ -51,6 +51,12 @@ class ImputationController extends Controller
             'source' => Config::get('gesbudget.variables.source.API')[0]
         ]);
 
+        $engagement = $imputation->engagement;
+        $engagement->update([
+            "latest_statut" => Config::get('gesbudget.variables.statut_engagement.SAISI')[1],
+            "latest_edited_at" => now()
+        ]);
+
         return response()->json([
             "status" => $this->success_status
             , "success" => true
@@ -290,6 +296,11 @@ class ImputationController extends Controller
                 "latest_statut" => $statutsEngagementKeys[$statutIndice],
                 "latest_edited_at" => now(),
                 $operateursKeys[$statutIndice] => Auth::user()->matricule
+            ]);
+
+            $engagement->update([
+                "latest_statut" => $statutsEngagementKeys[$statutIndice],
+                "latest_edited_at" => now()
             ]);
         }
 

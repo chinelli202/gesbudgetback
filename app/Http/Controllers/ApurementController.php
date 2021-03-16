@@ -53,6 +53,12 @@ class ApurementController extends Controller
             'valideur_final' => null,
             'source' => Config::get('gesbudget.variables.source.API')[0]
         ]);
+        
+        $engagement = $apurement->engagement;
+        $engagement->update([
+            "latest_statut" => Config::get('gesbudget.variables.statut_engagement.SAISI')[1],
+            "latest_edited_at" => now()
+        ]);
 
         return response()->json([
             "status" => $this->success_status
@@ -284,7 +290,7 @@ class ApurementController extends Controller
                 "cumul_apurements" => $engagement->cumul_apurements + $apurement->montant_ttc,
                 "nb_apurements" => $engagement->nb_apurements + 1,
                 "etat" => Config::get('gesbudget.variables.etat_engagement.APUR')[1],
-                "latest_statut" => Config::get('gesbudget.variables.statut_engagement.NEW')[1],
+                "latest_statut" => Config::get('gesbudget.variables.statut_engagement.VALIDF')[1],
                 "latest_edited_at" => now()
             ]);
         } else {
@@ -293,6 +299,11 @@ class ApurementController extends Controller
                 "latest_statut" => $statutsEngagementKeys[$statutIndice],
                 "latest_edited_at" => now(),
                 $operateursKeys[$statutIndice] => Auth::user()->matricule
+            ]);
+
+            $engagement->update([
+                "latest_statut" => $statutsEngagementKeys[$statutIndice],
+                "latest_edited_at" => now()
             ]);
         }
 

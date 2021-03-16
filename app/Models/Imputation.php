@@ -46,8 +46,8 @@ class Imputation extends Model
 
     public function tapActivity(Activity $activity, string $eventName)
     {
-        // $commentSessionKey = 'CommentImputation'.Auth::user()->id.$this->id;
-        // $activity->comment = session()->pull($commentSessionKey, 'NA');
+        $commentSessionKey = 'CommentImputation'.Auth::user()->id.$this->id;
+        $activity->comment = session()->pull($commentSessionKey, 'NA');
 
         if($eventName === 'updated'){
             // TODO : specify the right description depending on the action
