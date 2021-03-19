@@ -111,8 +111,42 @@ class MaquetteTreeController extends Controller
                     $tree->content = $content;
                     return response()->json(["status" => $this->success_status, "success" => true, "data" => $tree]);
                 }
-                else{
-                    $tree->content = $service->getTree(null,'Dépenses', null, $request->entreprise_code);
+                else{ // a few upgrades
+                      // first, we'll collect the sections data, and then evaluate. If more than one section is found to have data in it, we'll 
+                      // organize the entreprise data in sections. If not, we'll check if the sections has more than one chapitre. If that is the case,
+                      // then we'll organize the entreprise data in chapitres or in rubriques.
+
+                    //$tree->content = $service->getTree(null,'Dépenses', null, $request->entreprise_code);
+                    $tree->levels = 4;
+                    $content = new stdClass();
+                    $sections = [];
+                    $depenses = $service->getTree("Fonctionnement",'Dépenses', null, $request->entreprise_code);
+                    $recettes = $service->getTree("Fonctionnement",'Recettes', null, $request->entreprise_code);
+                    if (!empty($depenses->chapitres))
+                        array_push($sections, $depenses);
+                    if (!empty($recettes->chapitres))
+                        array_push($sections, $recettes);
+                    
+                    if(count([$sections]) > 1){
+                        $content->group = "sections";
+                        $content->sections = $sections;
+
+                    }
+
+                    if(count($sections[0]->chapitres) > 1 ){
+                        if(count($sections[0]->chapitres) < 7 ){
+                            $content->group = "chapitres";
+                        }
+                        else{
+                            $content->group = "rubriques";
+                        }
+                    }
+
+                    else{
+                        $content->group = "rubriques";
+                    }
+                    $tree->content = $content;
+
                     return response()->json(["status" => $this->success_status, "success" => true, "data" => $tree]);
                 }
             }
@@ -132,7 +166,7 @@ class MaquetteTreeController extends Controller
     }
 
     private function validateParams(Request $request){
-        if(isset($request->entreprise_code) && in_array($request->entreprise_code, ["SNHDLA","SNHSIEGE", "CPSP","SNHKRIBI"])){
+        if(isset($request->entreprise_code) && in_array($request->entreprise_code, ["SNHDLA","SNHSIEGE", "CPSP","SNHKRIBI","ASCH"])){
             return true;
         }
         else 

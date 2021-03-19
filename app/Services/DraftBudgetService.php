@@ -53,60 +53,60 @@ class DraftBudgetService{
             $exercice = $this->getRunningExercice();
             //well, of course initiate the deletion of lines only if there are actually any lines here
             //if there are none (meaning, the exercice just got created, simply move on to maquette loading script)
-            if(sizeof($lignes) > 0){
-                //Log 'deleting lignes'
-                Log::info('deleting lines ');
+            // if(sizeof($lignes) > 0){
+            //     //Log 'deleting lignes'
+            //     Log::info('deleting lines ');
 
-                foreach($lignes as $ligne){
-                    $ligne_archive = new LigneArchivee();
-                    //truncating label length to 100 characters if found longer
-                    if(strlen($ligne->label) > 100){
-                        $ligne->label = substr($ligne->label,0,100);
-                    }
-                    $ligne_archive->label = $ligne->label;
-                    $ligne_archive->description = $ligne->description;
-                    $ligne_archive->montant = $ligne->montant;
-                    $ligne_archive->domaine = $ligne->domaine;
-                    $ligne_archive->section = $ligne->section;
-                    // php code, turn date_vote into annee
-                    $ligne_archive->annee = $exercice->annee_vote + 1;
-                    $ligne_archive->rubrique = $ligne->rubrique->label;
-                    $ligne_archive->description_rubrique = $ligne->rubrique->description;
-                    $ligne_archive->chapitre = $ligne->rubrique->chapitre->label;
-                    $ligne_archive->description_chapitre = $ligne->rubrique->chapitre->description;
-                    $ligne_archive->titre = $ligne->rubrique->chapitre->titre->label;
-                    $ligne_archive->description_titre = $ligne->rubrique->chapitre->titre->description;
+            //     foreach($lignes as $ligne){
+            //         $ligne_archive = new LigneArchivee();
+            //         //truncating label length to 100 characters if found longer
+            //         if(strlen($ligne->label) > 100){
+            //             $ligne->label = substr($ligne->label,0,100);
+            //         }
+            //         $ligne_archive->label = $ligne->label;
+            //         $ligne_archive->description = $ligne->description;
+            //         $ligne_archive->montant = $ligne->montant;
+            //         $ligne_archive->domaine = $ligne->domaine;
+            //         $ligne_archive->section = $ligne->section;
+            //         // php code, turn date_vote into annee
+            //         $ligne_archive->annee = $exercice->annee_vote + 1;
+            //         $ligne_archive->rubrique = $ligne->rubrique->label;
+            //         $ligne_archive->description_rubrique = $ligne->rubrique->description;
+            //         $ligne_archive->chapitre = $ligne->rubrique->chapitre->label;
+            //         $ligne_archive->description_chapitre = $ligne->rubrique->chapitre->description;
+            //         $ligne_archive->titre = $ligne->rubrique->chapitre->titre->label;
+            //         $ligne_archive->description_titre = $ligne->rubrique->chapitre->titre->description;
                     
-                    $exercice->lignesArchivees()->save($ligne_archive);
-                    Log::info('archived '.$ligne->label.' of '.$ligne->rubrique->chapitre->label);
+            //         $exercice->lignesArchivees()->save($ligne_archive);
+            //         Log::info('archived '.$ligne->label.' of '.$ligne->rubrique->chapitre->label);
     
-                    $ligne->delete();
-                    Log::info('deleted row '.$ligne->label.' of '.$ligne->rubrique->chapitre->label.' from lignes db table');
-                }
-                // $rubriques = Rubrique::all();
-                // foreach($rubriques as $rubrique){
-                //     $rubrique->delete();
-                // }
-                // //$deletedRubriques = Rubrique::all()->delete();
-                // Log::info('deleted all rubriques');
+            //         $ligne->delete();
+            //         Log::info('deleted row '.$ligne->label.' of '.$ligne->rubrique->chapitre->label.' from lignes db table');
+            //     }
+            //     // $rubriques = Rubrique::all();
+            //     // foreach($rubriques as $rubrique){
+            //     //     $rubrique->delete();
+            //     // }
+            //     // //$deletedRubriques = Rubrique::all()->delete();
+            //     // Log::info('deleted all rubriques');
 
-                // $chapitres = chapitre::all();
-                // foreach($rubriques as $rubrique){
-                //     $rubrique->delete();
-                // }
+            //     // $chapitres = chapitre::all();
+            //     // foreach($rubriques as $rubrique){
+            //     //     $rubrique->delete();
+            //     // }
 
-                // $deletedchapitres = chapitre::all()->delete();
-                // Log::info('deleted all chapitres');
+            //     // $deletedchapitres = chapitre::all()->delete();
+            //     // Log::info('deleted all chapitres');
                 
-                $titres = Titre::all();
-                foreach($titres as $titre){
-                    $titre->delete();
-                }
+            //     $titres = Titre::all();
+            //     foreach($titres as $titre){
+            //         $titre->delete();
+            //     }
                 
-                //$deletedTitre = Titre::all()->delete();
-                //Log deleting titres
-                Log::info('deleted all titres');
-            }
+            //     //$deletedTitre = Titre::all()->delete();
+            //     //Log deleting titres
+            //     Log::info('deleted all titres');
+            // }
            
             //include 'database/maquette-loader.php';
             //$this->process_maquette_file($filename);
