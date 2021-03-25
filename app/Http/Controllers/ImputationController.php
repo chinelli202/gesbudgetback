@@ -34,11 +34,11 @@ class ImputationController extends Controller
 
         $imputation = Imputation::create([
             "engagement_id" => $request->engagement_id,
-            "reference" => $request->reference,
+            "reference" => $request->reference ? $request->reference: $request->engagement_id,
             "montant_ttc" => $request->montant_ttc,
             "montant_ht" => 0,
             "devise" => $request->devise,
-            "observations" => $request->observations,
+            "observations" => $request->observations ? $request->observations : 'Validé',
             "entreprise_code" => $request->entreprise_code,
             
             'etat' => Config::get('gesbudget.variables.etat_engagement.INIT')[1],
@@ -74,15 +74,16 @@ class ImputationController extends Controller
         }
 
         $imputation = Imputation::findOrFail($imputationId);
+        $engagement = $imputation->engagement;
+
         $imputation->update([
-            "observations" => $request->observations,
-            "reference" => $request->reference,
+            "observations" => $request->observations ? $request->observations : 'Validé',
+            "reference" => $request->reference ? $request->reference: $engagement->id,
             "montant_ttc" => $request->montant_ttc,
             "montant_ht" => 0,
             "devise" => $request->devise
         ]);
         
-        $engagement = $imputation->engagement;
 
         return response()->json([
             "status" => $this->success_status
