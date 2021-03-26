@@ -120,31 +120,35 @@ class MaquetteTreeController extends Controller
                     $tree->levels = 4;
                     $content = new stdClass();
                     $sections = [];
-                    $depenses = $service->getTree("Fonctionnement",'Dépenses', null, $request->entreprise_code);
-                    $recettes = $service->getTree("Fonctionnement",'Recettes', null, $request->entreprise_code);
+                    $depenses = $service->getTree(null,'Dépenses', null, $request->entreprise_code);
+                    $recettes = $service->getTree(null,'Recettes', null, $request->entreprise_code);
                     if (!empty($depenses->chapitres))
                         array_push($sections, $depenses);
                     if (!empty($recettes->chapitres))
                         array_push($sections, $recettes);
                     
-                    if(count([$sections]) > 1){
+                    if(count($sections) > 1){
                         $content->group = "sections";
-                        $content->sections = $sections;
-
+                        
                     }
-
-                    if(count($sections[0]->chapitres) > 1 ){
-                        if(count($sections[0]->chapitres) < 7 ){
-                            $content->group = "chapitres";
+                    
+                    else {     
+                        if(count($sections[0]->chapitres) > 1 ){
+                            if(count($sections[0]->chapitres) < 7 ){
+                                $content->group = "chapitres";
+                            }
+                            else{
+                                $content->group = "NA";
+                            }
+                            
                         }
+                        
                         else{
                             $content->group = "rubriques";
                         }
-                    }
-
-                    else{
-                        $content->group = "rubriques";
-                    }
+                    } 
+                    
+                    $content->sections = $sections;
                     $tree->content = $content;
 
                     return response()->json(["status" => $this->success_status, "success" => true, "data" => $tree]);

@@ -18,8 +18,8 @@ class CreateProjetsTable extends Migration
             $table->timestamps();
             $table->string('label');
             $table->string('description');
-            $table->unsignedBigInteger('ligne_id');
-            $table->foreign('ligne_id')->references('id')->on('lignes')->onDelete('cascade');
+            $table->unsignedBigInteger('chapitre_id');
+            $table->foreign('chapitre_id')->references('id')->on('chapitres')->onDelete('cascade');
         });
     }
 

@@ -140,5 +140,10 @@ class DatabaseSeeder extends Seeder
             'taux_execution' => 0,
         ]);
         
+
+        //seeding projets
+        //basically, load chapters, attach a project to each of the first two chapters loaded
+        
+        
     }
 }
