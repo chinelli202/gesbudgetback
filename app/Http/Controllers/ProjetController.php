@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 class ProjetController  extends Controller{
 
     protected $projetService;
+    private $sucess_status = 200;
 
     public function __construct(ProjetService $projetService) {
         $this->projetService = $projetService;
@@ -20,7 +21,9 @@ class ProjetController  extends Controller{
     }
 
     public function findAll(Request $request){
-
+        //params requested by the service here are : entreprise_code, the team the current logged in user belongs to
+        
+        $projets = $this->projetService->findAll($request->entreprise_code);
+        return response()->json(["status" => $this->success_status, "success" => true, "data" => $projets]);
     }
-    
 }

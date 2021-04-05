@@ -1,6 +1,8 @@
 <?php
 
+use App\Models\Chapitre;
 use App\Models\Entreprise;
+use App\Models\Projet;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -142,8 +144,15 @@ class DatabaseSeeder extends Seeder
         
 
         //seeding projets
-        //basically, load chapters, attach a project to each of the first two chapters loaded
-        
-        
+        //basically, load chapters, attach a project to each of the first 10 chapters loaded
+        DB::table('chapitres')->orderBy('id')->chunk(5, function ($chapitres) {
+            foreach ($chapitres as $chapitre) {
+                $projet = new Projet();
+                $projet->label = "Projet - ".$chapitre->label;
+                $projet->description = "Projet - ".$chapitre->label;
+                $projet->chapitre_id = $chapitre->id;
+                $projet->save();
+            }
+        });
     }
 }

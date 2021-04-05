@@ -88,20 +88,17 @@ Route::prefix('team')->name('team')->group(function () {
 });
 
 //routes projets
-Route::prefix('projet')->name('projet')->group(function () {
+Route::prefix('projets')->name('projet')->group(function () {
+
+    Route::get("getprojets", "ProjetController@findAll")->name("projets");
+
     Route::post("create/", "ProjetController@create")->name("create");
     Route::post("update/{id}", "ProjetController@update")->name("update");
-    Route::post("close/{id}", "EngagementController@close")->name("close");
-    Route::post("restore/{id}", "EngagementController@restore")->name("restore");
-    Route::post("sendback/{id}", "EngagementController@sendback")->name("sendback");
-    Route::post("resend/{id}", "EngagementController@resendupdate")->name("resendupdate");
+    Route::post("delete/{id}", "EngagementController@close")->name("delete");
     Route::post("valider/{id}", "EngagementController@valider")->name("valider");
-    Route::post("cancelvalider/{id}", "EngagementController@cancelvalider")->name("cancelvalider");
-    
+    Route::post("cancelvalider/{id}", "EngagementController@cancelvalider")->name("cancelvalider");  
     Route::get("history/{id}", "EngagementController@gethistory")->name("history");
     Route::get("{id}", "ProjetController@getProjet")->name('getProjet');
-    
-    Route::post("uploadfile", "FileuploadController@uploadfile")->name("uploadfile");
 });
 
 Route::get('/budgetsfonctionnement',"BudgetFonctionnementController@index");
