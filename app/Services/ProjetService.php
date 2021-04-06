@@ -2,6 +2,7 @@
 
 namespace App\Services;
 use App\Models\Projet;
+use Illuminate\Support\Facades\DB;
 
 class ProjetService{
 
@@ -12,7 +13,10 @@ class ProjetService{
     }
 
     public function findAll($entreprise_code){
-        $projets = Projet::where('entreprise_code', $entreprise_code)->get();
+        $projets = DB::table('projets')
+            ->join('chapitres', 'projets.chapitre_id', '=', 'chapitres.id')
+            ->select('projets.label', 'projets.description', 'projets.id', 'projets.chapitre_id','chapitres.label as chapitre_label','chapitres.description as chapitre_descritption', 'chapitres.entreprise_code')
+            ->where('chapitres.entreprise_code', $entreprise_code)->get();
         return $projets;
     }
 

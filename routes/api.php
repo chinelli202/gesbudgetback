@@ -88,18 +88,20 @@ Route::prefix('team')->name('team')->group(function () {
 });
 
 //routes projets
-Route::prefix('projets')->name('projet')->group(function () {
+// Route::prefix('projets')->name('projet')->group(function () {
 
-    Route::get("getprojets", "ProjetController@findAll")->name("projets");
+//     Route::get("getprojets", "ProjetController@findAll")->name("projets");
 
-    Route::post("create/", "ProjetController@create")->name("create");
-    Route::post("update/{id}", "ProjetController@update")->name("update");
-    Route::post("delete/{id}", "EngagementController@close")->name("delete");
-    Route::post("valider/{id}", "EngagementController@valider")->name("valider");
-    Route::post("cancelvalider/{id}", "EngagementController@cancelvalider")->name("cancelvalider");  
-    Route::get("history/{id}", "EngagementController@gethistory")->name("history");
-    Route::get("{id}", "ProjetController@getProjet")->name('getProjet');
-});
+//     Route::post("create/", "ProjetController@create")->name("create");
+//     Route::post("update/{id}", "ProjetController@update")->name("update");
+//     Route::post("delete/{id}", "EngagementController@close")->name("delete");
+//     Route::post("valider/{id}", "EngagementController@valider")->name("valider");
+//     Route::post("cancelvalider/{id}", "EngagementController@cancelvalider")->name("cancelvalider");  
+//     Route::get("history/{id}", "EngagementController@gethistory")->name("history");
+//     Route::get("{id}", "ProjetController@getProjet")->name('getProjet');
+// });
+Route::get("/projets","ProjetController@index");
+
 
 Route::get('/budgetsfonctionnement',"BudgetFonctionnementController@index");
 Route::get('/etats/fonctionnement/depenses/groupe/{groupename}',"EtatsGroupesFonctionnementController@getGroupe");
