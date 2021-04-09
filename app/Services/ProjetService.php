@@ -15,7 +15,8 @@ class ProjetService{
     public function findAll($entreprise_code){
         $projets = DB::table('projets')
             ->join('chapitres', 'projets.chapitre_id', '=', 'chapitres.id')
-            ->select('projets.label', 'projets.description', 'projets.id', 'projets.chapitre_id','chapitres.label as chapitre_label','chapitres.description as chapitre_descritption', 'chapitres.entreprise_code')
+            ->join('entreprises', 'chapitres.entreprise_code', '=', 'entreprises.code')
+            ->select('projets.label', 'projets.description', 'projets.id', 'projets.chapitre_id','chapitres.label as chapitre_label','entreprises.description as entreprise_name', 'chapitres.entreprise_code')
             ->where('chapitres.entreprise_code', $entreprise_code)->get();
         return $projets;
     }
