@@ -105,6 +105,7 @@ Route::prefix('projet')->name('projet')->group(function () {
     Route::post("create", "ProjetController@create")->name("create");
     Route::post("{id}/update", "ProjetController@update")->name("update");
     Route::post("{id}/valider", "ProjetController@validr")->name("valider");
+    Route::get("maquette", "ProjetController@getMaquette")->name("maquette");
 });
 
 
