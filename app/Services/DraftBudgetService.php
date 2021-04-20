@@ -225,8 +225,8 @@ class DraftBudgetService{
         for($k = 0; $k < count($titres); $k++){
             //loop testing
             $titre = $titres[$k];           
-            $titredb = Titre::where("label", $titre["label"])->first();
-            if(empty($titredb)){
+            //$titredb = Titre::where("label", $titre["label"])->first();
+            //if(empty($titredb)){
                 echo "\n";
                 Log::info('no titre match for : '.$titre["label"]);
                 echo 'no titre match for : '.$titre["label"];
@@ -237,23 +237,23 @@ class DraftBudgetService{
                 $titreEntry->description = $titre['description'];
                 $titreEntry->domaine = $titre['domaine'];
                 $titreEntry->section = $titre['section'];
-                if(isset($titre['entreprise'])){
+                //if(isset($titre['entreprise'])){
                     $titreEntry->entreprise_code = $titre['entreprise'];
-                }
+                //}
                 
                 $titredb = $titreEntry->save();
                 $titredb = $titreEntry;
                 echo "saved titre : ".$titreEntry->label;
                 Log::info('saved titre : '.$titreEntry->label);
                 echo "\n";
-            }
+            //}
             $chapitres = $titre['chapitres'];
 
             for ($i = 0; $i < count($chapitres); $i++){
                 $chapitre = $chapitres[$i];
 
-                $chapitredb = Chapitre::where("label", $chapitre["label"])->first();
-                if(empty($chapitredb)){
+                // $chapitredb = Chapitre::where("label", $chapitre["label"])->first();
+                //  if(empty($chapitredb)){
                     Log::info('no chapitre match for : '.$chapitre["label"]);
                     echo 'no chapitre match for : '.$chapitre["label"];
                     $chapitreEntry = new Chapitre;
@@ -275,13 +275,13 @@ class DraftBudgetService{
                     //$titreEntry -> chapitres() -> save($chapitreEntry);
                     echo "saved chapitre : ".$chapitreEntry->label;
                     echo "\n";                   
-                }
+                // }
 
                 $rubriques = $chapitre['rubriques'];
                 for($j = 0; $j < count($rubriques); $j++){
                     $rubrique = $rubriques[$j];
-                    $rubriquedb = Rubrique::where("label", $rubrique["label"])->where('chapitre_id', $chapitredb->id)->first();
-                    if(empty($rubriquedb)){
+                    // $rubriquedb = Rubrique::where("label", $rubrique["label"])->where('chapitre_id', $chapitredb->id)->first();
+                    // if(empty($rubriquedb)){
                         Log::info('no rubrique match for : '.$rubrique["label"]);
                         echo 'no rubrique match for : '.$rubrique["label"];
                         $rubriqueEntry = new Rubrique;
@@ -305,7 +305,7 @@ class DraftBudgetService{
                         echo "saved rubrique : ".$rubriqueEntry->label;
                         Log::info('saved rubrique : '.$rubriqueEntry->label);    
                         echo "\n";
-                    }
+                    // }
 
                     $lignes = $rubrique['lignes'];
                     $parentLigne = new stdClass();

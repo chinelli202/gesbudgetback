@@ -134,7 +134,7 @@ class MaquetteTreeController extends Controller
     }
 
     private function validateParams(Request $request){
-        if(isset($request->entreprise_code) && in_array($request->entreprise_code, ["SNHDLA","SNHSIEGE", "CPSP","SNHKRIBI"])){
+        if(isset($request->entreprise_code) && in_array($request->entreprise_code, ["SNHDOUALA","SNHSIEGE", "CPSP","SNHKRIBI"])){
             return true;
         }
         else 
