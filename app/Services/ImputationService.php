@@ -14,10 +14,8 @@ class ImputationService {
   }
   public const ImputationCreateValidator = [
       'engagement_id'     =>          'required|exists:engagements,code',
-      'reference'         =>          'required',
       'montant_ttc'       =>          'required',
-      'devise'            =>          'required|exists:variables,code',
-      'observations'      =>          'required'
+      'devise'            =>          'required|exists:variables,code'
   ];
 
   public static function enrichImputation($imputationId) {

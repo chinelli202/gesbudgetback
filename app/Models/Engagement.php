@@ -67,14 +67,26 @@ class Engagement extends Model
 
     public function tapActivity(Activity $activity, string $eventName)
     {
-        // $commentSessionKey = 'CommentEngagement'.Auth::user()->id.$this->id;
-        // $activity->comment = session()->pull($commentSessionKey, 'NA');
+        $commentSessionKey = 'CommentEngagement'.Auth::user()->id.$this->id;
+        $activity->comment = session()->pull($commentSessionKey, null);
 
         if($eventName === 'updated'){
             // TODO : specify the right description depending on the action
             
             // Handle 
-            if (isset($activity->properties['attributes']['statut'])) {
+            if (isset($activity->properties['attributes']['next_statut'])) {
+                // The 'etat' attribute has changed
+                $newNS = $activity->properties['attributes']['next_statut'];
+                $oldNS = $activity->properties['old']['next_statut'];
+
+                if(is_null($newNS)) {
+                    $activity->description = Config::get('gesbudget.variables.actions.RESEND')[1] . "_FROM_" .$oldNS;
+                } else if (is_null($oldNS)) {
+                    $activity->description = Config::get('gesbudget.variables.actions.SEND_BACK')[1] . "_FOR_" .$newNS;
+                } else {
+                    $activity->description = 'UNKNOWN_SEND_BACK';
+                }
+            } else if (isset($activity->properties['attributes']['statut'])) {
                 /** The 'Statut' has changed 
                  * So we'll set the description to the corresponding statut's change action : VALIDP, VALIDS, VALIDF 
                 */
@@ -157,18 +169,6 @@ class Engagement extends Model
                     $activity->description = Config::get('gesbudget.variables.actions.RESTORE')[1];
                 } else {
                     $activity->description = 'UNKNOWN_ETAT_CHANGE + old:'. $oldEtat . ' new:' . $newEtat;
-                }
-            } else if (isset($activity->properties['attributes']['next_statut'])) {
-                // The 'etat' attribute has changed
-                $newNS = $activity->properties['attributes']['next_statut'];
-                $oldNS = $activity->properties['old']['next_statut'];
-
-                if(is_null($newNS)) {
-                    $activity->description = Config::get('gesbudget.variables.actions.RESEND')[1] . "_FROM_" .$oldNS;
-                } else if (is_null($oldNS)) {
-                    $activity->description = Config::get('gesbudget.variables.actions.SEND_BACK')[1] . "_FOR_" .$newNS;
-                } else {
-                    $activity->description = 'UNKNOWN_SEND_BACK';
                 }
             } else {
                 $activity->description = Config::get('gesbudget.variables.actions.UPDATE')[1];

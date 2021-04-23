@@ -14,7 +14,11 @@ class AddAccessTypeToLignes extends Migration
     public function up()
     {
         Schema::table('lignes', function (Blueprint $table) {
+<<<<<<< HEAD
             $table->string('access_type')->default('rw'); //access types are r or rw
+=======
+            $table->string('access_type')->default('rw');
+>>>>>>> master
         });
 
         Schema::table('titres', function (Blueprint $table) {

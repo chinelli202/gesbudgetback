@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Chapitre;
+use App\Models\Entreprise;
 use App\Models\Ligne;
 use App\Models\Rubrique;
 use Illuminate\Support\Facades\DB;
@@ -351,16 +352,16 @@ class RecapService {
     }
 
     public function getRecapEntreprise($entreprise_code, $critere, $params){
-        $rchapitre = Chapitre::where('entreprise_code', $entreprise_code)->first();
-        //$rchapitre->rrubriques = [];
-        
+        //$rchapitre = Chapitre::where('entreprise_code', $entreprise_code)->first();
+        $rchapitres = Chapitre::where('entreprise_code', $entreprise_code)->get();
+        $entreprise_name = Entreprise::where('code', $entreprise_code)->first()->select('description');
         $collection = [];
         $recap = new stdClass();
-        $recap->id = $rchapitre->id;
+        //$recap->id = $rchapitre->id;
         $recap->type = 'entreprise';
         $recap->prevision = 0;
-        $recap->libelle = $rchapitre->label;
-        $recap->libelleParent = $rchapitre->label;
+        $recap->libelle = $entreprise_name;
+        $recap->libelleParent = $entreprise_name;
         $recap->realisations = 0;
         $recap->realisationsMois = 0;
         $recap->realisationsMoisPrecedents = 0;
@@ -371,27 +372,39 @@ class RecapService {
             $recap->mois = date("F", mktime(0, 0, 0, $params->mois, 10));
         }
 
-        foreach($rchapitre->rubriques as $rubrique){
-            $rrubrique = $this->getRecapRubrique($rubrique->id, $critere, $params);
-            $recap->prevision += $rrubrique->prevision;
-            $recap->realisations += $rrubrique->realisations;
-            $recap->realisationsMois += $rrubrique->realisationsMois;
-            $recap->realisationsMoisPrecedents += $rrubrique->realisationsMoisPrecedents;
-            $recap->engagements += $rrubrique->engagements;
-            $recap->execution += $rrubrique->execution;
-            $recap->solde += $rrubrique->solde;            
-            array_push($collection, $rrubrique);
+        foreach($rchapitres as $chapitre){
+            $rchapitre = $this->getRecapChapitre($chapitre->id, $critere, $params);
+            $recap->prevision += $rchapitre->prevision;
+            $recap->realisations += $rchapitre->realisations;
+            $recap->realisationsMois += $rchapitre->realisationsMois;
+            $recap->realisationsMoisPrecedents += $rchapitre->realisationsMoisPrecedents;
+            $recap->engagements += $rchapitre->engagements;
+            $recap->execution += $rchapitre->execution;
+            $recap->solde += $rchapitre->solde;            
+            array_push($collection, $rchapitre);
         }
+        // foreach($rchapitre->rubriques as $rubrique){
+        //     $rrubrique = $this->getRecapRubrique($rubrique->id, $critere, $params);
+        //     $recap->prevision += $rrubrique->prevision;
+        //     $recap->realisations += $rrubrique->realisations;
+        //     $recap->realisationsMois += $rrubrique->realisationsMois;
+        //     $recap->realisationsMoisPrecedents += $rrubrique->realisationsMoisPrecedents;
+        //     $recap->engagements += $rrubrique->engagements;
+        //     $recap->execution += $rrubrique->execution;
+        //     $recap->solde += $rrubrique->solde;            
+        //     array_push($collection, $rrubrique);
+        // }
         //TODO add properties
         //$recap->tauxExecution = floor(100 * ($recap->execution/$recap->prevision));
         $recap->tauxExecution = $recap->prevision != 0 ? floor(100 * ($recap->execution/$recap->prevision)) : 0;
         
         $recap->collection = $collection;        
         $periode = $this->computePeriodeLabels($critere, $params);
-        $recap->header = $this->setHeader($rchapitre->label, 'rubriques', $periode);
+        $recap->header = $this->setHeader($entreprise_name, 'chapitres', $periode);
         
         return $recap;
     }
+
     public function getRecapTitre($titre_id, $critere, $params){
         //get names, get recap named rubrique restricted to rubriques in this titre, group all recaps in a single collection
         $names = DB::table('rubriques')

@@ -75,43 +75,26 @@
 }
 
 function setEntrepriseForModel(){
-    $titres = App\Models\Titre::all();
+    $titres = App\Models\Engagement::all();
     foreach($titres as $titre){
         $titre->entreprise_code = "SNHSIEGE";
         $titre->save();
     }
-    echo "done setting titres\n";
-    $chapitres = App\Models\Chapitre::all();
+    echo "done setting Engagements\n";
+    $chapitres = App\Models\Apurement::all();
     foreach($chapitres as $chapitre){
         $chapitre->entreprise_code = "SNHSIEGE";
         $chapitre->save();
     }
-    echo "done setting chapitres\n";
-    $rubriques = App\Models\Rubrique::all();
+    echo "done setting Apurements\n";
+    $rubriques = App\Models\Imputation::all();
     foreach($rubriques as $rubrique){
         $rubrique->entreprise_code = "SNHSIEGE";
         $rubrique->save();
     }
-    echo "done setting rubriques\n";
-    $lignes = App\Models\Ligne::all();
-    foreach($lignes as $ligne){
-        $ligne->entreprise_code = "SNHSIEGE";
-        $ligne->save();
-    }
-    echo "done setting lignes\n";
+    echo "done setting Imputations\n";
 
-    echo "done setting entreprise for model";
-}
-
-function resetAllMandat(){
-    $titres_mandat = App\Models\Titre::where('domaine', 'Mandat')->get();
-    foreach($titres_mandat as $titre){
-        $titre->delete();
-    }
-
-    $service = new App\Services\DraftBudgetService();
-    $service->loadMaquette('maquetteMandat2021.php');
-    $service->loadMaquette('maquetteCPSP2021.txt');
+    echo "done setting entreprise for models";
 }
 
 // $sentence1 = "Etude en vue de la mise en place d'une Médiathèque";
@@ -120,5 +103,4 @@ function resetAllMandat(){
 
 // echo "result for matching ".$sentence1." with ".$sentence2."\n";
 // echo match_sentences($sentence1, $sentence2, 0.8);
-//setEntrepriseForModel();
-resetAllMandat();
+setEntrepriseForModel();

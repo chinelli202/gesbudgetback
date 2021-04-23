@@ -155,7 +155,7 @@ class UserController extends Controller
         $teamId = $request->teamId;
         $roleIDs = [];
         if(is_null($teamId)) {
-            $team = $request->user()->rolesTeams()->first();
+            $team = $user->rolesTeams()->first();
             if(is_null($team)) {
                 return response()->json(["status" => "failed", "success" => false, "message" => "Cet utilisateur n'a pas d'équipe associée."]);
             }    
@@ -217,5 +217,44 @@ class UserController extends Controller
             []
         ); */
         return response()->json(["status" => $this->sucess_status, "success" => true, "data" => $user]);
+    }
+
+    public function changepassword(Request $request) {
+        $validator      =       Validator::make($request->all(),
+            [
+                'old_password'         =>        'required|min:5',
+                'new_password'          =>        'required|min:5|different:old_password',
+                'confirm_new_password'  =>        'required|same:new_password',
+            ]
+        );
+
+        if($validator->fails()) {
+            return response()->json(["status" => "failed"
+                ,"success" => false
+                , "message" => "Les données envoyées ne sont pas valides"
+                , "validation_errors" => $validator->errors()]);
+        }
+
+        $user           =       Auth::user();
+        if(is_null($user)) {
+            return response()->json(["status" => "failed", "success" => false, "message" => "Whoops! no user found"]);
+        }
+
+        if(password_verify($request->old_password, $user->password)){
+            $user->update([
+                "password" => bcrypt($request->new_password)
+            ]);
+            activity()
+                ->causedBy(Auth::user())
+                ->tap(function(Activity $activity) use (&$request) {
+                    $activity->comment = $request->header('User-Agent');
+                })
+                ->log(Config::get('gesbudget.variables.actions.CHANGE_PASSWORD')[1]);
+
+            return response()->json(["status" => $this->sucess_status, "success" => true, "message" => "Mot de passe changé avec succès"]);
+        }
+        else {
+            return response()->json(["status" => "failed", "success" => false, "message" => "La valeur saisie de l'ancien mot de passe n'est pas correcte "]);
+        }
     }
 }

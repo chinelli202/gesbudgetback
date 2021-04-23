@@ -34,11 +34,11 @@ class ImputationController extends Controller
 
         $imputation = Imputation::create([
             "engagement_id" => $request->engagement_id,
-            "reference" => $request->reference,
+            "reference" => $request->reference ? $request->reference: $request->engagement_id,
             "montant_ttc" => $request->montant_ttc,
             "montant_ht" => 0,
             "devise" => $request->devise,
-            "observations" => $request->observations,
+            "observations" => $request->observations ? $request->observations : 'Validé',
             "entreprise_code" => $request->entreprise_code,
             
             'etat' => Config::get('gesbudget.variables.etat_engagement.INIT')[1],
@@ -49,6 +49,12 @@ class ImputationController extends Controller
             'valideur_second' => null,
             'valideur_final' => null,
             'source' => Config::get('gesbudget.variables.source.API')[0]
+        ]);
+
+        $engagement = $imputation->engagement;
+        $engagement->update([
+            "latest_statut" => Config::get('gesbudget.variables.statut_engagement.SAISI')[1],
+            "latest_edited_at" => now()
         ]);
 
         return response()->json([
@@ -68,15 +74,16 @@ class ImputationController extends Controller
         }
 
         $imputation = Imputation::findOrFail($imputationId);
+        $engagement = $imputation->engagement;
+
         $imputation->update([
-            "observations" => $request->observations,
-            "reference" => $request->reference,
+            "observations" => $request->observations ? $request->observations : 'Validé',
+            "reference" => $request->reference ? $request->reference: $engagement->id,
             "montant_ttc" => $request->montant_ttc,
             "montant_ht" => 0,
             "devise" => $request->devise
         ]);
         
-        $engagement = $imputation->engagement;
 
         return response()->json([
             "status" => $this->success_status
@@ -290,6 +297,11 @@ class ImputationController extends Controller
                 "latest_statut" => $statutsEngagementKeys[$statutIndice],
                 "latest_edited_at" => now(),
                 $operateursKeys[$statutIndice] => Auth::user()->matricule
+            ]);
+
+            $engagement->update([
+                "latest_statut" => $statutsEngagementKeys[$statutIndice],
+                "latest_edited_at" => now()
             ]);
         }
 

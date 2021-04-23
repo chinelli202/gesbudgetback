@@ -43,14 +43,16 @@ class UpdateEngImpApurTablesForEnteprise extends Migration
      */
     public function down()
     {
-        Schema::table('role_user', function (Blueprint $table) {
-            $table->dropForeign(['team_id']);
+        Schema::table('engagements', function (Blueprint $table) {// Add team_id column
+            $table->dropForeign(['entreprise_code']);
         });
 
-        Schema::table('permission_user', function (Blueprint $table) {
-            $table->dropForeign(['team_id']);
+        Schema::table('imputations', function (Blueprint $table) {// Add team_id column
+            $table->dropForeign(['entreprise_code']);
         });
 
-        Schema::dropIfExists('teams');
+        Schema::table('apurements', function (Blueprint $table) {// Add team_id column
+            $table->dropForeign(['entreprise_code']);
+        });
     }
 }
